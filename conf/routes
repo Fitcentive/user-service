@@ -1,0 +1,7 @@
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET     /count                      io.fitcentive.user.controllers.CountController.count
+GET     /message                    io.fitcentive.user.controllers.AsyncController.message
