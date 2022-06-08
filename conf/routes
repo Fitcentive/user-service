@@ -3,4 +3,6 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET     /message                    io.fitcentive.user.controllers.AsyncController.message
+GET      /health                                            io.fitcentive.user.controllers.HealthController.healthCheck
+
+POST     /api/user                                          io.fitcentive.user.controllers.UserController.createUser

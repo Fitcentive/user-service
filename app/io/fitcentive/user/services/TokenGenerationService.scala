@@ -8,5 +8,5 @@ import java.util.UUID
 
 @ImplementedBy(classOf[VerificationTokenGenerationService])
 trait TokenGenerationService {
-  def generateEmailVerificationToken(userId: UUID, emailId: String): EmailVerificationToken
+  def generateEmailVerificationToken(emailId: String): EmailVerificationToken
 }

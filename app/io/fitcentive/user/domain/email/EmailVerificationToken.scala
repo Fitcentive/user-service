@@ -1,5 +1,3 @@
 package io.fitcentive.user.domain.email
 
-import java.util.UUID
-
-case class EmailVerificationToken(userId: UUID, emailId: String, token: String, expiry: Long)
+case class EmailVerificationToken(emailId: String, token: String, expiry: Long)
