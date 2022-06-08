@@ -38,7 +38,7 @@ object User {
 
   case class Create(
     email: String,
-    usesSso: Boolean = false,
+    ssoProvider: Option[String] = None,
     accountStatus: String = EmailVerificationRequired.stringValue,
     username: String = "",
     firstName: String = "",
