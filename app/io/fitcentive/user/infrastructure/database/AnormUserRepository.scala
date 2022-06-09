@@ -2,7 +2,7 @@ package io.fitcentive.user.infrastructure.database
 
 import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.utils.AnormOps
-import io.fitcentive.user.domain.{AccountStatus, User}
+import io.fitcentive.user.domain.{AccountStatus, AuthProvider, User}
 import io.fitcentive.user.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.user.repositories.UserRepository
 import play.api.db.Database
@@ -50,6 +50,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
             "email" -> user.email,
             "username" -> None,
             "accountStatus" -> AccountStatus.EmailVerificationRequired.stringValue,
+            "authProvider" -> user.ssoProvider.fold(AuthProvider.NativeAuth.stringValue)(identity),
             "enabled" -> true,
             "now" -> now,
           )
@@ -81,6 +82,7 @@ object AnormUserRepository extends AnormOps {
     email: String,
     username: Option[String],
     account_status: String,
+    auth_provider: String,
     enabled: Boolean,
     created_at: Instant,
     updated_at: Instant
@@ -91,6 +93,7 @@ object AnormUserRepository extends AnormOps {
         email = email,
         username = username,
         accountStatus = AccountStatus(account_status),
+        authProvider = AuthProvider(auth_provider),
         enabled = enabled,
         createdAt = created_at,
         updatedAt = updated_at
@@ -128,8 +131,8 @@ object AnormUserRepository extends AnormOps {
 
   private val SQL_CREATE_AND_RETURN_NEW_USER: String =
     """
-      |insert into users (id, email, username, account_status, enabled, created_at, updated_at)
-      |values ({id}::uuid, {email}, {username}, {accountStatus}, {enabled}, {now}, {now})
+      |insert into users (id, email, username, account_status, auth_provider, enabled, created_at, updated_at)
+      |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {now}, {now})
       |returning * ;
       |""".stripMargin
 

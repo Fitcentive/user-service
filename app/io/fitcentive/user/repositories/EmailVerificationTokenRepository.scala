@@ -10,4 +10,5 @@ import scala.concurrent.Future
 trait EmailVerificationTokenRepository {
   def saveToken(token: EmailVerificationToken): Future[Unit]
   def getEmailVerificationToken(email: String): Future[Option[EmailVerificationToken]]
+  def removeTokensForEmail(email: String): Future[Unit]
 }

@@ -2,6 +2,11 @@ package io.fitcentive.user.controllers
 
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.{LoginApi, UserApi}
+import io.fitcentive.user.domain.payloads.{
+  RequestEmailVerificationTokenPayload,
+  ResetPasswordPayload,
+  VerifyEmailTokenPayload
+}
 import io.fitcentive.user.domain.{User, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
@@ -83,6 +88,37 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
     Action.async { implicit request =>
       userApi.clearUsernameLockTable
         .map(_ => NoContent)
+    }
+
+  def verifyEmailToken: Action[AnyContent] =
+    Action.async { implicit request =>
+      validateJson[VerifyEmailTokenPayload](request.body.asJson) { verifyEmailTokenPayload =>
+        loginApi
+          .verifyEmailToken(verifyEmailTokenPayload.email, verifyEmailTokenPayload.token)
+          .map(handleEitherResult(_)(_ => NoContent))
+      }
+    }
+
+  def sendEmailVerificationToken: Action[AnyContent] =
+    Action.async { implicit request =>
+      validateJson[RequestEmailVerificationTokenPayload](request.body.asJson) { requestEmailVerificationTokenPayload =>
+        loginApi
+          .sendEmailVerificationToken(requestEmailVerificationTokenPayload.email)
+          .map(handleEitherResult(_)(_ => Accepted))
+      }
+    }
+
+  def resetPassword: Action[AnyContent] =
+    Action.async { implicit request =>
+      validateJson[ResetPasswordPayload](request.body.asJson) { resetPasswordPayload =>
+        loginApi
+          .resetPassword(
+            resetPasswordPayload.email,
+            resetPasswordPayload.emailVerificationToken,
+            resetPasswordPayload.newPassword
+          )
+          .map(handleEitherResult(_)(_ => Accepted))
+      }
     }
 
 }

@@ -15,6 +15,11 @@ class AnormEmailVerificationTokenRepository @Inject() (val db: Database)(implici
 
   import AnormEmailVerificationTokenRepository._
 
+  override def removeTokensForEmail(email: String): Future[Unit] =
+    Future {
+      executeSqlWithoutReturning(SQL_REMOVE_TOKENS_FOR_EMAIL, Seq("email" -> email))
+    }
+
   override def saveToken(token: EmailVerificationToken): Future[Unit] =
     Future {
       executeSqlWithoutReturning(
@@ -25,7 +30,7 @@ class AnormEmailVerificationTokenRepository @Inject() (val db: Database)(implici
 
   override def getEmailVerificationToken(email: String): Future[Option[EmailVerificationToken]] =
     Future {
-      getRecordOpt(SQL_INSERT_EMAIL_VERIFICATION_TOKEN, "email" -> email)(emailVerificationTokenRowParser)
+      getRecordOpt(SQL_GET_EMAIL_VERIFICATION_TOKEN, "email" -> email)(emailVerificationTokenRowParser)
         .map(_.toDomain)
     }
 }
@@ -40,17 +45,23 @@ object AnormEmailVerificationTokenRepository {
   private val emailVerificationTokenRowParser: RowParser[EmailVerificationTokenRow] =
     Macro.namedParser[EmailVerificationTokenRow]
 
-  val SQL_INSERT_EMAIL_VERIFICATION_TOKEN: String =
+  private val SQL_REMOVE_TOKENS_FOR_EMAIL: String =
     """
-      |insert into email_verification_tokens (email, token, expiry)
-      |values ({email}, {token}, {expiry})
+      |delete from email_verification_tokens
+      |where email = {email} ;
       |""".stripMargin
 
-  val SQL_GET_EMAIL_VERIFICATION_TOKEN: String =
+  private val SQL_INSERT_EMAIL_VERIFICATION_TOKEN: String =
+    """
+      |insert into email_verification_tokens (email, token, expiry)
+      |values ({email}, {token}, {expiry}) ;
+      |""".stripMargin
+
+  private val SQL_GET_EMAIL_VERIFICATION_TOKEN: String =
     """
       |select email, token, expiry 
       |from email_verification_tokens
-      |where email = {email}
+      |where email = {email} ;
       |""".stripMargin
 
 }

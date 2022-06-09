@@ -18,3 +18,7 @@ GET      /api/user/:userId/profile                          io.fitcentive.user.c
 POST     /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.createOrUpdateUserProfile(userId: java.util.UUID)
 
 
+# User password reset
+POST    /api/user/password-reset/request                    io.fitcentive.user.controllers.UserController.sendEmailVerificationToken
+POST    /api/user/password-reset/validate-token             io.fitcentive.user.controllers.UserController.verifyEmailToken
+POST    /api/user/password-reset                            io.fitcentive.user.controllers.UserController.resetPassword

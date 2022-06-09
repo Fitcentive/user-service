@@ -1,7 +1,8 @@
 package io.fitcentive.user.infrastructure.rest
 
 import io.fitcentive.sdk.config.ServerConfig
-import io.fitcentive.user.domain.errors.UserCreationError
+import io.fitcentive.sdk.error.DomainError
+import io.fitcentive.user.domain.errors.{PasswordResetError, UserCreationError}
 import io.fitcentive.user.services.{SettingsService, UserAuthService}
 import play.api.http.Status
 import play.api.libs.json.{Json, Writes}
@@ -20,11 +21,25 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
 
   val userAuthServiceConfig: ServerConfig = settingsService.authServiceConfig
 
+  // todo - make sure this URL isnt accessible from the outside world
+  override def resetUserPassword(email: String, password: String): Future[Either[DomainError, Unit]] = {
+    wsClient
+      .url(s"${userAuthServiceConfig.serverUrl}/api/auth/user/reset-password")
+      .withHttpHeaders("Content-Type" -> "application/json")
+      .post(Json.toJson(ResetPasswordPayload(email, password)))
+      .map { response =>
+        response.status match {
+          case Status.OK => Right(())
+          case status    => Left(PasswordResetError(s"Unexpected status from auth-service: ${status}"))
+        }
+      }
+  }
+
   override def createUserAccount(
     userId: UUID,
     email: String,
     ssoProvider: Option[String],
-  ): Future[Either[UserCreationError, Unit]] = {
+  ): Future[Either[DomainError, Unit]] = {
     wsClient
       .url(s"${userAuthServiceConfig.serverUrl}/api/auth/user")
       .withHttpHeaders("Content-Type" -> "application/json")
@@ -40,6 +55,12 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
 }
 
 object RestUserAuthService {
+
+  case class ResetPasswordPayload(email: String, password: String)
+
+  object ResetPasswordPayload {
+    implicit val writes: Writes[ResetPasswordPayload] = Json.writes[ResetPasswordPayload]
+  }
 
   case class CreateUserAuthAccountPayload(
     userId: UUID,

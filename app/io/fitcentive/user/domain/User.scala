@@ -10,6 +10,7 @@ case class User(
   email: String,
   username: Option[String],
   accountStatus: AccountStatus,
+  authProvider: AuthProvider,
   enabled: Boolean,
   createdAt: Instant,
   updatedAt: Instant

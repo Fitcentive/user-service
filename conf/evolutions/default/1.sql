@@ -5,8 +5,8 @@ create extension if not exists "uuid-ossp";
 
 -- Constraint tables
 create table account_status_types (
-   name varchar not null constraint pk_account_status_type primary key,
-   description varchar not null
+    name varchar not null constraint pk_account_status_type primary key,
+    description varchar not null
 );
 
 insert into account_status_types (name, description) values ('EmailVerificationRequired',  'User yet to confirm email');
@@ -15,14 +15,24 @@ insert into account_status_types (name, description) values ('ProfileInfoRequire
 insert into account_status_types (name, description) values ('PasswordResetRequired',      'User has to reset password');
 insert into account_status_types (name, description) values ('LoginReady',                 'User ready to login');
 
+-- Constraint tables
+create table auth_provider_types (
+    name varchar not null constraint pk_auth_provider_type primary key,
+    description varchar not null
+);
+
+insert into auth_provider_types (name, description) values ('NativeAuth',  'Authentication using username/password');
+insert into auth_provider_types (name, description) values ('GoogleAuth',  'Authentication using Google SSO');
+
 create table users (
-   id uuid not null constraint pk_user primary key,
-   email varchar not null unique,
-   username varchar,
-   account_status varchar not null constraint fk_account_type references account_status_types,
-   enabled boolean not null default true,
-   created_at timestamp not null default now(),
-   updated_at timestamp not null default now()
+    id uuid not null constraint pk_user primary key,
+    email varchar not null unique,
+    username varchar,
+    account_status varchar not null constraint fk_account_type references account_status_types,
+    auth_provider varchar not null constraint fk_auth_provider_type references auth_provider_types,
+    enabled boolean not null default true,
+    created_at timestamp not null default now(),
+    updated_at timestamp not null default now()
 );
 
 create table user_profiles (
