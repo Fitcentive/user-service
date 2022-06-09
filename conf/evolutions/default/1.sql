@@ -11,21 +11,29 @@ create table account_status_types (
 
 insert into account_status_types (name, description) values ('EmailVerificationRequired',  'User yet to confirm email');
 insert into account_status_types (name, description) values ('UsernameCreationRequired',   'User yet to create username');
+insert into account_status_types (name, description) values ('ProfileInfoRequired'     ,   'User yet to provide details');
 insert into account_status_types (name, description) values ('PasswordResetRequired',      'User has to reset password');
-insert into account_status_types (name, description) values ('TermsAndConditionsRequired', 'User yet accept terms and conditions');
-insert into account_status_types (name, description) values ('LoginReady',                 'User yet to confirm email');
+insert into account_status_types (name, description) values ('LoginReady',                 'User ready to login');
 
 create table users (
    id uuid not null constraint pk_user primary key,
    email varchar not null,
    username varchar,
-   first_name varchar,
-   last_name varchar,
-   photo_url varchar,
-   account_status varchar constraint fk_account_type references account_status_types,
+   account_status varchar not null constraint fk_account_type references account_status_types,
    enabled boolean not null default true,
    created_at timestamp not null default now(),
    updated_at timestamp not null default now()
+);
+
+create table user_profiles (
+    user_id uuid not null constraint pk_user_profile primary key,
+    first_name varchar,
+    last_name varchar,
+    photo_url varchar,
+    date_of_birth date,
+    created_at timestamp not null default now(),
+    updated_at timestamp not null default now(),
+    constraint fk_user foreign key (user_id) references users(id) on delete cascade
 );
 
 create table email_verification_tokens (

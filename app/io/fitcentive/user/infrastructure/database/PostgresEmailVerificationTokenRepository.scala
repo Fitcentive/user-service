@@ -17,7 +17,7 @@ class PostgresEmailVerificationTokenRepository @Inject() (val db: Database)(impl
 
   override def save(token: EmailVerificationToken): Future[Unit] =
     Future {
-      insertRecordWithoutReturning(
+      executeSqlWithoutReturning(
         SQL_INSERT_EMAIL_VERIFICATION_TOKEN,
         Seq("email" -> token.emailId, "token" -> token.token, "expiry" -> token.expiry)
       )

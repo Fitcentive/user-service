@@ -23,12 +23,12 @@ trait DatabaseClient {
       SQL(sql).on(args: _*).as(parser.single)
     }
 
-  def insertRecordWithExpectedReturn[A](sql: String, args: Seq[NamedParameter])(implicit parser: RowParser[A]): A =
+  def executeSqlWithExpectedReturn[A](sql: String, args: Seq[NamedParameter])(implicit parser: RowParser[A]): A =
     db.withConnection { implicit conn =>
       SQL(sql).on(args: _*).as(parser.single)
     }
 
-  def insertRecordWithoutReturning(sql: String, args: Seq[NamedParameter]): Boolean =
+  def executeSqlWithoutReturning(sql: String, args: Seq[NamedParameter]): Boolean =
     db.withConnection { implicit conn =>
       SQL(sql).on(args: _*).execute()
     }

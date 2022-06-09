@@ -1,7 +1,7 @@
 package io.fitcentive.user.infrastructure.rest
 
 import io.fitcentive.sdk.config.ServerConfig
-import io.fitcentive.user.domain.errors.UserAuthAccountCreationError
+import io.fitcentive.user.domain.errors.UserCreationError
 import io.fitcentive.user.services.{SettingsService, UserAuthService}
 import play.api.http.Status
 import play.api.libs.json.{Json, Writes}
@@ -24,17 +24,15 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
     userId: UUID,
     email: String,
     ssoProvider: Option[String],
-    firstName: String,
-    lastName: String
-  ): Future[Either[UserAuthAccountCreationError, Unit]] = {
+  ): Future[Either[UserCreationError, Unit]] = {
     wsClient
       .url(s"${userAuthServiceConfig.serverUrl}/api/auth/user")
       .withHttpHeaders("Content-Type" -> "application/json")
-      .post(Json.toJson(CreateUserAuthAccountPayload(userId, email, firstName, lastName, ssoProvider)))
+      .post(Json.toJson(CreateUserAuthAccountPayload(userId, email, "", "", ssoProvider)))
       .map { response =>
         response.status match {
           case Status.CREATED => Right(())
-          case status         => Left(UserAuthAccountCreationError(s"Unexpected status from auth-service: ${status}"))
+          case status         => Left(UserCreationError(s"Unexpected status from auth-service: ${status}"))
         }
       }
   }

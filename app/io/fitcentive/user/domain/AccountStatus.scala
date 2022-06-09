@@ -26,24 +26,24 @@ object AccountStatus {
       case LoginReady                 => JsString(LoginReady.stringValue)
     }
   }
-}
 
-case object EmailVerificationRequired extends AccountStatus {
-  val stringValue: String = "EmailVerificationRequired"
-}
+  case object EmailVerificationRequired extends AccountStatus {
+    val stringValue: String = "EmailVerificationRequired"
+  }
 
-case object UsernameCreationRequired extends AccountStatus {
-  val stringValue: String = "UsernameCreationRequired"
-}
+  case object UsernameCreationRequired extends AccountStatus {
+    val stringValue: String = "UsernameCreationRequired"
+  }
 
-case object PasswordResetRequired extends AccountStatus {
-  val stringValue: String = "PasswordResetRequired"
-}
+  case object PasswordResetRequired extends AccountStatus {
+    val stringValue: String = "PasswordResetRequired"
+  }
 
-case object TermsAndConditionsRequired extends AccountStatus {
-  val stringValue: String = "TermsAndConditionsRequired"
-}
+  case object TermsAndConditionsRequired extends AccountStatus {
+    val stringValue: String = "TermsAndConditionsRequired"
+  }
 
-case object LoginReady extends AccountStatus {
-  val stringValue: String = "LoginReady"
+  case object LoginReady extends AccountStatus {
+    val stringValue: String = "LoginReady"
+  }
 }

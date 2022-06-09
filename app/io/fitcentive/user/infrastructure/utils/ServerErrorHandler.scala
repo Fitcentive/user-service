@@ -3,9 +3,9 @@ package io.fitcentive.user.infrastructure.utils
 import io.fitcentive.sdk.error.DomainError
 import io.fitcentive.sdk.logging.AppLogger
 import io.fitcentive.sdk.utils.DomainErrorHandler
-import io.fitcentive.user.domain.errors.UserAuthAccountCreationError
+import io.fitcentive.user.domain.errors.{EntityConflictError, EntityNotFoundError, UserCreationError}
 import play.api.mvc.Result
-import play.api.mvc.Results.{BadRequest, InternalServerError}
+import play.api.mvc.Results._
 
 trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
 
@@ -16,7 +16,9 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
   }
 
   override def domainErrorHandler: PartialFunction[DomainError, Result] = {
-    case UserAuthAccountCreationError(reason) => InternalServerError(reason)
+    case UserCreationError(reason)   => BadRequest(reason)
+    case EntityNotFoundError(reason) => NotFound(reason)
+    case EntityConflictError(reason) => Conflict(reason)
   }
 
 }
