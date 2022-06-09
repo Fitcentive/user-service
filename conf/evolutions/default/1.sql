@@ -17,7 +17,7 @@ insert into account_status_types (name, description) values ('LoginReady',      
 
 create table users (
    id uuid not null constraint pk_user primary key,
-   email varchar not null,
+   email varchar not null unique,
    username varchar,
    account_status varchar not null constraint fk_account_type references account_status_types,
    enabled boolean not null default true,
@@ -42,5 +42,9 @@ create table email_verification_tokens (
     expiry bigint not null,
     primary key (email, token)
 );
+
+create table username_lock (
+    username varchar not null constraint pk_username_lock primary key
+)
 
 # -- !Downs

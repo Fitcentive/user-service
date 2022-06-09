@@ -45,6 +45,12 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
         .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
     }
 
+  def getUsers: Action[AnyContent] =
+    Action.async { implicit request =>
+      userApi.getUsers
+        .map(users => Ok(Json.toJson(users)))
+    }
+
   // todo - secure with token action
   def createOrUpdateUserProfile(userId: UUID): Action[AnyContent] =
     Action.async { implicit request =>
@@ -60,6 +66,23 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
       userApi
         .getUserProfile(userId)
         .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+    }
+
+  def checkIfUsernameExists(username: String): Action[AnyContent] =
+    Action.async { implicit request =>
+      userApi
+        .checkIfUsernameExists(username)
+        .map {
+          case true  => Ok
+          case false => NotFound
+        }
+    }
+
+  // todo - need to secure this with client token or something, internal auth action?
+  def clearUsernameLockTable: Action[AnyContent] =
+    Action.async { implicit request =>
+      userApi.clearUsernameLockTable
+        .map(_ => NoContent)
     }
 
 }

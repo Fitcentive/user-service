@@ -4,15 +4,35 @@ import cats.data.EitherT
 import io.fitcentive.sdk.error.DomainError
 import io.fitcentive.user.domain.{User, UserProfile}
 import io.fitcentive.user.domain.errors.EntityNotFoundError
-import io.fitcentive.user.repositories.{UserProfileRepository, UserRepository}
+import io.fitcentive.user.repositories.{UserProfileRepository, UserRepository, UsernameLockRepository}
 
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserApi @Inject() (userRepository: UserRepository, userProfileRepository: UserProfileRepository)(implicit
-  ec: ExecutionContext
-) {
+class UserApi @Inject() (
+  userRepository: UserRepository,
+  userProfileRepository: UserProfileRepository,
+  usernameLockRepository: UsernameLockRepository
+)(implicit ec: ExecutionContext) {
+
+  // todo - create kubernetes cronJob to clear table out
+  def clearUsernameLockTable: Future[Unit] =
+    usernameLockRepository.removeAll
+
+  /**
+    * Checks if username is already in use or not
+    * If username is available, then it is added to the username_lock table
+    * username_lock table is cleared out periodically by k8s cron job
+    */
+  def checkIfUsernameExists(username: String): Future[Boolean] = {
+    for {
+      savedUsernameOpt <- userRepository.getUserByUsername(username)
+      lockedUsernameOpt <- usernameLockRepository.getUsername(username)
+      usernameExists = savedUsernameOpt.isDefined || lockedUsernameOpt.isDefined
+      _ <- if (usernameExists) Future.unit else usernameLockRepository.saveUsername(username)
+    } yield usernameExists
+  }
 
   def updateUser(userId: UUID, userUpdate: User.Update): Future[Either[DomainError, User]] =
     (for {
@@ -24,6 +44,7 @@ class UserApi @Inject() (userRepository: UserRepository, userProfileRepository: 
       updatedUser <- EitherT.right[DomainError](userRepository.updateUser(userId, userUpdate))
     } yield updatedUser).value
 
+  // todo - get user profile object along with user, separate APIs can exist
   def getUser(userId: UUID): Future[Either[DomainError, User]] =
     userRepository
       .getUserById(userId)
@@ -31,6 +52,9 @@ class UserApi @Inject() (userRepository: UserRepository, userProfileRepository: 
         _.map(Right.apply)
           .getOrElse(Left(EntityNotFoundError("User not found!")))
       )
+
+  def getUsers: Future[Seq[User]] =
+    userRepository.getUsers
 
   def getUserProfile(userId: UUID): Future[Either[DomainError, UserProfile]] =
     userProfileRepository

@@ -9,13 +9,13 @@ import play.api.db.Database
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class PostgresEmailVerificationTokenRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
+class AnormEmailVerificationTokenRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
   extends EmailVerificationTokenRepository
   with DatabaseClient {
 
-  import PostgresEmailVerificationTokenRepository._
+  import AnormEmailVerificationTokenRepository._
 
-  override def save(token: EmailVerificationToken): Future[Unit] =
+  override def saveToken(token: EmailVerificationToken): Future[Unit] =
     Future {
       executeSqlWithoutReturning(
         SQL_INSERT_EMAIL_VERIFICATION_TOKEN,
@@ -30,7 +30,7 @@ class PostgresEmailVerificationTokenRepository @Inject() (val db: Database)(impl
     }
 }
 
-object PostgresEmailVerificationTokenRepository {
+object AnormEmailVerificationTokenRepository {
 
   private case class EmailVerificationTokenRow(email: String, token: String, expiry: Long) {
     def toDomain: EmailVerificationToken =

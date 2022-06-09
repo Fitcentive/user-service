@@ -39,7 +39,7 @@ class LoginApi @Inject() (
     for {
       _ <- Future.unit
       emailVerificationToken = tokenGenerationService.generateEmailVerificationToken(user.email)
-      _ <- emailVerificationTokenRepository.save(emailVerificationToken)
+      _ <- emailVerificationTokenRepository.saveToken(emailVerificationToken)
       _ <- messageBusService.publishEmailVerificationTokenCreated(emailVerificationToken)
     } yield ()
   }

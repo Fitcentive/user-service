@@ -13,11 +13,11 @@ import scala.concurrent.Future
 import scala.util.chaining.scalaUtilChainingOps
 
 @Singleton
-class PostgresUserProfileRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
+class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
   extends UserProfileRepository
   with DatabaseClient {
 
-  import PostgresUserProfileRepository._
+  import AnormUserProfileRepository._
 
   override def getUserProfileByUserId(userId: UUID): Future[Option[UserProfile]] =
     Future {
@@ -59,7 +59,7 @@ class PostgresUserProfileRepository @Inject() (val db: Database)(implicit val db
     }
 }
 
-object PostgresUserProfileRepository {
+object AnormUserProfileRepository {
 
   private val SQL_GET_USER_PROFILE_BY_ID: String =
     """

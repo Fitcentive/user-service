@@ -14,15 +14,25 @@ import scala.concurrent.Future
 import scala.util.chaining.scalaUtilChainingOps
 
 @Singleton
-class PostgresUserRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
+class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
   extends UserRepository
   with DatabaseClient {
 
-  import PostgresUserRepository._
+  import AnormUserRepository._
+
+  override def getUsers: Future[Seq[User]] =
+    Future {
+      getRecords(SQL_GET_ALL_USERS)(userRowParser).map(_.toDomain)
+    }
 
   override def getUserById(id: UUID): Future[Option[User]] =
     Future {
       getRecordOpt(SQL_GET_USER_BY_ID, "id" -> id)(userRowParser).map(_.toDomain)
+    }
+
+  override def getUserByUsername(username: String): Future[Option[User]] =
+    Future {
+      getRecordOpt(SQL_GET_USER_BY_USERNAME, "username" -> username)(userRowParser).map(_.toDomain)
     }
 
   override def getUserByEmail(email: String): Future[Option[User]] =
@@ -64,7 +74,7 @@ class PostgresUserRepository @Inject() (val db: Database)(implicit val dbec: Dat
     }
 }
 
-object PostgresUserRepository extends AnormOps {
+object AnormUserRepository extends AnormOps {
 
   private case class UserRow(
     id: UUID,
@@ -96,11 +106,24 @@ object PostgresUserRepository extends AnormOps {
       |where u.id = {id}::uuid
       |""".stripMargin
 
+  private val SQL_GET_ALL_USERS: String =
+    """
+      |select *
+      |from users u
+      |""".stripMargin
+
   private val SQL_GET_USER_BY_EMAIL: String =
     """
       |select * 
       |from users u
       |where u.email = {email} ;
+      |""".stripMargin
+
+  private val SQL_GET_USER_BY_USERNAME: String =
+    """
+      |select * 
+      |from users u
+      |where u.username = {username} ;
       |""".stripMargin
 
   private val SQL_CREATE_AND_RETURN_NEW_USER: String =
