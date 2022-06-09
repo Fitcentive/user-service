@@ -49,7 +49,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
             "id" -> id,
             "email" -> user.email,
             "username" -> None,
-            "accountStatus" -> AccountStatus.EmailVerificationRequired.stringValue,
+            "accountStatus" -> AccountStatus.ProfileInfoRequired.stringValue,
             "authProvider" -> user.ssoProvider.fold(AuthProvider.NativeAuth.stringValue)(identity),
             "enabled" -> true,
             "now" -> now,

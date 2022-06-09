@@ -8,6 +8,7 @@ import io.fitcentive.user.domain.errors.{
   EntityConflictError,
   EntityNotFoundError,
   PasswordResetError,
+  RequestParametersError,
   TokenVerificationError,
   UserCreationError
 }
@@ -27,6 +28,7 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
     case TokenVerificationError(reason) => Forbidden(reason)
     case PasswordResetError(reason)     => BadRequest(reason)
     case EmailValidationError(reason)   => BadRequest(reason)
+    case RequestParametersError(reason) => BadRequest(reason)
     case EntityNotFoundError(reason)    => NotFound(reason)
     case EntityConflictError(reason)    => Conflict(reason)
     case _                              => InternalServerError("Unexpected error occurred ")

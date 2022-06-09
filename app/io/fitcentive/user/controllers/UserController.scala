@@ -73,14 +73,14 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
         .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
     }
 
-  def checkIfUsernameExists(username: String): Action[AnyContent] =
+  def checkIfUsernameExists(username: Option[String], email: Option[String]): Action[AnyContent] =
     Action.async { implicit request =>
       userApi
-        .checkIfUsernameExists(username)
-        .map {
+        .checkIfUserExistsForParameters(username, email)
+        .map(handleEitherResult(_) {
           case true  => Ok
           case false => NotFound
-        }
+        })
     }
 
   // todo - need to secure this with client token or something, internal auth action?
@@ -104,6 +104,15 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
       validateJson[RequestEmailVerificationTokenPayload](request.body.asJson) { requestEmailVerificationTokenPayload =>
         loginApi
           .sendEmailVerificationToken(requestEmailVerificationTokenPayload.email)
+          .map(handleEitherResult(_)(_ => Accepted))
+      }
+    }
+
+  def verifyEmail: Action[AnyContent] =
+    Action.async { implicit request =>
+      validateJson[RequestEmailVerificationTokenPayload](request.body.asJson) { requestEmailVerificationTokenPayload =>
+        loginApi
+          .verifyEmailForNewUserSignUp(requestEmailVerificationTokenPayload.email)
           .map(handleEitherResult(_)(_ => Accepted))
       }
     }

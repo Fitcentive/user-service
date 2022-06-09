@@ -9,10 +9,8 @@ create table account_status_types (
     description varchar not null
 );
 
-insert into account_status_types (name, description) values ('EmailVerificationRequired',  'User yet to confirm email');
 insert into account_status_types (name, description) values ('UsernameCreationRequired',   'User yet to create username');
 insert into account_status_types (name, description) values ('ProfileInfoRequired'     ,   'User yet to provide details');
-insert into account_status_types (name, description) values ('PasswordResetRequired',      'User has to reset password');
 insert into account_status_types (name, description) values ('LoginReady',                 'User ready to login');
 
 -- Constraint tables

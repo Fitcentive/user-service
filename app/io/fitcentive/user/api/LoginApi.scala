@@ -31,6 +31,7 @@ class LoginApi @Inject() (
 
   def createNewUser(userCreate: User.Create): Future[Either[DomainError, User]] =
     (for {
+      _ <- EitherT[Future, DomainError, Unit](verifyEmailToken(userCreate.email, userCreate.verificationToken))
       _ <- EitherT[Future, DomainError, Unit](
         userRepository
           .getUserByEmail(userCreate.email)
@@ -40,9 +41,6 @@ class LoginApi @Inject() (
       _ <- EitherT[Future, DomainError, Unit](
         userAuthService.createUserAccount(user.id, user.email, userCreate.ssoProvider)
       )
-      _ <- EitherT.right[DomainError] {
-        if (userCreate.ssoProvider.isEmpty) createAndPublishEmailVerificationTokenForUser(user.email) else Future.unit
-      }
     } yield user).value
 
   private def createAndPublishEmailVerificationTokenForUser(email: String): Future[Unit] = {
@@ -62,6 +60,13 @@ class LoginApi @Inject() (
         case verificationToken if isValidToken(verificationToken, token) => Right()
         case _                                                           => Left(TokenVerificationError("Invalid email verification token"))
       }.getOrElse(Left(EntityNotFoundError("No email token found"))))
+  }
+
+  def verifyEmailForNewUserSignUp(email: String): Future[Either[DomainError, Unit]] = {
+    (for {
+      _ <- EitherT[Future, DomainError, Unit](validateEmail(email))
+      _ <- EitherT.right[DomainError](createAndPublishEmailVerificationTokenForUser(email))
+    } yield ()).value
   }
 
   def sendEmailVerificationToken(email: String): Future[Either[DomainError, Unit]] = {

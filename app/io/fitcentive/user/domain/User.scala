@@ -27,7 +27,7 @@ object User {
     implicit lazy val writes: Writes[User.Update] = Json.writes[User.Update]
   }
 
-  case class Create(email: String, ssoProvider: Option[String] = None)
+  case class Create(email: String, verificationToken: String, ssoProvider: Option[String] = None)
 
   object Create {
     implicit lazy val reads: Reads[User.Create] = Json.using[Json.WithDefaultValues].reads[User.Create]
