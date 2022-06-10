@@ -33,6 +33,16 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
       }
     }
 
+  def createSsoUser: Action[AnyContent] =
+    Action.async { implicit request =>
+      validateJson[User.CreateSsoUser](request.body.asJson) { userCreate =>
+        loginApi
+          .createNewSsoUser(userCreate)
+          .map(handleEitherResult(_)(user => Created(Json.toJson(user))))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
   // todo - secure with token action
   def updateUser(userId: UUID): Action[AnyContent] =
     Action.async { implicit request =>
@@ -47,6 +57,13 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
     Action.async { implicit request =>
       userApi
         .getUser(userId)
+        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+    }
+
+  def getUserByEmail(email: String): Action[AnyContent] =
+    Action.async { implicit request =>
+      userApi
+        .getUserByEmail(email)
         .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
     }
 

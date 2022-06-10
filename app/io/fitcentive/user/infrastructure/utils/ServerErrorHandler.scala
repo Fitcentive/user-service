@@ -25,7 +25,7 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
 
   override def domainErrorHandler: PartialFunction[DomainError, Result] = {
     case UserCreationError(reason)      => BadRequest(reason)
-    case TokenVerificationError(reason) => Forbidden(reason)
+    case TokenVerificationError(reason) => Unauthorized(reason)
     case PasswordResetError(reason)     => BadRequest(reason)
     case EmailValidationError(reason)   => BadRequest(reason)
     case RequestParametersError(reason) => BadRequest(reason)

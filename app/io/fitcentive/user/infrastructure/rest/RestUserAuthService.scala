@@ -35,15 +35,11 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
       }
   }
 
-  override def createUserAccount(
-    userId: UUID,
-    email: String,
-    ssoProvider: Option[String],
-  ): Future[Either[DomainError, Unit]] = {
+  override def createUserAccount(userId: UUID, email: String): Future[Either[DomainError, Unit]] = {
     wsClient
       .url(s"${userAuthServiceConfig.serverUrl}/api/auth/user")
       .withHttpHeaders("Content-Type" -> "application/json")
-      .post(Json.toJson(CreateUserAuthAccountPayload(userId, email, "", "", ssoProvider)))
+      .post(Json.toJson(CreateUserAuthAccountPayload(userId, email, "", "")))
       .map { response =>
         response.status match {
           case Status.CREATED => Right(())
@@ -62,13 +58,7 @@ object RestUserAuthService {
     implicit val writes: Writes[ResetPasswordPayload] = Json.writes[ResetPasswordPayload]
   }
 
-  case class CreateUserAuthAccountPayload(
-    userId: UUID,
-    email: String,
-    firstName: String,
-    lastName: String,
-    ssoProvider: Option[String]
-  )
+  case class CreateUserAuthAccountPayload(userId: UUID, email: String, firstName: String, lastName: String)
 
   object CreateUserAuthAccountPayload {
     implicit val writes: Writes[CreateUserAuthAccountPayload] = Json.writes[CreateUserAuthAccountPayload]

@@ -50,7 +50,25 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
             "email" -> user.email,
             "username" -> None,
             "accountStatus" -> AccountStatus.ProfileInfoRequired.stringValue,
-            "authProvider" -> user.ssoProvider.fold(AuthProvider.NativeAuth.stringValue)(identity),
+            "authProvider" -> AuthProvider.NativeAuth.stringValue,
+            "enabled" -> true,
+            "now" -> now,
+          )
+        )(userRowParser).toDomain
+      }
+    }
+
+  override def createSsoUser(user: User.CreateSsoUser, id: UUID): Future[User] =
+    Future {
+      Instant.now.pipe { now =>
+        executeSqlWithExpectedReturn[UserRow](
+          SQL_CREATE_AND_RETURN_NEW_USER,
+          Seq(
+            "id" -> id,
+            "email" -> user.email,
+            "username" -> None,
+            "accountStatus" -> AccountStatus.ProfileInfoRequired.stringValue,
+            "authProvider" -> AuthProvider(user.ssoProvider).stringValue,
             "enabled" -> true,
             "now" -> now,
           )

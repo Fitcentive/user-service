@@ -38,9 +38,20 @@ class LoginApi @Inject() (
           .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
       )
       user <- EitherT.right[DomainError](userRepository.createUser(userCreate))
+      _ <- EitherT[Future, DomainError, Unit](userAuthService.createUserAccount(user.id, user.email))
+    } yield user).value
+
+  /**
+    * Assumes that the keycloak user already exists
+    */
+  def createNewSsoUser(userCreate: User.CreateSsoUser): Future[Either[DomainError, User]] =
+    (for {
       _ <- EitherT[Future, DomainError, Unit](
-        userAuthService.createUserAccount(user.id, user.email, userCreate.ssoProvider)
+        userRepository
+          .getUserByEmail(userCreate.email)
+          .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
       )
+      user <- EitherT.right[DomainError](userRepository.createSsoUser(userCreate))
     } yield user).value
 
   private def createAndPublishEmailVerificationTokenForUser(email: String): Future[Unit] = {
