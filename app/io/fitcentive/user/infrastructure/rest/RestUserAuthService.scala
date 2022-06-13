@@ -6,7 +6,7 @@ import io.fitcentive.user.domain.errors.{PasswordResetError, UserCreationError}
 import io.fitcentive.user.services.{SettingsService, UserAuthService}
 import play.api.http.Status
 import play.api.libs.json.{Json, Writes}
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSRequest}
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -20,12 +20,14 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
   import RestUserAuthService._
 
   val userAuthServiceConfig: ServerConfig = settingsService.authServiceConfig
+  val baseUrl: String = userAuthServiceConfig.serverUrl
 
   // todo - make sure this URL isnt accessible from the outside world
   override def resetUserPassword(email: String, password: String): Future[Either[DomainError, Unit]] = {
     wsClient
-      .url(s"${userAuthServiceConfig.serverUrl}/api/auth/user/reset-password")
-      .withHttpHeaders("Content-Type" -> "application/json")
+      .url(s"$baseUrl/api/internal/auth/user/reset-password")
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .addServiceSecret
       .post(Json.toJson(ResetPasswordPayload(email, password)))
       .map { response =>
         response.status match {
@@ -37,8 +39,9 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
 
   override def createUserAccount(userId: UUID, email: String): Future[Either[DomainError, Unit]] = {
     wsClient
-      .url(s"${userAuthServiceConfig.serverUrl}/api/auth/user")
-      .withHttpHeaders("Content-Type" -> "application/json")
+      .url(s"$baseUrl/api/internal/auth/user")
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .addServiceSecret
       .post(Json.toJson(CreateUserAuthAccountPayload(userId, email, "", "")))
       .map { response =>
         response.status match {
@@ -46,6 +49,11 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
           case status         => Left(UserCreationError(s"Unexpected status from auth-service: ${status}"))
         }
       }
+  }
+
+  implicit class ServiceSecretHeaders(wsRequest: WSRequest) {
+    def addServiceSecret: WSRequest =
+      wsRequest.addHttpHeaders("Service-Secret" -> settingsService.secretConfig.serviceSecret)
   }
 
 }

@@ -9,12 +9,9 @@ GET      /health                                            io.fitcentive.user.c
 GET      /api/user                                          io.fitcentive.user.controllers.UserController.getUsers
 POST     /api/user                                          io.fitcentive.user.controllers.UserController.createUser
 
-GET      /api/user-by-email                                 io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
-
 HEAD     /api/username                                      io.fitcentive.user.controllers.UserController.checkIfUsernameExists(username: String)
 HEAD     /api/email                                         io.fitcentive.user.controllers.UserController.checkIfEmailExists(email: String)
 
-POST     /api/sso-user                                      io.fitcentive.user.controllers.UserController.createSsoUser
 GET      /api/user/:userId                                  io.fitcentive.user.controllers.UserController.getUser(userId: java.util.UUID)
 PATCH    /api/user/:userId                                  io.fitcentive.user.controllers.UserController.updateUser(userId: java.util.UUID)
 
@@ -22,10 +19,13 @@ PATCH    /api/user/:userId                                  io.fitcentive.user.c
 GET      /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.getUserProfile(userId: java.util.UUID)
 PATCH    /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.createOrUpdateUserProfile(userId: java.util.UUID)
 
-
 POST    /api/user/verify-email                              io.fitcentive.user.controllers.UserController.verifyEmail
 
 # User password reset
 POST    /api/user/password-reset/request                    io.fitcentive.user.controllers.UserController.sendEmailVerificationToken
 POST    /api/user/password-reset/validate-token             io.fitcentive.user.controllers.UserController.verifyEmailToken
 POST    /api/user/password-reset                            io.fitcentive.user.controllers.UserController.resetPassword
+
+# Internal endpoinds
+GET      /api/internal/user-by-email                        io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
+POST     /api/internal/user/sso                             io.fitcentive.user.controllers.UserController.createSsoUser
