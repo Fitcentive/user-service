@@ -15,11 +15,9 @@ libraryDependencies ++= Seq(
   ehcache,
   ws,
   evolutions,
-
   // Anorm
-  "org.playframework.anorm" %% "anorm" % "2.6.10",
+  "org.playframework.anorm" %% "anorm"          % "2.6.10",
   "org.playframework.anorm" %% "anorm-postgres" % "2.6.10",
-
   //Cats
   "org.typelevel" %% "cats-core"   % "2.7.0",
   "org.typelevel" %% "cats-effect" % "3.3.4",

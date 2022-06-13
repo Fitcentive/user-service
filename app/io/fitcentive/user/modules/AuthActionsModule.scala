@@ -3,7 +3,11 @@ package io.fitcentive.user.modules
 import com.google.inject.{AbstractModule, Provides}
 import io.fitcentive.sdk.config.JwtConfig
 import io.fitcentive.sdk.domain.{PublicKeyRepository, TokenValidationService}
-import io.fitcentive.sdk.infrastructure.{AuthTokenValidationService, KeycloakPublicKeyRepository}
+import io.fitcentive.sdk.infrastructure.{
+  AuthTokenValidationService,
+  CachedKeycloakPublicKeyRepository,
+  KeycloakPublicKeyRepository
+}
 import io.fitcentive.user.services.SettingsService
 
 import javax.inject.Singleton
@@ -22,9 +26,10 @@ class AuthActionsModule extends AbstractModule {
 
   @Provides
   @Singleton
-  // todo - cache somehow
-  def provideKeycloakPublicKeyRepository(settingsService: SettingsService): PublicKeyRepository =
-    new KeycloakPublicKeyRepository(settingsService.keycloakServerUrl)
+  def provideCachedKeycloakPublicKeyRepository(settingsService: SettingsService): PublicKeyRepository = {
+    val underlying = new KeycloakPublicKeyRepository(settingsService.keycloakServerUrl)
+    new CachedKeycloakPublicKeyRepository(underlying)
+  }
 
   @Provides
   @Singleton
