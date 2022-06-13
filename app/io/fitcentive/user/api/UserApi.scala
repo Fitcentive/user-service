@@ -32,7 +32,7 @@ class UserApi @Inject() (
     }
   }
 
-  private def checkIfUserExistsForEmail(email: String): Future[Boolean] =
+  def checkIfUserExistsForEmail(email: String): Future[Boolean] =
     userRepository.getUserByEmail(email).map(_.isDefined)
 
   /**
@@ -40,7 +40,7 @@ class UserApi @Inject() (
     * If username is available, then it is added to the username_lock table
     * username_lock table is cleared out periodically by k8s cron job
     */
-  private def checkIfUserExistsForUsername(username: String): Future[Boolean] =
+  def checkIfUserExistsForUsername(username: String): Future[Boolean] =
     for {
       savedUsernameOpt <- userRepository.getUserByUsername(username)
       lockedUsernameOpt <- usernameLockRepository.getUsername(username)

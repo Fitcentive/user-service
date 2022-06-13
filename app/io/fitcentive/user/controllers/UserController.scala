@@ -1,5 +1,6 @@
 package io.fitcentive.user.controllers
 
+import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.{LoginApi, UserApi}
 import io.fitcentive.user.domain.payloads.{
@@ -17,12 +18,20 @@ import javax.inject._
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: ControllerComponents)(implicit
-  exec: ExecutionContext
-) extends AbstractController(cc)
+class UserController @Inject() (
+  loginApi: LoginApi,
+  userApi: UserApi,
+  userAuthAction: UserAuthAction,
+  internalAuthAction: InternalAuthAction,
+  cc: ControllerComponents
+)(implicit exec: ExecutionContext)
+  extends AbstractController(cc)
   with PlayControllerOps
   with ServerErrorHandler {
 
+  // -----------------------------
+  // Unauthenticated routes
+  // -----------------------------
   def createUser: Action[AnyContent] =
     Action.async { implicit request =>
       validateJson[User.Create](request.body.asJson) { userCreate =>
@@ -31,80 +40,6 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
           .map(handleEitherResult(_)(user => Created(Json.toJson(user))))
           .recover(resultErrorAsyncHandler)
       }
-    }
-
-  def createSsoUser: Action[AnyContent] =
-    Action.async { implicit request =>
-      validateJson[User.CreateSsoUser](request.body.asJson) { userCreate =>
-        loginApi
-          .createNewSsoUser(userCreate)
-          .map(handleEitherResult(_)(user => Created(Json.toJson(user))))
-          .recover(resultErrorAsyncHandler)
-      }
-    }
-
-  // todo - secure with token action
-  def updateUser(userId: UUID): Action[AnyContent] =
-    Action.async { implicit request =>
-      validateJson[User.Update](request.body.asJson) { userUpdate =>
-        userApi
-          .updateUser(userId, userUpdate)
-          .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
-      }
-    }
-
-  def getUser(userId: UUID): Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi
-        .getUser(userId)
-        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
-    }
-
-  def getUserByEmail(email: String): Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi
-        .getUserByEmail(email)
-        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
-    }
-
-  def getUsers: Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi.getUsers
-        .map(users => Ok(Json.toJson(users)))
-    }
-
-  // todo - secure with token action
-  def createOrUpdateUserProfile(userId: UUID): Action[AnyContent] =
-    Action.async { implicit request =>
-      validateJson[UserProfile.Update](request.body.asJson) { userProfileUpdate =>
-        userApi
-          .updateOrCreateUserProfile(userId, userProfileUpdate)
-          .map(handleEitherResult(_)(userProfile => Created(Json.toJson(userProfile))))
-      }
-    }
-
-  def getUserProfile(userId: UUID): Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi
-        .getUserProfile(userId)
-        .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
-    }
-
-  def checkIfUsernameExists(username: Option[String], email: Option[String]): Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi
-        .checkIfUserExistsForParameters(username, email)
-        .map(handleEitherResult(_) {
-          case true  => Ok
-          case false => NotFound
-        })
-    }
-
-  // todo - need to secure this with client token or something, internal auth action?
-  def clearUsernameLockTable: Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi.clearUsernameLockTable
-        .map(_ => NoContent)
     }
 
   def verifyEmailToken: Action[AnyContent] =
@@ -145,6 +80,98 @@ class UserController @Inject() (loginApi: LoginApi, userApi: UserApi, cc: Contro
           )
           .map(handleEitherResult(_)(_ => Accepted))
       }
+    }
+
+  // Undecided
+  def getUsers: Action[AnyContent] =
+    Action.async { implicit request =>
+      userApi.getUsers
+        .map(users => Ok(Json.toJson(users)))
+    }
+
+  def checkIfEmailExists(email: String): Action[AnyContent] =
+    Action.async { implicit request =>
+      userApi
+        .checkIfUserExistsForEmail(email)
+        .map {
+          case true  => Ok
+          case false => NotFound
+        }
+    }
+
+  // -----------------------------
+  // Internal Auth routes
+  // -----------------------------
+  def createSsoUser: Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      validateJson[User.CreateSsoUser](request.body.asJson) { userCreate =>
+        loginApi
+          .createNewSsoUser(userCreate)
+          .map(handleEitherResult(_)(user => Created(Json.toJson(user))))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
+  def clearUsernameLockTable: Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      userApi.clearUsernameLockTable
+        .map(_ => NoContent)
+    }
+
+  def getUserByEmail(email: String): Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      userApi
+        .getUserByEmail(email)
+        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+    }
+
+  // -----------------------------
+  // User Auth routes
+  // -----------------------------
+  def updateUser(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        validateJson[User.Update](userRequest.request.body.asJson) { userUpdate =>
+          userApi
+            .updateUser(userId, userUpdate)
+            .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        }
+      }
+    }
+
+  def getUser(userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      userApi
+        .getUser(userId)
+        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+    }
+
+  def createOrUpdateUserProfile(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        validateJson[UserProfile.Update](userRequest.request.body.asJson) { userProfileUpdate =>
+          userApi
+            .updateOrCreateUserProfile(userId, userProfileUpdate)
+            .map(handleEitherResult(_)(userProfile => Created(Json.toJson(userProfile))))
+        }
+      }
+    }
+
+  def getUserProfile(userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      userApi
+        .getUserProfile(userId)
+        .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+    }
+
+  def checkIfUsernameExists(username: String): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      userApi
+        .checkIfUserExistsForUsername(username)
+        .map {
+          case true  => Ok
+          case false => NotFound
+        }
     }
 
 }
