@@ -25,7 +25,7 @@ insert into auth_provider_types (name, description) values ('GoogleAuth',  'Auth
 create table users (
     id uuid not null constraint pk_user primary key,
     email varchar not null unique,
-    username varchar,
+    username varchar unique,
     account_status varchar not null constraint fk_account_type references account_status_types,
     auth_provider varchar not null constraint fk_auth_provider_type references auth_provider_types,
     enabled boolean not null default true,
