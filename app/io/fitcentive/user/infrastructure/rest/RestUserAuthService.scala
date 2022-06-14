@@ -29,7 +29,7 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
     lastName: String
   ): Future[Either[DomainError, Unit]] =
     wsClient
-      .url(s"$baseUrl/api/internal/auth/user/$email/profile")
+      .url(s"$baseUrl/api/internal/auth/user/profile")
       .addHttpHeaders("Content-Type" -> "application/json")
       .addServiceSecret
       .post(Json.toJson(UpdateUserAuthProfilePayload(email, authProvider, firstName, lastName)))
