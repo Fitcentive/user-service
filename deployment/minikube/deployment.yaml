@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: user:1.0
+          imagePullPolicy: Never
+          resources:
+            requests:
+              memory: 300Mi
+              cpu: "0.5"
+            limits:
+              memory: 500Mi
+              cpu: "1.0"
+          ports:
+            - name: http-port
+              containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /api/user/health
+              port: 9000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /api/user/health
+              port: 9000
+            initialDelaySeconds: 120
+            periodSeconds: 15
+          env:
+            - name: GCP_PROJECT_NAME
+              value: "fitcentive-1210"
+            - name: DB_HOST
+              # host.minikube.internal resolved IP
+              value: "192.168.64.3"
+            - name: DB_PORT
+              value: "1210"
+            - name: DB_DATABASE
+              value: "postgres"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "postgres"
+            - name: AUTH_SERVICE_HOST
+              value: "http://auth-service"
+            - name: AUTH_SERVICE_PORT
+              value: "9000"
+            - name: INTERNAL_SERVICE_SECRET
+              value: "ymmtuBE62NJRIro6eCBxl5wcIZvmKg3nSTgP2YSyjOB5fq3S0ZNFXdY1DLUBo8ji"
+            - name: JWT_ISSUER
+              value: "http://auth-keycloak-http"
+            - name: KEYCLOAK_SERVER_URL
+              value: "http://auth-keycloak-http/auth"
+

@@ -32,6 +32,7 @@ class UserController @Inject() (
   // -----------------------------
   // Unauthenticated routes
   // -----------------------------
+  // todo - swagger docs, https://github.com/iheartradio/play-swagger
   def createUser: Action[AnyContent] =
     Action.async { implicit request =>
       validateJson[User.Create](request.body.asJson) { userCreate =>
