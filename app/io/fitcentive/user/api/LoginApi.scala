@@ -1,16 +1,10 @@
 package io.fitcentive.user.api
 
 import cats.data.EitherT
-import io.fitcentive.sdk.error.DomainError
+import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFoundError}
 import io.fitcentive.user.domain.{AuthProvider, User}
 import io.fitcentive.user.domain.email.EmailVerificationToken
-import io.fitcentive.user.domain.errors.{
-  AuthProviderError,
-  EmailValidationError,
-  EntityConflictError,
-  EntityNotFoundError,
-  TokenVerificationError
-}
+import io.fitcentive.user.domain.errors.{AuthProviderError, EmailValidationError, TokenVerificationError}
 import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserRepository}
 import io.fitcentive.user.services.{MessageBusService, TokenGenerationService, UserAuthService}
 

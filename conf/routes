@@ -29,3 +29,4 @@ POST    /api/user/password-reset                            io.fitcentive.user.c
 # Internal endpoinds
 GET      /api/internal/user/email                           io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
 POST     /api/internal/user/sso                             io.fitcentive.user.controllers.UserController.createSsoUser
+POST     /api/internal/user/:userId/profile                 io.fitcentive.user.controllers.UserController.createOrUpdateUserProfileInternal(userId: java.util.UUID)

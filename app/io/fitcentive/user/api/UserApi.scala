@@ -1,10 +1,11 @@
 package io.fitcentive.user.api
 
 import cats.data.EitherT
-import io.fitcentive.sdk.error.DomainError
+import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
 import io.fitcentive.user.domain.{User, UserProfile}
-import io.fitcentive.user.domain.errors.{EntityNotFoundError, RequestParametersError}
+import io.fitcentive.user.domain.errors.RequestParametersError
 import io.fitcentive.user.repositories.{UserProfileRepository, UserRepository, UsernameLockRepository}
+import io.fitcentive.user.services.UserAuthService
 
 import java.util.UUID
 import javax.inject.Inject
@@ -12,6 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UserApi @Inject() (
   userRepository: UserRepository,
+  userAuthService: UserAuthService,
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository
 )(implicit ec: ExecutionContext) {
@@ -91,7 +93,7 @@ class UserApi @Inject() (
     userProfileUpdate: UserProfile.Update
   ): Future[Either[DomainError, UserProfile]] =
     (for {
-      _ <- EitherT[Future, DomainError, User](
+      user <- EitherT[Future, DomainError, User](
         userRepository
           .getUserById(userId)
           .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
@@ -103,6 +105,20 @@ class UserApi @Inject() (
           case None    => userProfileRepository.createUserProfile(userId, userProfileUpdate)
         }
       }
+      _ <- EitherT[Future, DomainError, Unit](
+        userAuthService
+          .updateUserProfile(
+            user.email,
+            user.authProvider.stringValue,
+            updatedUserProfile.firstName.optString,
+            updatedUserProfile.lastName.optString
+          )
+      )
     } yield updatedUserProfile).value
+
+  implicit class OptionalStringToEmpty(s: Option[String]) {
+    def optString: String =
+      s.fold("")(identity)
+  }
 
 }

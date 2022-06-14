@@ -2,7 +2,7 @@ package io.fitcentive.user.infrastructure.rest
 
 import io.fitcentive.sdk.config.ServerConfig
 import io.fitcentive.sdk.error.DomainError
-import io.fitcentive.user.domain.errors.{PasswordResetError, UserCreationError}
+import io.fitcentive.user.domain.errors.{AuthUserCreationError, AuthUserUpdateError, PasswordResetError}
 import io.fitcentive.user.services.{SettingsService, UserAuthService}
 import play.api.http.Status
 import play.api.libs.json.{Json, Writes}
@@ -22,6 +22,24 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
   val userAuthServiceConfig: ServerConfig = settingsService.authServiceConfig
   val baseUrl: String = userAuthServiceConfig.serverUrl
 
+  override def updateUserProfile(
+    email: String,
+    authProvider: String,
+    firstName: String,
+    lastName: String
+  ): Future[Either[DomainError, Unit]] =
+    wsClient
+      .url(s"$baseUrl/api/internal/auth/user/$email/profile")
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .addServiceSecret
+      .post(Json.toJson(UpdateUserAuthProfilePayload(email, authProvider, firstName, lastName)))
+      .map { response =>
+        response.status match {
+          case Status.OK => Right(())
+          case status    => Left(AuthUserUpdateError(s"Unexpected status from auth-service: $status"))
+        }
+      }
+
   // todo - make sure this URL isnt accessible from the outside world
   override def resetUserPassword(email: String, password: String): Future[Either[DomainError, Unit]] = {
     wsClient
@@ -32,7 +50,7 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
       .map { response =>
         response.status match {
           case Status.OK => Right(())
-          case status    => Left(PasswordResetError(s"Unexpected status from auth-service: ${status}"))
+          case status    => Left(PasswordResetError(s"Unexpected status from auth-service: $status"))
         }
       }
   }
@@ -46,7 +64,7 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
       .map { response =>
         response.status match {
           case Status.CREATED => Right(())
-          case status         => Left(UserCreationError(s"Unexpected status from auth-service: ${status}"))
+          case status         => Left(AuthUserCreationError(s"Unexpected status from auth-service: $status"))
         }
       }
   }
@@ -61,15 +79,18 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
 object RestUserAuthService {
 
   case class ResetPasswordPayload(email: String, password: String)
-
   object ResetPasswordPayload {
     implicit val writes: Writes[ResetPasswordPayload] = Json.writes[ResetPasswordPayload]
   }
 
   case class CreateUserAuthAccountPayload(userId: UUID, email: String, firstName: String, lastName: String)
-
   object CreateUserAuthAccountPayload {
     implicit val writes: Writes[CreateUserAuthAccountPayload] = Json.writes[CreateUserAuthAccountPayload]
+  }
+
+  case class UpdateUserAuthProfilePayload(email: String, authProvider: String, firstName: String, lastName: String)
+  object UpdateUserAuthProfilePayload {
+    implicit val writes: Writes[UpdateUserAuthProfilePayload] = Json.writes[UpdateUserAuthProfilePayload]
   }
 
 }

@@ -103,6 +103,15 @@ class UserController @Inject() (
   // -----------------------------
   // Internal Auth routes
   // -----------------------------
+  def createOrUpdateUserProfileInternal(userId: UUID): Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      validateJson[UserProfile.Update](request.body.asJson) { userProfileUpdate =>
+        userApi
+          .updateOrCreateUserProfile(userId, userProfileUpdate)
+          .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+      }
+    }
+
   def createSsoUser: Action[AnyContent] =
     internalAuthAction.async { implicit request =>
       validateJson[User.CreateSsoUser](request.body.asJson) { userCreate =>
@@ -153,7 +162,7 @@ class UserController @Inject() (
         validateJson[UserProfile.Update](userRequest.request.body.asJson) { userProfileUpdate =>
           userApi
             .updateOrCreateUserProfile(userId, userProfileUpdate)
-            .map(handleEitherResult(_)(userProfile => Created(Json.toJson(userProfile))))
+            .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
         }
       }
     }
