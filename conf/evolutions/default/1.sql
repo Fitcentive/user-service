@@ -9,9 +9,10 @@ create table account_status_types (
     description varchar not null
 );
 
-insert into account_status_types (name, description) values ('UsernameCreationRequired',   'User yet to create username');
-insert into account_status_types (name, description) values ('ProfileInfoRequired'     ,   'User yet to provide details');
-insert into account_status_types (name, description) values ('LoginReady',                 'User ready to login');
+insert into account_status_types (name, description) values ('UsernameCreationRequired',    'User yet to create username');
+insert into account_status_types (name, description) values ('ProfileInfoRequired',         'User yet to provide details');
+insert into account_status_types (name, description) values ('TermsAndConditionsRequired',  'User yet to accept terms and conditions');
+insert into account_status_types (name, description) values ('LoginReady',                  'User ready to login');
 
 -- Constraint tables
 create table auth_provider_types (
