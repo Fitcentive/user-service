@@ -53,6 +53,15 @@ create table email_verification_tokens (
 
 create table username_lock (
     username varchar not null constraint pk_username_lock primary key
-)
+);
+
+create table user_agreements (
+    user_id uuid not null constraint pk_user_agreements primary key,
+    terms_and_conditions_accepted varchar,
+    subscribe_to_emails varchar,
+    created_at timestamp not null default now(),
+    updated_at timestamp not null default now(),
+    constraint fk_user foreign key (user_id) references users(id) on delete cascade
+);
 
 # -- !Downs
