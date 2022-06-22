@@ -1,4 +1,5 @@
-# -- Ups
+# -- !Ups
+
 create table user_agreements (
     user_id uuid not null constraint user_agreements primary key,
     terms_and_conditions_accepted varchar,
@@ -8,4 +9,4 @@ create table user_agreements (
     constraint fk_user foreign key (user_id) references users(id) on delete cascade
 );
 
-# -- Downs
+# -- !Downs
