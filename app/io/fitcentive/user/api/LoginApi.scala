@@ -5,7 +5,7 @@ import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFound
 import io.fitcentive.user.domain.{AuthProvider, User}
 import io.fitcentive.user.domain.email.EmailVerificationToken
 import io.fitcentive.user.domain.errors.{AuthProviderError, EmailValidationError, TokenVerificationError}
-import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserRepository}
+import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserAgreementsRepository, UserRepository}
 import io.fitcentive.user.services.{MessageBusService, TokenGenerationService, UserAuthService}
 
 import java.time.Instant
@@ -15,6 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class LoginApi @Inject() (
   userRepository: UserRepository,
+  userAgreementsRepository: UserAgreementsRepository,
   userAuthService: UserAuthService,
   messageBusService: MessageBusService,
   tokenGenerationService: TokenGenerationService,
@@ -32,6 +33,9 @@ class LoginApi @Inject() (
           .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
       )
       user <- EitherT.right[DomainError](userRepository.createUser(userCreate))
+      _ <- EitherT.right[DomainError](
+        userAgreementsRepository.createUserAgreements(user.id, userCreate.toUserAgreementsCreate)
+      )
       _ <- EitherT[Future, DomainError, Unit](userAuthService.createUserAccount(user.id, user.email))
     } yield user).value
 

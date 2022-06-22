@@ -19,14 +19,18 @@ PATCH    /api/user/:userId                                  io.fitcentive.user.c
 GET      /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.getUserProfile(userId: java.util.UUID)
 PATCH    /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.createOrUpdateUserProfile(userId: java.util.UUID)
 
-POST    /api/user/verify-email                              io.fitcentive.user.controllers.UserController.verifyEmail
+# User agreement endpoints
+GET      /api/user/:userId/agreements                       io.fitcentive.user.controllers.UserController.getUserAgreements(userId: java.util.UUID)
+PATCH    /api/user/:userId/agreements                       io.fitcentive.user.controllers.UserController.updateUserAgreements(userId: java.util.UUID)
+
+POST     /api/user/verify-email                             io.fitcentive.user.controllers.UserController.verifyEmail
 
 # User password reset
 POST    /api/user/password-reset/request                    io.fitcentive.user.controllers.UserController.sendEmailVerificationToken
 POST    /api/user/password-reset/validate-token             io.fitcentive.user.controllers.UserController.verifyEmailToken
 POST    /api/user/password-reset                            io.fitcentive.user.controllers.UserController.resetPassword
 
-# Internal endpoinds
+# Internal endpoints
 GET      /api/internal/user/email                           io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
 POST     /api/internal/user/sso                             io.fitcentive.user.controllers.UserController.createSsoUser
 POST     /api/internal/user/:userId/profile                 io.fitcentive.user.controllers.UserController.createOrUpdateUserProfileInternal(userId: java.util.UUID)

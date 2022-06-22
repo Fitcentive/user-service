@@ -27,7 +27,15 @@ object User {
     implicit lazy val writes: Writes[User.Update] = Json.writes[User.Update]
   }
 
-  case class Create(email: String, verificationToken: String)
+  case class Create(
+    email: String,
+    verificationToken: String,
+    termsAndConditionsAccepted: Boolean,
+    subscribeToEmails: Boolean
+  ) {
+    def toUserAgreementsCreate: UserAgreements.Create =
+      UserAgreements.Create(termsAndConditionsAccepted, subscribeToEmails)
+  }
 
   case class CreateSsoUser(email: String, ssoProvider: String)
 

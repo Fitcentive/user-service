@@ -8,7 +8,7 @@ import io.fitcentive.user.domain.payloads.{
   ResetPasswordPayload,
   VerifyEmailTokenPayload
 }
-import io.fitcentive.user.domain.{User, UserProfile}
+import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -172,6 +172,26 @@ class UserController @Inject() (
       userApi
         .getUserProfile(userId)
         .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+    }
+
+  def getUserAgreements(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      rejectIfNotEntitled {
+        userApi
+          .getUserAgreements(userId)
+          .map(handleEitherResult(_)(userAgreements => Ok(Json.toJson(userAgreements))))
+      }
+    }
+
+  def updateUserAgreements(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        validateJson[UserAgreements.Update](userRequest.request.body.asJson) { userAgreementsUpdate =>
+          userApi
+            .updateUserAgreements(userId, userAgreementsUpdate)
+            .map(handleEitherResult(_)(userAgreements => Ok(Json.toJson(userAgreements))))
+        }
+      }
     }
 
   def checkIfUsernameExists(username: String): Action[AnyContent] =

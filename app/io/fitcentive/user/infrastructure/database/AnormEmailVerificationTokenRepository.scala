@@ -6,9 +6,10 @@ import io.fitcentive.user.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.user.repositories.EmailVerificationTokenRepository
 import play.api.db.Database
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
+@Singleton
 class AnormEmailVerificationTokenRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
   extends EmailVerificationTokenRepository
   with DatabaseClient {

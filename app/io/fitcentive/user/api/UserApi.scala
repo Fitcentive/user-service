@@ -2,9 +2,14 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.{User, UserProfile}
+import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
 import io.fitcentive.user.domain.errors.RequestParametersError
-import io.fitcentive.user.repositories.{UserProfileRepository, UserRepository, UsernameLockRepository}
+import io.fitcentive.user.repositories.{
+  UserAgreementsRepository,
+  UserProfileRepository,
+  UserRepository,
+  UsernameLockRepository
+}
 import io.fitcentive.user.services.UserAuthService
 
 import java.util.UUID
@@ -13,6 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UserApi @Inject() (
   userRepository: UserRepository,
+  userAgreementsRepository: UserAgreementsRepository,
   userAuthService: UserAuthService,
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository
@@ -60,6 +66,20 @@ class UserApi @Inject() (
       updatedUser <- EitherT.right[DomainError](userRepository.updateUser(userId, userUpdate))
     } yield updatedUser).value
 
+  def updateUserAgreements(
+    userId: UUID,
+    userAgreements: UserAgreements.Update
+  ): Future[Either[DomainError, UserAgreements]] =
+    (for {
+      userId <- EitherT[Future, DomainError, UUID](
+        userAgreementsRepository
+          .getUserAgreementsByUserId(userId)
+          .map(_.map(u => Right(u.userId)).getOrElse(Left(EntityNotFoundError("User agreement not found!"))))
+      )
+      updatedUserAgreements <-
+        EitherT.right[DomainError](userAgreementsRepository.updateUserAgreements(userId, userAgreements))
+    } yield updatedUserAgreements).value
+
   // todo - get user profile object along with user, separate APIs can exist
   def getUser(userId: UUID): Future[Either[DomainError, User]] =
     userRepository
@@ -86,6 +106,14 @@ class UserApi @Inject() (
       .map(
         _.map(Right.apply)
           .getOrElse(Left(EntityNotFoundError("User profile not found!")))
+      )
+
+  def getUserAgreements(userId: UUID): Future[Either[DomainError, UserAgreements]] =
+    userAgreementsRepository
+      .getUserAgreementsByUserId(userId)
+      .map(
+        _.map(Right.apply)
+          .getOrElse(Left(EntityNotFoundError("User agreements not found!")))
       )
 
   def updateOrCreateUserProfile(
