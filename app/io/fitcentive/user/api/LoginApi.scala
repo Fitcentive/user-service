@@ -2,7 +2,7 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFoundError}
-import io.fitcentive.user.domain.{AuthProvider, User}
+import io.fitcentive.user.domain.{AuthProvider, User, UserAgreements}
 import io.fitcentive.user.domain.email.EmailVerificationToken
 import io.fitcentive.user.domain.errors.{AuthProviderError, EmailValidationError, TokenVerificationError}
 import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserAgreementsRepository, UserRepository}
@@ -50,6 +50,8 @@ class LoginApi @Inject() (
           .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
       )
       user <- EitherT.right[DomainError](userRepository.createSsoUser(userCreate))
+      newUserAgreements = UserAgreements.Create(termsAndConditionsAccepted = false, subscribeToEmails = false);
+      _ <- EitherT.right[DomainError](userAgreementsRepository.createUserAgreements(user.id, newUserAgreements))
     } yield user).value
 
   private def createAndPublishEmailVerificationTokenForUser(email: String): Future[Unit] = {
