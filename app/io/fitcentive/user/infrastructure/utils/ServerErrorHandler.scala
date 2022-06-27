@@ -4,9 +4,11 @@ import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFound
 import io.fitcentive.sdk.logging.AppLogger
 import io.fitcentive.sdk.utils.DomainErrorHandler
 import io.fitcentive.user.domain.errors.{
+  AuthProviderError,
   AuthUserCreationError,
   AuthUserUpdateError,
   EmailValidationError,
+  ImageUploadError,
   PasswordResetError,
   RequestParametersError,
   TokenVerificationError
@@ -24,6 +26,8 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
 
   override def domainErrorHandler: PartialFunction[DomainError, Result] = {
     case AuthUserCreationError(reason)  => BadRequest(reason)
+    case ImageUploadError(reason)       => InternalServerError(reason)
+    case AuthProviderError(reason)      => BadRequest(reason)
     case AuthUserUpdateError(reason)    => BadRequest(reason)
     case TokenVerificationError(reason) => Unauthorized(reason)
     case PasswordResetError(reason)     => BadRequest(reason)
