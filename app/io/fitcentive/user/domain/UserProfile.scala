@@ -11,7 +11,10 @@ case class UserProfile(
   lastName: Option[String],
   photoUrl: Option[String],
   dateOfBirth: Option[LocalDate]
-)
+) {
+  def toUpdate: UserProfile.Update =
+    UserProfile.Update(firstName = firstName, lastName = lastName, photoUrl = photoUrl, dateOfBirth = dateOfBirth)
+}
 
 object UserProfile {
 

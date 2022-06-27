@@ -3,10 +3,11 @@ package io.fitcentive.user.infrastructure.rest
 import io.fitcentive.sdk.config.ServerConfig
 import io.fitcentive.sdk.error.DomainError
 import io.fitcentive.user.domain.errors.{AuthUserCreationError, AuthUserUpdateError, PasswordResetError}
+import io.fitcentive.user.infrastructure.utils.ServiceSecretSupport
 import io.fitcentive.user.services.{SettingsService, UserAuthService}
 import play.api.http.Status
 import play.api.libs.json.{Json, Writes}
-import play.api.libs.ws.{WSClient, WSRequest}
+import play.api.libs.ws.WSClient
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -15,7 +16,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: SettingsService)(implicit
   ec: ExecutionContext
-) extends UserAuthService {
+) extends UserAuthService
+  with ServiceSecretSupport {
 
   import RestUserAuthService._
 
@@ -31,7 +33,7 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
     wsClient
       .url(s"$baseUrl/api/internal/auth/user/profile")
       .addHttpHeaders("Content-Type" -> "application/json")
-      .addServiceSecret
+      .addServiceSecret(settingsService)
       .post(Json.toJson(UpdateUserAuthProfilePayload(email, authProvider, firstName, lastName)))
       .map { response =>
         response.status match {
@@ -45,7 +47,7 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
     wsClient
       .url(s"$baseUrl/api/internal/auth/user/reset-password")
       .addHttpHeaders("Content-Type" -> "application/json")
-      .addServiceSecret
+      .addServiceSecret(settingsService)
       .post(Json.toJson(ResetPasswordPayload(email, password)))
       .map { response =>
         response.status match {
@@ -59,7 +61,7 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
     wsClient
       .url(s"$baseUrl/api/internal/auth/user")
       .addHttpHeaders("Content-Type" -> "application/json")
-      .addServiceSecret
+      .addServiceSecret(settingsService)
       .post(Json.toJson(CreateUserAuthAccountPayload(userId, email, "", "")))
       .map { response =>
         response.status match {
@@ -68,12 +70,6 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
         }
       }
   }
-
-  implicit class ServiceSecretHeaders(wsRequest: WSRequest) {
-    def addServiceSecret: WSRequest =
-      wsRequest.addHttpHeaders("Service-Secret" -> settingsService.secretConfig.serviceSecret)
-  }
-
 }
 
 object RestUserAuthService {

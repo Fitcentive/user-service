@@ -4,25 +4,30 @@ import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
 import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
 import io.fitcentive.user.domain.errors.RequestParametersError
+import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories.{
   UserAgreementsRepository,
   UserProfileRepository,
   UserRepository,
   UsernameLockRepository
 }
-import io.fitcentive.user.services.UserAuthService
+import io.fitcentive.user.services.{ImageService, UserAuthService}
+import shapeless.ops.zipper.RightTo
 
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class UserApi @Inject() (
   userRepository: UserRepository,
   userAgreementsRepository: UserAgreementsRepository,
   userAuthService: UserAuthService,
+  imageService: ImageService,
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository
-)(implicit ec: ExecutionContext) {
+)(implicit ec: ExecutionContext)
+  extends ImageSupport {
 
   // todo - create kubernetes cronJob to clear table out
   def clearUsernameLockTable: Future[Unit] =
@@ -133,16 +138,52 @@ class UserApi @Inject() (
           case None    => userProfileRepository.createUserProfile(userId, userProfileUpdate)
         }
       }
+      updatedUserProfileWithProfilePhoto <-
+        EitherT[Future, DomainError, UserProfile](createUserImageIfRequired(updatedUserProfile))
+
       _ <- EitherT[Future, DomainError, Unit](
         userAuthService
           .updateUserProfile(
             user.email,
             user.authProvider.stringValue,
-            updatedUserProfile.firstName.optString,
-            updatedUserProfile.lastName.optString
+            updatedUserProfileWithProfilePhoto.firstName.optString,
+            updatedUserProfileWithProfilePhoto.lastName.optString
           )
       )
-    } yield updatedUserProfile).value
+    } yield updatedUserProfileWithProfilePhoto).value
+
+  /**
+    * Creates user image if
+    *  1. PhotoURL is not present AND
+    *  2. BOTH firstName AND lastName ARE present
+    */
+  private def createUserImageIfRequired(userProfile: UserProfile): Future[Either[DomainError, UserProfile]] =
+    userProfile.photoUrl match {
+      case None =>
+        (userProfile.firstName, userProfile.lastName) match {
+          case (Some(firstName), Some(lastName)) =>
+            (for {
+              userInitialsJpg <-
+                EitherT.right[DomainError](Future.fromTry(Try(generateJpgWithUserInitials(firstName, lastName))))
+              _ = userInitialsJpg.deleteOnExit()
+              extension = userInitialsJpg.getName.split('.').last
+              shaHash = calculateHash(userInitialsJpg)
+              fileName = s"$shaHash.$extension"
+              profilePhotoUploadPath = s"users/${userProfile.userId}/profile-photos/$fileName"
+              _ <-
+                EitherT[Future, DomainError, String](imageService.uploadImage(userInitialsJpg, profilePhotoUploadPath))
+              userProfile <- EitherT.right[DomainError](
+                userProfileRepository.updateUserProfile(
+                  userProfile.userId,
+                  userProfile.toUpdate.copy(photoUrl = Some(profilePhotoUploadPath))
+                )
+              )
+            } yield userProfile).value
+
+          case _ => Future.successful(Right(userProfile))
+        }
+      case Some(_) => Future.successful(Right(userProfile))
+    }
 
   implicit class OptionalStringToEmpty(s: Option[String]) {
     def optString: String =

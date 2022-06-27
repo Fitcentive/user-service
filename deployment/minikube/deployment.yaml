@@ -58,6 +58,12 @@ spec:
               value: "http://auth-service"
             - name: AUTH_SERVICE_PORT
               value: "9000"
+            - name: IMAGE_SERVICE_HOST
+              value: "http://image-service"
+            - name: IMAGE_SERVICE_PORT
+              value: "10260"
+            - name: IMAGE_SERVICE_TOKEN
+              value: "fbsxIBmBRNff6d97jwnFfWADhFWCs3fA"
             - name: INTERNAL_SERVICE_SECRET
               value: "ymmtuBE62NJRIro6eCBxl5wcIZvmKg3nSTgP2YSyjOB5fq3S0ZNFXdY1DLUBo8ji"
             - name: JWT_ISSUER

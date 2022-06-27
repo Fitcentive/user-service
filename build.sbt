@@ -30,7 +30,10 @@ libraryDependencies ++= Seq(
   //Logging
   "ch.qos.logback"       % "logback-classic"          % "1.3.0-alpha10",
   "net.logstash.logback" % "logstash-logback-encoder" % "7.0.1",
-  specs2                 % Test,
+  // Image support
+  "org.apache.xmlgraphics" % "batik-transcoder" % "1.14",
+  "org.apache.xmlgraphics" % "batik-codec"      % "1.14",
+  specs2                   % Test,
   guice
 )
 
