@@ -3,7 +3,13 @@ package io.fitcentive.user.infrastructure.settings
 import com.google.auth.Credentials
 import com.typesafe.config.Config
 import io.fitcentive.sdk.config.{GcpConfig, JwtConfig, SecretConfig, ServerConfig}
-import io.fitcentive.user.domain.config.{AppPubSubConfig, ImageServiceConfig, SubscriptionsConfig, TopicsConfig}
+import io.fitcentive.user.domain.config.{
+  AppPubSubConfig,
+  EnvironmentConfig,
+  ImageServiceConfig,
+  SubscriptionsConfig,
+  TopicsConfig
+}
 import io.fitcentive.user.services.SettingsService
 import play.api.Configuration
 
@@ -11,6 +17,8 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credentials) extends SettingsService {
+
+  override def envConfig: EnvironmentConfig = EnvironmentConfig.fromConfig(config.get[Config]("environment"))
 
   override def imageServiceConfig: ImageServiceConfig =
     ImageServiceConfig.fromConfig(config.get[Config]("services.image-service"))

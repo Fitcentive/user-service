@@ -29,7 +29,6 @@ class UserApi @Inject() (
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
-  // todo - create kubernetes cronJob to clear table out
   def clearUsernameLockTable: Future[Unit] =
     usernameLockRepository.removeAll
 

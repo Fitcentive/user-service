@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: clear-username-lock-cronjob
+spec:
+  # This runs every hour, but in production, this should run more frequently
+  # Perhaps run every 5-10 mins in production
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: clear-username-lock-cronjob
+              image: gcloud-cron-image
+              imagePullPolicy: Never
+              volumeMounts:
+                - mountPath: /opt/service-account
+                  name: service-account
+          restartPolicy: OnFailure
+          volumes:
+            - name: service-account
+              configMap:
+                name: user-service-account
