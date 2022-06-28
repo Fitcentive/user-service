@@ -11,5 +11,6 @@ import scala.concurrent.Future
 trait UserProfileRepository {
   def getUserProfileByUserId(userId: UUID): Future[Option[UserProfile]]
   def createUserProfile(userId: UUID, user: UserProfile.Update): Future[UserProfile]
-  def updateUserProfile(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
+  def updateUserProfilePatch(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
+  def updateUserProfilePost(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
 }

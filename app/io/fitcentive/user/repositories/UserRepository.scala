@@ -11,7 +11,8 @@ import scala.concurrent.Future
 trait UserRepository {
   def createUser(user: User.Create, id: UUID = UUID.randomUUID()): Future[User]
   def createSsoUser(user: User.CreateSsoUser, id: UUID = UUID.randomUUID()): Future[User]
-  def updateUser(userId: UUID, user: User.Update): Future[User]
+  def updateUserPatch(userId: UUID, user: User.Patch): Future[User]
+  def updateUserPost(userId: UUID, user: User.Post): Future[User]
   def getUserByEmail(email: String): Future[Option[User]]
   def getUserByUsername(username: String): Future[Option[User]]
   def getUserById(id: UUID): Future[Option[User]]

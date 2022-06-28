@@ -60,14 +60,24 @@ class UserApi @Inject() (
       _ <- if (usernameExists) Future.unit else usernameLockRepository.saveUsername(username)
     } yield usernameExists
 
-  def updateUser(userId: UUID, userUpdate: User.Update): Future[Either[DomainError, User]] =
+  def updateUserPatch(userId: UUID, userUpdate: User.Patch): Future[Either[DomainError, User]] =
     (for {
       userId <- EitherT[Future, DomainError, UUID](
         userRepository
           .getUserById(userId)
           .map(_.map(u => Right(u.id)).getOrElse(Left(EntityNotFoundError("User not found!"))))
       )
-      updatedUser <- EitherT.right[DomainError](userRepository.updateUser(userId, userUpdate))
+      updatedUser <- EitherT.right[DomainError](userRepository.updateUserPatch(userId, userUpdate))
+    } yield updatedUser).value
+
+  def updateUserPost(userId: UUID, userUpdate: User.Post): Future[Either[DomainError, User]] =
+    (for {
+      userId <- EitherT[Future, DomainError, UUID](
+        userRepository
+          .getUserById(userId)
+          .map(_.map(u => Right(u.id)).getOrElse(Left(EntityNotFoundError("User not found!"))))
+      )
+      updatedUser <- EitherT.right[DomainError](userRepository.updateUserPost(userId, userUpdate))
     } yield updatedUser).value
 
   def updateUserAgreements(
@@ -133,10 +143,41 @@ class UserApi @Inject() (
       userProfileOpt <- EitherT.right[DomainError](userProfileRepository.getUserProfileByUserId(userId))
       updatedUserProfile <- EitherT.right[DomainError] {
         userProfileOpt match {
-          case Some(_) => userProfileRepository.updateUserProfile(userId, userProfileUpdate)
+          case Some(_) => userProfileRepository.updateUserProfilePatch(userId, userProfileUpdate)
           case None    => userProfileRepository.createUserProfile(userId, userProfileUpdate)
         }
       }
+      updatedUserProfileWithProfilePhoto <-
+        EitherT[Future, DomainError, UserProfile](createUserImageIfRequired(updatedUserProfile))
+
+      _ <- EitherT[Future, DomainError, Unit](
+        userAuthService
+          .updateUserProfile(
+            user.email,
+            user.authProvider.stringValue,
+            updatedUserProfileWithProfilePhoto.firstName.optString,
+            updatedUserProfileWithProfilePhoto.lastName.optString
+          )
+      )
+    } yield updatedUserProfileWithProfilePhoto).value
+
+  def updateUserProfilePost(
+    userId: UUID,
+    userProfileUpdate: UserProfile.Update
+  ): Future[Either[DomainError, UserProfile]] =
+    (for {
+      user <- EitherT[Future, DomainError, User](
+        userRepository
+          .getUserById(userId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+      )
+      _ <- EitherT[Future, DomainError, UserProfile](
+        userProfileRepository
+          .getUserProfileByUserId(userId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User profile not found!"))))
+      )
+      updatedUserProfile <-
+        EitherT.right[DomainError](userProfileRepository.updateUserProfilePost(userId, userProfileUpdate))
       updatedUserProfileWithProfilePhoto <-
         EitherT[Future, DomainError, UserProfile](createUserImageIfRequired(updatedUserProfile))
 
@@ -172,7 +213,7 @@ class UserApi @Inject() (
               _ <-
                 EitherT[Future, DomainError, String](imageService.uploadImage(userInitialsJpg, profilePhotoUploadPath))
               userProfile <- EitherT.right[DomainError](
-                userProfileRepository.updateUserProfile(
+                userProfileRepository.updateUserProfilePatch(
                   userProfile.userId,
                   userProfile.toUpdate.copy(photoUrl = Some(profilePhotoUploadPath))
                 )

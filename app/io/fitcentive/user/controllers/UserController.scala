@@ -138,12 +138,23 @@ class UserController @Inject() (
   // -----------------------------
   // User Auth routes
   // -----------------------------
-  def updateUser(implicit userId: UUID): Action[AnyContent] =
+  def updateUserPatch(implicit userId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
       rejectIfNotEntitled {
-        validateJson[User.Update](userRequest.request.body.asJson) { userUpdate =>
+        validateJson[User.Patch](userRequest.request.body.asJson) { userUpdate =>
           userApi
-            .updateUser(userId, userUpdate)
+            .updateUserPatch(userId, userUpdate)
+            .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        }
+      }
+    }
+
+  def updateUserPost(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        validateJson[User.Post](userRequest.request.body.asJson) { userUpdate =>
+          userApi
+            .updateUserPost(userId, userUpdate)
             .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
         }
       }
@@ -162,6 +173,17 @@ class UserController @Inject() (
         validateJson[UserProfile.Update](userRequest.request.body.asJson) { userProfileUpdate =>
           userApi
             .updateOrCreateUserProfile(userId, userProfileUpdate)
+            .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+        }
+      }
+    }
+
+  def updateUserProfilePost(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        validateJson[UserProfile.Update](userRequest.request.body.asJson) { userProfileUpdate =>
+          userApi
+            .updateUserProfilePost(userId, userProfileUpdate)
             .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
         }
       }

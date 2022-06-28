@@ -76,7 +76,23 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
       }
     }
 
-  override def updateUser(userId: UUID, user: User.Update): Future[User] =
+  override def updateUserPost(userId: UUID, user: User.Post): Future[User] =
+    Future {
+      Instant.now.pipe { now =>
+        executeSqlWithExpectedReturn[UserRow](
+          SQL_UPDATE_AND_REPLACE_USER,
+          Seq(
+            "userId" -> userId,
+            "username" -> user.username,
+            "accountStatus" -> user.accountStatus,
+            "enabled" -> user.enabled,
+            "now" -> now
+          )
+        )(userRowParser).toDomain
+      }
+    }
+
+  override def updateUserPatch(userId: UUID, user: User.Patch): Future[User] =
     Future {
       Instant.now.pipe { now =>
         executeSqlWithExpectedReturn[UserRow](
@@ -154,8 +170,16 @@ object AnormUserRepository extends AnormOps {
       |returning * ;
       |""".stripMargin
 
-  private def generateSqlToUpdateAndReturnUser(user: User.Update): String = {
-    val setQuery = makeOptionalSqlUpdateParams(Macro.toParameters[User.Update](user))
+  private val SQL_UPDATE_AND_REPLACE_USER: String =
+    """
+      |update users u
+      |set username = {username}, account_status = {accountStatus}, enabled = {enabled}, updated_at = {now}
+      |where u.id = {userId}::uuid
+      |returning * ;
+      |""".stripMargin
+
+  private def generateSqlToUpdateAndReturnUser(user: User.Patch): String = {
+    val setQuery = makeOptionalSqlUpdateParams(Macro.toParameters[User.Patch](user))
     s"""
        |update users u
        |set $setQuery, updated_at = {now}

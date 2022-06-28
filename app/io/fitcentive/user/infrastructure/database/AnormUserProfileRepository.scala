@@ -41,7 +41,24 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
       }
     }
 
-  override def updateUserProfile(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile] =
+  override def updateUserProfilePost(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile] =
+    Future {
+      Instant.now.pipe { now =>
+        executeSqlWithExpectedReturn[UserProfileRow](
+          SQL_UPDATE_AND_REPLACE_AND_RETURN_USER_PROFILE,
+          Seq(
+            "userId" -> userId,
+            "firstName" -> userProfile.firstName,
+            "lastName" -> userProfile.lastName,
+            "photoUrl" -> userProfile.photoUrl,
+            "dateOfBirth" -> userProfile.dateOfBirth,
+            "now" -> now
+          )
+        )(userProfileRowParser).toDomain
+      }
+    }
+
+  override def updateUserProfilePatch(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile] =
     Future {
       Instant.now.pipe { now =>
         executeSqlWithExpectedReturn[UserProfileRow](
@@ -87,6 +104,19 @@ object AnormUserProfileRepository {
      |where u.user_id = {userId}::uuid 
      |returning *;
      |""".stripMargin
+
+  private val SQL_UPDATE_AND_REPLACE_AND_RETURN_USER_PROFILE: String =
+    s"""
+       |update user_profiles u
+       |set 
+       |first_name = {firstName}, 
+       |last_name = {lastName}, 
+       |photo_url = {photoUrl}, 
+       |date_of_birth = {dateOfBirth}::date, 
+       |updated_at = {now}
+       |where u.user_id = {userId}::uuid 
+       |returning *;
+       |""".stripMargin
 
   private case class UserProfileRow(
     user_id: UUID,
