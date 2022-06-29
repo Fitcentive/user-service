@@ -27,9 +27,9 @@ GET      /api/user/:userId/agreements                       io.fitcentive.user.c
 PATCH    /api/user/:userId/agreements                       io.fitcentive.user.controllers.UserController.updateUserAgreements(userId: java.util.UUID)
 
 # User password reset
-POST    /api/user/password-reset/request                    io.fitcentive.user.controllers.UserController.sendEmailVerificationToken
-POST    /api/user/password-reset/validate-token             io.fitcentive.user.controllers.UserController.verifyEmailToken
-POST    /api/user/password-reset                            io.fitcentive.user.controllers.UserController.resetPassword
+POST    /api/user/password/reset-request                    io.fitcentive.user.controllers.UserController.sendEmailVerificationToken
+POST    /api/user/password/validate-token                   io.fitcentive.user.controllers.UserController.verifyEmailToken
+POST    /api/user/password/reset                            io.fitcentive.user.controllers.UserController.resetPassword
 
 # Internal endpoints
 GET      /api/internal/user/email                           io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
