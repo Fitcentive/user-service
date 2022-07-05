@@ -1,9 +1,10 @@
 package io.fitcentive.user.infrastructure.database
 
 import anorm.{Macro, RowParser}
+import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
+import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.sdk.utils.AnormOps
 import io.fitcentive.user.domain.{AccountStatus, AuthProvider, User}
-import io.fitcentive.user.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.user.repositories.UserRepository
 import play.api.db.Database
 

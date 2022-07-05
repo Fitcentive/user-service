@@ -1,7 +1,8 @@
 package io.fitcentive.user.infrastructure.database
 
 import anorm.SqlParser
-import io.fitcentive.user.infrastructure.contexts.DatabaseExecutionContext
+import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
+import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.user.infrastructure.database.AnormUsernameLockRepository.{
   SQL_ADD_USERNAME,
   SQL_GET_USERNAME,
@@ -45,19 +46,19 @@ object AnormUsernameLockRepository {
   private val SQL_REMOVE_USERNAME: String =
     """
       |delete from username_lock
-      |where username = {username}
+      |where username = {username} ;
       |""".stripMargin
 
   private val SQL_REMOVE_ALL: String =
     """
-      |delete from username_lock
+      |delete from username_lock ;
       |""".stripMargin
 
   private val SQL_GET_USERNAME: String =
     """
       |select *
       |from username_lock
-      |where username = {username}
+      |where username = {username} ;
       |""".stripMargin
 
   private val SQL_ADD_USERNAME: String =

@@ -49,6 +49,7 @@ class UserController @Inject() (
         loginApi
           .verifyEmailToken(verifyEmailTokenPayload.email, verifyEmailTokenPayload.token)
           .map(handleEitherResult(_)(_ => NoContent))
+          .recover(resultErrorAsyncHandler)
       }
     }
 
@@ -58,6 +59,7 @@ class UserController @Inject() (
         loginApi
           .sendEmailVerificationToken(requestEmailVerificationTokenPayload.email)
           .map(handleEitherResult(_)(_ => Accepted))
+          .recover(resultErrorAsyncHandler)
       }
     }
 
@@ -67,6 +69,7 @@ class UserController @Inject() (
         loginApi
           .verifyEmailForNewUserSignUp(requestEmailVerificationTokenPayload.email)
           .map(handleEitherResult(_)(_ => Accepted))
+          .recover(resultErrorAsyncHandler)
       }
     }
 
@@ -80,6 +83,7 @@ class UserController @Inject() (
             resetPasswordPayload.newPassword
           )
           .map(handleEitherResult(_)(_ => Accepted))
+          .recover(resultErrorAsyncHandler)
       }
     }
 
@@ -88,6 +92,7 @@ class UserController @Inject() (
     Action.async { implicit request =>
       userApi.getUsers
         .map(users => Ok(Json.toJson(users)))
+        .recover(resultErrorAsyncHandler)
     }
 
   def checkIfEmailExists(email: String): Action[AnyContent] =
@@ -109,6 +114,7 @@ class UserController @Inject() (
         userApi
           .updateOrCreateUserProfile(userId, userProfileUpdate)
           .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+          .recover(resultErrorAsyncHandler)
       }
     }
 
@@ -126,6 +132,7 @@ class UserController @Inject() (
     internalAuthAction.async { implicit request =>
       userApi.clearUsernameLockTable
         .map(_ => NoContent)
+        .recover(resultErrorAsyncHandler)
     }
 
   def getUserByEmail(email: String): Action[AnyContent] =
@@ -133,6 +140,7 @@ class UserController @Inject() (
       userApi
         .getUserByEmail(email)
         .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        .recover(resultErrorAsyncHandler)
     }
 
   // -----------------------------
@@ -145,6 +153,7 @@ class UserController @Inject() (
           userApi
             .updateUserPatch(userId, userUpdate)
             .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+            .recover(resultErrorAsyncHandler)
         }
       }
     }
@@ -156,6 +165,7 @@ class UserController @Inject() (
           userApi
             .updateUserPost(userId, userUpdate)
             .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+            .recover(resultErrorAsyncHandler)
         }
       }
     }
@@ -165,6 +175,7 @@ class UserController @Inject() (
       userApi
         .getUser(userId)
         .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        .recover(resultErrorAsyncHandler)
     }
 
   def createOrUpdateUserProfile(implicit userId: UUID): Action[AnyContent] =
@@ -174,6 +185,7 @@ class UserController @Inject() (
           userApi
             .updateOrCreateUserProfile(userId, userProfileUpdate)
             .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+            .recover(resultErrorAsyncHandler)
         }
       }
     }
@@ -185,6 +197,7 @@ class UserController @Inject() (
           userApi
             .updateUserProfilePost(userId, userProfileUpdate)
             .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+            .recover(resultErrorAsyncHandler)
         }
       }
     }
@@ -194,6 +207,7 @@ class UserController @Inject() (
       userApi
         .getUserProfile(userId)
         .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+        .recover(resultErrorAsyncHandler)
     }
 
   def getUserAgreements(implicit userId: UUID): Action[AnyContent] =
@@ -202,6 +216,7 @@ class UserController @Inject() (
         userApi
           .getUserAgreements(userId)
           .map(handleEitherResult(_)(userAgreements => Ok(Json.toJson(userAgreements))))
+          .recover(resultErrorAsyncHandler)
       }
     }
 
@@ -212,6 +227,7 @@ class UserController @Inject() (
           userApi
             .updateUserAgreements(userId, userAgreementsUpdate)
             .map(handleEitherResult(_)(userAgreements => Ok(Json.toJson(userAgreements))))
+            .recover(resultErrorAsyncHandler)
         }
       }
     }
@@ -224,6 +240,7 @@ class UserController @Inject() (
           case true  => Ok
           case false => NotFound
         }
+        .recover(resultErrorAsyncHandler)
     }
 
 }

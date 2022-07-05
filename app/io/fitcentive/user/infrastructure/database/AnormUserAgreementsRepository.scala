@@ -1,8 +1,9 @@
 package io.fitcentive.user.infrastructure.database
 
 import anorm.{Macro, RowParser}
+import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
+import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.user.domain.UserAgreements
-import io.fitcentive.user.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.user.repositories.UserAgreementsRepository
 import play.api.db.Database
 
