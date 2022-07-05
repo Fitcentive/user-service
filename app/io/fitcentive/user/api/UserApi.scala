@@ -94,12 +94,19 @@ class UserApi @Inject() (
         EitherT.right[DomainError](userAgreementsRepository.updateUserAgreements(userId, userAgreements))
     } yield updatedUserAgreements).value
 
-  // todo - get user profile object along with user, separate APIs can exist
   def getUser(userId: UUID): Future[Either[DomainError, User]] =
     userRepository
       .getUserById(userId)
       .map(
         _.map(Right.apply)
+          .getOrElse(Left(EntityNotFoundError("User not found!")))
+      )
+
+  def getUserUsername(userId: UUID): Future[Either[DomainError, String]] =
+    userRepository
+      .getUserById(userId)
+      .map(
+        _.map(user => user.username.map(Right.apply).getOrElse(Left(EntityNotFoundError("Username does not exist!"))))
           .getOrElse(Left(EntityNotFoundError("User not found!")))
       )
 

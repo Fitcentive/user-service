@@ -11,6 +11,7 @@ POST     /api/user                                          io.fitcentive.user.c
 HEAD     /api/user/username                                 io.fitcentive.user.controllers.UserController.checkIfUsernameExists(username: String)
 HEAD     /api/user/email                                    io.fitcentive.user.controllers.UserController.checkIfEmailExists(email: String)
 POST     /api/user/email/verify                             io.fitcentive.user.controllers.UserController.verifyEmail
+GET      /api/user/:userId/username                         io.fitcentive.user.controllers.UserController.getUserUsername(userId: java.util.UUID)
 
 GET      /api/user/:userId                                  io.fitcentive.user.controllers.UserController.getUser(userId: java.util.UUID)
 PATCH    /api/user/:userId                                  io.fitcentive.user.controllers.UserController.updateUserPatch(userId: java.util.UUID)

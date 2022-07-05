@@ -163,10 +163,20 @@ class UserController @Inject() (
       }
     }
 
-  def getUser(userId: UUID): Action[AnyContent] =
+  def getUser(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      rejectIfNotEntitled {
+        userApi
+          .getUser(userId)
+          .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
+  def getUserUsername(userId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit request =>
       userApi
-        .getUser(userId)
+        .getUserUsername(userId)
         .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
         .recover(resultErrorAsyncHandler)
     }
