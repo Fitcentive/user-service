@@ -3,6 +3,7 @@ package io.fitcentive.user.infrastructure.database
 import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
+import io.fitcentive.sdk.utils.AnormOps
 import io.fitcentive.user.domain.UserProfile
 import io.fitcentive.user.repositories.UserProfileRepository
 import play.api.db.Database
@@ -75,9 +76,24 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
         )(userProfileRowParser).toDomain
       }
     }
+
+  override def getUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[UserProfile]] =
+    Future {
+      getRecords(SQL_GET_USER_PROFILES_BY_IDS(userIds))(userProfileRowParser).map(_.toDomain)
+    }
 }
 
-object AnormUserProfileRepository {
+object AnormUserProfileRepository extends AnormOps {
+
+  private def SQL_GET_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
+    val sql =
+      """
+        |select * 
+        |from user_profiles up
+        |where up.user_id in (
+        |""".stripMargin
+    transformUuidsToSql(userIds, sql)
+  }
 
   private val SQL_GET_USER_PROFILE_BY_ID: String =
     """

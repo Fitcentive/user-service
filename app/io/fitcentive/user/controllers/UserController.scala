@@ -4,7 +4,7 @@ import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.{LoginApi, UserApi}
 import io.fitcentive.user.domain.payloads.{
-  GetUsersByIdsPayload,
+  GetUserProfilesByIdsPayload,
   RequestEmailVerificationTokenPayload,
   ResetPasswordPayload,
   VerifyEmailTokenPayload
@@ -236,11 +236,11 @@ class UserController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
-  def getUsersByIds: Action[AnyContent] =
+  def getUserProfilesByIds: Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
-      validateJson[GetUsersByIdsPayload](userRequest.request.body.asJson) { getUserByIdsPayload =>
+      validateJson[GetUserProfilesByIdsPayload](userRequest.request.body.asJson) { getUserByIdsPayload =>
         userApi
-          .getUsersByIds(getUserByIdsPayload.userIds)
+          .getUserProfilesByIds(getUserByIdsPayload.userIds)
           .map(users => Ok(Json.toJson(users)))
           .recover(resultErrorAsyncHandler)
       }

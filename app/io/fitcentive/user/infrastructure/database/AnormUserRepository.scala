@@ -23,7 +23,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
 
   override def getUsersByIds(userIds: Seq[UUID]): Future[Seq[User]] =
     Future {
-      getRecords(SQL_GET_USERS_BY_IDS, "userIds" -> userIds)(userRowParser).map(_.toDomain)
+      getRecords(SQL_GET_USERS_BY_IDS(userIds))(userRowParser).map(_.toDomain)
     }
 
   override def getUsers: Future[Seq[User]] =
@@ -155,12 +155,15 @@ object AnormUserRepository extends AnormOps {
       |from users u
       |""".stripMargin
 
-  private val SQL_GET_USERS_BY_IDS: String =
-    """
-      |select *
-      |from users u
-      |where u.id in ({userIds}) ;
-      |""".stripMargin
+  private def SQL_GET_USERS_BY_IDS(userIds: Seq[UUID]): String = {
+    val sql =
+      """
+        |select *
+        |from users u
+        |where u.id in (
+        |""".stripMargin
+    transformUuidsToSql(userIds, sql)
+  }
 
   private val SQL_GET_USER_BY_EMAIL: String =
     """

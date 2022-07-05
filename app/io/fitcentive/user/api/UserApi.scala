@@ -117,6 +117,9 @@ class UserApi @Inject() (
   def getUsersByIds(userIds: Seq[UUID]): Future[Seq[User]] =
     userRepository.getUsersByIds(userIds)
 
+  def getUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[UserProfile]] =
+    userProfileRepository.getUserProfilesByIds(userIds)
+
   def getUserProfile(userId: UUID): Future[Either[DomainError, UserProfile]] =
     userProfileRepository
       .getUserProfileByUserId(userId)

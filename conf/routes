@@ -6,7 +6,6 @@
 GET      /api/user/health                                   io.fitcentive.user.controllers.HealthController.healthCheck
 
 # User endpoints
-POST     /api/user/get-by-ids                               io.fitcentive.user.controllers.UserController.getUsersByIds
 POST     /api/user                                          io.fitcentive.user.controllers.UserController.createUser
 
 HEAD     /api/user/username                                 io.fitcentive.user.controllers.UserController.checkIfUsernameExists(username: String)
@@ -21,6 +20,7 @@ POST     /api/user/:userId                                  io.fitcentive.user.c
 GET      /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.getUserProfile(userId: java.util.UUID)
 PATCH    /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.createOrUpdateUserProfile(userId: java.util.UUID)
 POST     /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.updateUserProfilePost(userId: java.util.UUID)
+POST     /api/user/profile/get-by-ids                       io.fitcentive.user.controllers.UserController.getUserProfilesByIds
 
 # User agreement endpoints
 GET      /api/user/:userId/agreements                       io.fitcentive.user.controllers.UserController.getUserAgreements(userId: java.util.UUID)

@@ -13,4 +13,5 @@ trait UserProfileRepository {
   def createUserProfile(userId: UUID, user: UserProfile.Update): Future[UserProfile]
   def updateUserProfilePatch(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
   def updateUserProfilePost(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
+  def getUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[UserProfile]]
 }
