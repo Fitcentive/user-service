@@ -6,7 +6,7 @@
 GET      /api/user/health                                   io.fitcentive.user.controllers.HealthController.healthCheck
 
 # User endpoints
-GET      /api/user                                          io.fitcentive.user.controllers.UserController.getUsers
+POST     /api/user/get-by-ids                               io.fitcentive.user.controllers.UserController.getUsersByIds
 POST     /api/user                                          io.fitcentive.user.controllers.UserController.createUser
 
 HEAD     /api/user/username                                 io.fitcentive.user.controllers.UserController.checkIfUsernameExists(username: String)

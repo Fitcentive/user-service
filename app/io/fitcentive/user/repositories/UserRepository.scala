@@ -17,4 +17,5 @@ trait UserRepository {
   def getUserByUsername(username: String): Future[Option[User]]
   def getUserById(id: UUID): Future[Option[User]]
   def getUsers: Future[Seq[User]]
+  def getUsersByIds(userIds: Seq[UUID]): Future[Seq[User]]
 }

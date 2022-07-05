@@ -4,6 +4,7 @@ import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.{LoginApi, UserApi}
 import io.fitcentive.user.domain.payloads.{
+  GetUsersByIdsPayload,
   RequestEmailVerificationTokenPayload,
   ResetPasswordPayload,
   VerifyEmailTokenPayload
@@ -85,14 +86,6 @@ class UserController @Inject() (
           .map(handleEitherResult(_)(_ => Accepted))
           .recover(resultErrorAsyncHandler)
       }
-    }
-
-  // Undecided
-  def getUsers: Action[AnyContent] =
-    Action.async { implicit request =>
-      userApi.getUsers
-        .map(users => Ok(Json.toJson(users)))
-        .recover(resultErrorAsyncHandler)
     }
 
   def checkIfEmailExists(email: String): Action[AnyContent] =
@@ -241,6 +234,16 @@ class UserController @Inject() (
           case false => NotFound
         }
         .recover(resultErrorAsyncHandler)
+    }
+
+  def getUsersByIds: Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      validateJson[GetUsersByIdsPayload](userRequest.request.body.asJson) { getUserByIdsPayload =>
+        userApi
+          .getUsersByIds(getUserByIdsPayload.userIds)
+          .map(users => Ok(Json.toJson(users)))
+          .recover(resultErrorAsyncHandler)
+      }
     }
 
 }
