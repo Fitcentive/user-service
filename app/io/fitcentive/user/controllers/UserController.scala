@@ -8,6 +8,7 @@ import io.fitcentive.user.domain.payloads.{
   RequestEmailVerificationTokenPayload,
   ResetPasswordPayload,
   UserFollowRequestDecisionPayload,
+  UserSearchPayload,
   VerifyEmailTokenPayload
 }
 import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
@@ -184,6 +185,16 @@ class UserController @Inject() (
       }(userRequest, currentUserId)
     }
 
+  def searchForUser(limit: Option[Int] = None, offset: Option[Int] = None): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      validateJson[UserSearchPayload](userRequest.request.body.asJson) { payload =>
+        userApi
+          .searchForUser(payload.query, limit, offset)
+          .map(results => Ok(Json.toJson(results)))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
   def applyUserFollowRequestDecision(targetUserId: UUID, requestingUserId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
       rejectIfNotEntitled {
@@ -193,7 +204,6 @@ class UserController @Inject() (
             .map(handleEitherResult(_)(_ => Ok))
             .recover(resultErrorAsyncHandler)
         }
-
       }(userRequest, targetUserId)
     }
 

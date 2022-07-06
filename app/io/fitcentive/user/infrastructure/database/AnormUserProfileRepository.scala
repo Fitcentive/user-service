@@ -4,7 +4,7 @@ import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.sdk.utils.AnormOps
-import io.fitcentive.user.domain.UserProfile
+import io.fitcentive.user.domain.{PublicUserProfile, UserProfile}
 import io.fitcentive.user.repositories.UserProfileRepository
 import play.api.db.Database
 
@@ -81,6 +81,13 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
     Future {
       getRecords(SQL_GET_USER_PROFILES_BY_IDS(userIds))(userProfileRowParser).map(_.toDomain)
     }
+
+  override def searchForUsers(searchQuery: String, limit: Int, offset: Int): Future[Seq[PublicUserProfile]] =
+    Future {
+      getRecords(SQL_SEARCH_BY_NAME_OR_USERNAME, "searchQuery" -> searchQuery, "limit" -> limit, "offset" -> offset)(
+        publicUserProfileRowParser
+      ).map(_.toDomain)
+    }
 }
 
 object AnormUserProfileRepository extends AnormOps {
@@ -135,6 +142,19 @@ object AnormUserProfileRepository extends AnormOps {
        |returning *;
        |""".stripMargin
 
+  private val SQL_SEARCH_BY_NAME_OR_USERNAME: String =
+    s"""
+       |select id, username, first_name, last_name, photo_url
+       |from user_profiles up
+       |left join users u
+       |on up.user_id = u.id
+       |where username ilike '%{searchQuery}%' 
+       |or first_name ilike '%{searchQuery}%'
+       |or last_name ilike '%{searchQuery}%' 
+       |limit {limit} 
+       |offset {offset} ;
+       |""".stripMargin
+
   private case class UserProfileRow(
     user_id: UUID,
     first_name: Option[String],
@@ -154,5 +174,23 @@ object AnormUserProfileRepository extends AnormOps {
       )
   }
 
+  private case class PublicUserProfileRow(
+    id: UUID,
+    username: Option[String],
+    first_name: Option[String],
+    last_name: Option[String],
+    photo_url: Option[String],
+  ) {
+    def toDomain: PublicUserProfile =
+      PublicUserProfile(
+        userId = id,
+        username = username,
+        firstName = first_name,
+        lastName = last_name,
+        photoUrl = photo_url
+      )
+  }
+
   private val userProfileRowParser: RowParser[UserProfileRow] = Macro.namedParser[UserProfileRow]
+  private val publicUserProfileRowParser: RowParser[PublicUserProfileRow] = Macro.namedParser[PublicUserProfileRow]
 }

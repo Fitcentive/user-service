@@ -2,7 +2,7 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.{User, UserAgreements, UserFollowRequest, UserProfile}
+import io.fitcentive.user.domain.{PublicUserProfile, User, UserAgreements, UserFollowRequest, UserProfile}
 import io.fitcentive.user.domain.errors.RequestParametersError
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories.{
@@ -30,6 +30,9 @@ class UserApi @Inject() (
   messageBusService: MessageBusService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
+
+  val defaultLimit = 50
+  val defaultOffset = 0
 
   def clearUsernameLockTable: Future[Unit] =
     usernameLockRepository.removeAll
@@ -106,6 +109,14 @@ class UserApi @Inject() (
     userFollowRequestRepository
       .getUserFollowRequest(currentUserId, targetUserId)
       .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+
+  def searchForUser(
+    searchQuery: String,
+    limit: Option[Int] = None,
+    offset: Option[Int] = None
+  ): Future[Seq[PublicUserProfile]] =
+    userProfileRepository
+      .searchForUsers(searchQuery, limit.fold(defaultLimit)(identity), offset.fold(defaultOffset)(identity))
 
   def applyUserFollowRequestDecision(
     targetUserId: UUID,

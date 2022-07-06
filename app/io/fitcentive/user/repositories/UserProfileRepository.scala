@@ -1,7 +1,7 @@
 package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
-import io.fitcentive.user.domain.UserProfile
+import io.fitcentive.user.domain.{PublicUserProfile, UserProfile}
 import io.fitcentive.user.infrastructure.database.AnormUserProfileRepository
 
 import java.util.UUID
@@ -14,4 +14,5 @@ trait UserProfileRepository {
   def updateUserProfilePatch(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
   def updateUserProfilePost(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
   def getUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[UserProfile]]
+  def searchForUsers(searchQuery: String, limit: Int, offset: Int): Future[Seq[PublicUserProfile]]
 }
