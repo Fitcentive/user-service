@@ -24,7 +24,7 @@ class AnormUserFollowRequestRepository @Inject() (val db: Database)(implicit val
     Future {
       executeSqlWithoutReturning(
         SQL_DELETE_USER_FOLLOW_REQUEST,
-        Seq("currentUserId" -> currentUserId, "targetUserId" -> targetUserId)
+        Seq("requestingUserId" -> currentUserId, "targetUserId" -> targetUserId)
       )
     }
 
