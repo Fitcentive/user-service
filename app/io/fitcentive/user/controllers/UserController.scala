@@ -184,17 +184,17 @@ class UserController @Inject() (
       }(userRequest, currentUserId)
     }
 
-  def applyUserFollowRequestDecision(currentUserId: UUID, requestingUserId: UUID): Action[AnyContent] =
+  def applyUserFollowRequestDecision(targetUserId: UUID, requestingUserId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
       rejectIfNotEntitled {
         validateJson[UserFollowRequestDecisionPayload](userRequest.request.body.asJson) { decision =>
           userApi
-            .applyUserFollowRequestDecision(currentUserId, requestingUserId, decision.isRequestApproved)
+            .applyUserFollowRequestDecision(targetUserId, requestingUserId, decision.isRequestApproved)
             .map(handleEitherResult(_)(_ => Ok))
             .recover(resultErrorAsyncHandler)
         }
 
-      }(userRequest, currentUserId)
+      }(userRequest, targetUserId)
     }
 
   def getUser(implicit userId: UUID): Action[AnyContent] =
