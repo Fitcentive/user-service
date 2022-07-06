@@ -3,25 +3,29 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET      /api/user/health                                   io.fitcentive.user.controllers.HealthController.healthCheck
+GET      /api/user/health                                                                       io.fitcentive.user.controllers.HealthController.healthCheck
 
 # User endpoints
-POST     /api/user                                          io.fitcentive.user.controllers.UserController.createUser
+POST     /api/user                                                                              io.fitcentive.user.controllers.UserController.createUser
 
-HEAD     /api/user/username                                 io.fitcentive.user.controllers.UserController.checkIfUsernameExists(username: String)
-HEAD     /api/user/email                                    io.fitcentive.user.controllers.UserController.checkIfEmailExists(email: String)
-POST     /api/user/email/verify                             io.fitcentive.user.controllers.UserController.verifyEmail
-GET      /api/user/:userId/username                         io.fitcentive.user.controllers.UserController.getUserUsername(userId: java.util.UUID)
+HEAD     /api/user/username                                                                     io.fitcentive.user.controllers.UserController.checkIfUsernameExists(username: String)
+HEAD     /api/user/email                                                                        io.fitcentive.user.controllers.UserController.checkIfEmailExists(email: String)
+POST     /api/user/email/verify                                                                 io.fitcentive.user.controllers.UserController.verifyEmail
+GET      /api/user/:userId/username                                                             io.fitcentive.user.controllers.UserController.getUserUsername(userId: java.util.UUID)
 
-GET      /api/user/:userId                                  io.fitcentive.user.controllers.UserController.getUser(userId: java.util.UUID)
-PATCH    /api/user/:userId                                  io.fitcentive.user.controllers.UserController.updateUserPatch(userId: java.util.UUID)
-POST     /api/user/:userId                                  io.fitcentive.user.controllers.UserController.updateUserPost(userId: java.util.UUID)
+GET      /api/user/:userId                                                                      io.fitcentive.user.controllers.UserController.getUser(userId: java.util.UUID)
+PATCH    /api/user/:userId                                                                      io.fitcentive.user.controllers.UserController.updateUserPatch(userId: java.util.UUID)
+POST     /api/user/:userId                                                                      io.fitcentive.user.controllers.UserController.updateUserPost(userId: java.util.UUID)
+
+POST     /api/user/:currentUserId/follow/:targetUserId/request                                  io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUser: java.util.UUID, targetUser: java.util.UUID)
+POST     /api/user/:currentUserId/follow/:targetUserId                                          io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUser: java.util.UUID, targetUser: java.util.UUID)
+GET      /api/user/:currentUserId/follow/:targetUserId                                          io.fitcentive.user.controllers.UserController.checkIfUserHasRequestedToFollowOtherUser(currentUser: java.util.UUID, targetUser: java.util.UUID)
 
 # User profile endpoints
-GET      /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.getUserProfile(userId: java.util.UUID)
-PATCH    /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.createOrUpdateUserProfile(userId: java.util.UUID)
-POST     /api/user/:userId/profile                          io.fitcentive.user.controllers.UserController.updateUserProfilePost(userId: java.util.UUID)
-POST     /api/user/profile/get-by-ids                       io.fitcentive.user.controllers.UserController.getUserProfilesByIds
+GET      /api/user/:userId/profile                                                              io.fitcentive.user.controllers.UserController.getUserProfile(userId: java.util.UUID)
+PATCH    /api/user/:userId/profile                                                              io.fitcentive.user.controllers.UserController.createOrUpdateUserProfile(userId: java.util.UUID)
+POST     /api/user/:userId/profile                                                              io.fitcentive.user.controllers.UserController.updateUserProfilePost(userId: java.util.UUID)
+POST     /api/user/profile/get-by-ids                                                           io.fitcentive.user.controllers.UserController.getUserProfilesByIds
 
 # User agreement endpoints
 GET      /api/user/:userId/agreements                       io.fitcentive.user.controllers.UserController.getUserAgreements(userId: java.util.UUID)

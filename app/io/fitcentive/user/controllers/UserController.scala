@@ -7,6 +7,7 @@ import io.fitcentive.user.domain.payloads.{
   GetUserProfilesByIdsPayload,
   RequestEmailVerificationTokenPayload,
   ResetPasswordPayload,
+  UserFollowRequestDecisionPayload,
   VerifyEmailTokenPayload
 }
 import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
@@ -161,6 +162,39 @@ class UserController @Inject() (
             .recover(resultErrorAsyncHandler)
         }
       }
+    }
+
+  def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .requestToFollowUser(currentUserId, targetUserId)
+          .map(handleEitherResult(_)(_ => Accepted))
+          .recover(resultErrorAsyncHandler)
+      }(userRequest, currentUserId)
+    }
+
+  def checkIfUserHasRequestedToFollowOtherUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .checkIfUserRequestedToFollowOtherUser(currentUserId, targetUserId)
+          .map(handleEitherResult(_)(_ => Ok))
+          .recover(resultErrorAsyncHandler)
+      }(userRequest, currentUserId)
+    }
+
+  def applyUserFollowRequestDecision(currentUserId: UUID, requestingUserId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        validateJson[UserFollowRequestDecisionPayload](userRequest.request.body.asJson) { decision =>
+          userApi
+            .applyUserFollowRequestDecision(currentUserId, requestingUserId, decision.isRequestApproved)
+            .map(handleEitherResult(_)(_ => Ok))
+            .recover(resultErrorAsyncHandler)
+        }
+
+      }(userRequest, currentUserId)
     }
 
   def getUser(implicit userId: UUID): Action[AnyContent] =

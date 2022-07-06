@@ -2,17 +2,17 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
+import io.fitcentive.user.domain.{User, UserAgreements, UserFollowRequest, UserProfile}
 import io.fitcentive.user.domain.errors.RequestParametersError
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories.{
   UserAgreementsRepository,
+  UserFollowRequestRepository,
   UserProfileRepository,
   UserRepository,
   UsernameLockRepository
 }
-import io.fitcentive.user.services.{ImageService, UserAuthService}
-import shapeless.ops.zipper.RightTo
+import io.fitcentive.user.services.{ImageService, MessageBusService, UserAuthService}
 
 import java.util.UUID
 import javax.inject.Inject
@@ -25,7 +25,9 @@ class UserApi @Inject() (
   userAuthService: UserAuthService,
   imageService: ImageService,
   userProfileRepository: UserProfileRepository,
-  usernameLockRepository: UsernameLockRepository
+  usernameLockRepository: UsernameLockRepository,
+  userFollowRequestRepository: UserFollowRequestRepository,
+  messageBusService: MessageBusService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
@@ -79,6 +81,53 @@ class UserApi @Inject() (
       )
       updatedUser <- EitherT.right[DomainError](userRepository.updateUserPost(userId, userUpdate))
     } yield updatedUser).value
+
+  def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Future[Either[DomainError, Unit]] =
+    (for {
+      _ <- EitherT[Future, DomainError, User](
+        userRepository
+          .getUserById(currentUserId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+      )
+      _ <- EitherT[Future, DomainError, User](
+        userRepository
+          .getUserById(targetUserId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+      )
+      _ <- EitherT.right[DomainError](userFollowRequestRepository.requestToFollowUser(currentUserId, targetUserId))
+      _ <-
+        EitherT.right[DomainError](messageBusService.publishUserFollowRequestNotification(currentUserId, targetUserId))
+    } yield ()).value
+
+  def checkIfUserRequestedToFollowOtherUser(
+    currentUserId: UUID,
+    targetUserId: UUID
+  ): Future[Either[DomainError, UserFollowRequest]] =
+    userFollowRequestRepository
+      .getUserFollowRequest(currentUserId, targetUserId)
+      .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+
+  def applyUserFollowRequestDecision(
+    targetUserId: UUID,
+    requestingUserId: UUID,
+    isRequestApproved: Boolean
+  ): Future[Either[DomainError, Unit]] =
+    (for {
+      _ <- EitherT[Future, DomainError, UserFollowRequest](
+        userFollowRequestRepository
+          .getUserFollowRequest(requestingUserId, targetUserId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User follow request not found!"))))
+      )
+      _ <-
+        EitherT.right[DomainError](userFollowRequestRepository.deleteUserFollowRequest(requestingUserId, targetUserId))
+      _ <- EitherT.right[DomainError] {
+        if (isRequestApproved) makeUserFollowUser(requestingUserId, targetUserId) else Future.unit
+      }
+    } yield ()).value
+
+  // todo - fill in implementation to create user-user links in Neo4j
+  def makeUserFollowUser(requestingUser: UUID, targetUser: UUID): Future[Unit] =
+    Future.unit
 
   def updateUserAgreements(
     userId: UUID,
