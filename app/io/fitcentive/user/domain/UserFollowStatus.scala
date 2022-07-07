@@ -8,7 +8,9 @@ case class UserFollowStatus(
   currentUserId: UUID,
   otherUserId: UUID,
   isCurrentUserFollowingOtherUser: Boolean,
-  isOtherUserFollowingCurrentUser: Boolean
+  isOtherUserFollowingCurrentUser: Boolean,
+  hasCurrentUserRequestedToFollowOtherUser: Boolean,
+  hasOtherUserRequestedToFollowCurrentUser: Boolean,
 )
 
 object UserFollowStatus {

@@ -175,16 +175,6 @@ class UserController @Inject() (
       }(userRequest, currentUserId)
     }
 
-  def checkIfUserHasRequestedToFollowOtherUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit userRequest =>
-      rejectIfNotEntitled {
-        userApi
-          .checkIfUserRequestedToFollowOtherUser(currentUserId, targetUserId)
-          .map(handleEitherResult(_)(_ => Ok))
-          .recover(resultErrorAsyncHandler)
-      }(userRequest, currentUserId)
-    }
-
   def searchForUser(limit: Option[Int] = None, offset: Option[Int] = None): Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
       validateJson[UserSearchPayload](userRequest.request.body.asJson) { payload =>

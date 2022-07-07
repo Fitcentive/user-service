@@ -111,14 +111,6 @@ class UserApi @Inject() (
         EitherT.right[DomainError](messageBusService.publishUserFollowRequestNotification(currentUserId, targetUserId))
     } yield ()).value
 
-  def checkIfUserRequestedToFollowOtherUser(
-    currentUserId: UUID,
-    targetUserId: UUID
-  ): Future[Either[DomainError, UserFollowRequest]] =
-    userFollowRequestRepository
-      .getUserFollowRequest(currentUserId, targetUserId)
-      .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
-
   def getUserFollowStatus(currentUserId: UUID, otherUserId: UUID): Future[UserFollowStatus] =
     for {
       isCurrentUserFollowingOtherUser <-
@@ -129,11 +121,21 @@ class UserApi @Inject() (
         userRelationshipsRepository
           .getUserIfFollowingOtherUser(otherUserId, currentUserId)
           .map(_.isDefined)
+      hasCurrentUserRequestedToFollowOtherUser <-
+        userFollowRequestRepository
+          .getUserFollowRequest(currentUserId, otherUserId)
+          .map(_.isDefined)
+      hasOtherUserRequestedToFollowCurrentUser <-
+        userFollowRequestRepository
+          .getUserFollowRequest(currentUserId, otherUserId)
+          .map(_.isDefined)
     } yield UserFollowStatus(
       currentUserId,
       otherUserId,
       isCurrentUserFollowingOtherUser,
-      isOtherUserFollowingCurrentUser
+      isOtherUserFollowingCurrentUser,
+      hasCurrentUserRequestedToFollowOtherUser,
+      hasOtherUserRequestedToFollowCurrentUser
     )
 
   def searchForUser(
