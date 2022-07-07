@@ -7,6 +7,7 @@ import io.fitcentive.user.domain.config.{
   AppPubSubConfig,
   EnvironmentConfig,
   ImageServiceConfig,
+  Neo4jConfig,
   SubscriptionsConfig,
   TopicsConfig
 }
@@ -17,6 +18,8 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credentials) extends SettingsService {
+
+  override def neo4jConfig: Neo4jConfig = Neo4jConfig.fromConfig(config.get[Config]("neo4j"))
 
   override def envConfig: EnvironmentConfig = EnvironmentConfig.fromConfig(config.get[Config]("environment"))
 

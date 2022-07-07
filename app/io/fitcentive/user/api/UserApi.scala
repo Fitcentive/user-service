@@ -9,6 +9,7 @@ import io.fitcentive.user.repositories.{
   UserAgreementsRepository,
   UserFollowRequestRepository,
   UserProfileRepository,
+  UserRelationshipsRepository,
   UserRepository,
   UsernameLockRepository
 }
@@ -27,6 +28,7 @@ class UserApi @Inject() (
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository,
   userFollowRequestRepository: UserFollowRequestRepository,
+  userRelationshipsRepository: UserRelationshipsRepository,
   messageBusService: MessageBusService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
@@ -132,13 +134,22 @@ class UserApi @Inject() (
       _ <-
         EitherT.right[DomainError](userFollowRequestRepository.deleteUserFollowRequest(requestingUserId, targetUserId))
       _ <- EitherT.right[DomainError] {
-        if (isRequestApproved) makeUserFollowUser(requestingUserId, targetUserId) else Future.unit
+        if (isRequestApproved) userRelationshipsRepository.makeUserFollowOther(requestingUserId, targetUserId)
+        else Future.unit
       }
     } yield ()).value
 
-  // todo - fill in implementation to create user-user links in Neo4j
-  def makeUserFollowUser(requestingUser: UUID, targetUser: UUID): Future[Unit] =
-    Future.unit
+  def removeFollowerForUser(currentUserId: UUID, followingUserId: UUID): Future[Unit] =
+    userRelationshipsRepository.removeFollowerForUser(currentUserId, followingUserId)
+
+  def unfollowUser(currentUserId: UUID, targetUserId: UUID): Future[Unit] =
+    userRelationshipsRepository.makeUserUnFollowOther(currentUserId, targetUserId)
+
+  def getUserFollowers(currentUserId: UUID): Future[Seq[PublicUserProfile]] =
+    userRelationshipsRepository.getUserFollowers(currentUserId)
+
+  def getUserFollowing(currentUserId: UUID): Future[Seq[PublicUserProfile]] =
+    userRelationshipsRepository.getUserFollowing(currentUserId)
 
   def updateUserAgreements(
     userId: UUID,

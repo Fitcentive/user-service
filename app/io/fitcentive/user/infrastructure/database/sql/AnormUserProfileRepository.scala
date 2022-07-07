@@ -1,4 +1,4 @@
-package io.fitcentive.user.infrastructure.database
+package io.fitcentive.user.infrastructure.database.sql
 
 import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
@@ -87,6 +87,11 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
       getRecords(SQL_GET_PUBLIC_USER_PROFILES_BY_IDS(userIds))(publicUserProfileRowParser).map(_.toDomain)
     }
 
+  override def getPublicUserProfileById(userId: UUID): Future[Option[PublicUserProfile]] =
+    Future {
+      getRecordOpt(SQL_GET_PUBLIC_USER_PROFILE_BY_ID, "userId" -> userId)(publicUserProfileRowParser).map(_.toDomain)
+    }
+
   override def searchForUsers(searchQuery: String, limit: Int, offset: Int): Future[Seq[PublicUserProfile]] =
     Future {
       getRecords(SQL_SEARCH_BY_NAME_OR_USERNAME(searchQuery), "limit" -> limit, "offset" -> offset)(
@@ -107,10 +112,19 @@ object AnormUserProfileRepository extends AnormOps {
     transformUuidsToSql(userIds, sql)
   }
 
+  private val SQL_GET_PUBLIC_USER_PROFILE_BY_ID: String =
+    """
+        |select id, username, first_name, last_name, photo_url, date_of_birth
+        |from user_profiles up
+        |left join users u
+        |on up.user_id = u.id
+        |where up.user_id = {userId}::uuid
+        |""".stripMargin
+
   private def SQL_GET_PUBLIC_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
     val sql =
       """
-        |select id, username, first_name, last_name, photo_url
+        |select id, username, first_name, last_name, photo_url, date_of_birth
         |from user_profiles up
         |left join users u
         |on up.user_id = u.id
@@ -161,7 +175,7 @@ object AnormUserProfileRepository extends AnormOps {
 
   private def SQL_SEARCH_BY_NAME_OR_USERNAME(searchQuery: String): String =
     s"""
-       |select id, username, first_name, last_name, photo_url
+       |select id, username, first_name, last_name, photo_url, date_of_birth
        |from user_profiles up
        |left join users u
        |on up.user_id = u.id
@@ -205,6 +219,7 @@ object AnormUserProfileRepository extends AnormOps {
     first_name: Option[String],
     last_name: Option[String],
     photo_url: Option[String],
+    date_of_birth: Option[LocalDate],
   ) {
     def toDomain: PublicUserProfile =
       PublicUserProfile(
@@ -212,7 +227,8 @@ object AnormUserProfileRepository extends AnormOps {
         username = username,
         firstName = first_name,
         lastName = last_name,
-        photoUrl = photo_url
+        photoUrl = photo_url,
+        dateOfBirth = date_of_birth,
       )
   }
 

@@ -207,6 +207,46 @@ class UserController @Inject() (
       }(userRequest, targetUserId)
     }
 
+  def unfollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .unfollowUser(currentUserId, targetUserId)
+          .map(_ => Ok)
+          .recover(resultErrorAsyncHandler)
+      }(userRequest, currentUserId)
+    }
+
+  def removeFollower(currentUserId: UUID, followingUserId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .removeFollowerForUser(currentUserId, followingUserId)
+          .map(_ => Ok)
+          .recover(resultErrorAsyncHandler)
+      }(userRequest, currentUserId)
+    }
+
+  def getUserFollowers(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      rejectIfNotEntitled {
+        userApi
+          .getUserFollowers(userId)
+          .map(users => Ok(Json.toJson(users)))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
+  def getUserFollowing(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      rejectIfNotEntitled {
+        userApi
+          .getUserFollowing(userId)
+          .map(users => Ok(Json.toJson(users)))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
   def getUser(implicit userId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit request =>
       rejectIfNotEntitled {

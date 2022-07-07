@@ -2,7 +2,7 @@ package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
 import io.fitcentive.user.domain.User
-import io.fitcentive.user.infrastructure.database.AnormUserRepository
+import io.fitcentive.user.infrastructure.database.sql.AnormUserRepository
 
 import java.util.UUID
 import scala.concurrent.Future

@@ -1,4 +1,4 @@
-package io.fitcentive.user.infrastructure.database
+package io.fitcentive.user.infrastructure.database.sql
 
 import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext

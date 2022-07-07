@@ -1,14 +1,8 @@
-package io.fitcentive.user.infrastructure.database
+package io.fitcentive.user.infrastructure.database.sql
 
 import anorm.SqlParser
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
-import io.fitcentive.user.infrastructure.database.AnormUsernameLockRepository.{
-  SQL_ADD_USERNAME,
-  SQL_GET_USERNAME,
-  SQL_REMOVE_ALL,
-  SQL_REMOVE_USERNAME
-}
 import io.fitcentive.user.repositories.UsernameLockRepository
 import play.api.db.Database
 
@@ -19,6 +13,8 @@ import scala.concurrent.Future
 class AnormUsernameLockRepository @Inject() (val db: Database)(implicit val dbec: DatabaseExecutionContext)
   extends UsernameLockRepository
   with DatabaseClient {
+
+  import AnormUsernameLockRepository._
 
   override def removeAll: Future[Unit] =
     Future {

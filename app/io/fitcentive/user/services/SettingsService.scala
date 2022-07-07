@@ -2,7 +2,7 @@ package io.fitcentive.user.services
 
 import com.google.inject.ImplementedBy
 import io.fitcentive.sdk.config.{GcpConfig, JwtConfig, SecretConfig, ServerConfig}
-import io.fitcentive.user.domain.config.{AppPubSubConfig, EnvironmentConfig, ImageServiceConfig}
+import io.fitcentive.user.domain.config.{AppPubSubConfig, EnvironmentConfig, ImageServiceConfig, Neo4jConfig}
 import io.fitcentive.user.infrastructure.settings.AppConfigService
 
 @ImplementedBy(classOf[AppConfigService])
@@ -15,4 +15,5 @@ trait SettingsService {
   def keycloakServerUrl: String
   def secretConfig: SecretConfig
   def envConfig: EnvironmentConfig
+  def neo4jConfig: Neo4jConfig
 }

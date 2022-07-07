@@ -2,6 +2,7 @@ package io.fitcentive.user.domain
 
 import play.api.libs.json.{Json, Reads, Writes}
 
+import java.time.LocalDate
 import java.util.UUID
 
 case class PublicUserProfile(
@@ -10,6 +11,7 @@ case class PublicUserProfile(
   firstName: Option[String],
   lastName: Option[String],
   photoUrl: Option[String],
+  dateOfBirth: Option[LocalDate]
 )
 
 object PublicUserProfile {

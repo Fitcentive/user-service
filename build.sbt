@@ -15,6 +15,9 @@ libraryDependencies ++= Seq(
   ehcache,
   ws,
   evolutions,
+  // Neo4j
+  "org.neo4j.driver"    % "neo4j-java-driver" % "4.4.7",
+  "io.github.neotypes" %% "neotypes-core"     % "0.21.0",
   // Anorm
   "org.playframework.anorm" %% "anorm"          % "2.6.10",
   "org.playframework.anorm" %% "anorm-postgres" % "2.6.10",

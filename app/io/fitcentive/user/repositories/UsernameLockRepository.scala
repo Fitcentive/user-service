@@ -1,7 +1,7 @@
 package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
-import io.fitcentive.user.infrastructure.database.AnormUsernameLockRepository
+import io.fitcentive.user.infrastructure.database.sql.AnormUsernameLockRepository
 
 import scala.concurrent.Future
 

@@ -80,4 +80,12 @@ spec:
               value: "clear-username-lock-table"
             - name: RUNTIME_ENVIRONMENT
               value: "local"
+            - name: NEO4J_URI
+              value: "neo4j+s://c705512b.databases.neo4j.io"
+            - name: NEO4J_USERNAME
+              value: "neo4j"
+            - name: NEO4J_PASSWORD
+              value: "Ik6dX_r5t1UQWe6mU89gWUVUiX13cqHsztdEL8mEv5M"
+            - name: NEO4J_INSTANCE_NAME
+              value: "FitcentiveGraphDb"
 

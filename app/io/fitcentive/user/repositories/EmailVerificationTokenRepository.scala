@@ -2,7 +2,7 @@ package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
 import io.fitcentive.user.domain.email.EmailVerificationToken
-import io.fitcentive.user.infrastructure.database.AnormEmailVerificationTokenRepository
+import io.fitcentive.user.infrastructure.database.sql.AnormEmailVerificationTokenRepository
 
 import scala.concurrent.Future
 
