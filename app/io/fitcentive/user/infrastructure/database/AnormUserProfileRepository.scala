@@ -165,6 +165,7 @@ object AnormUserProfileRepository extends AnormOps {
        |from user_profiles up
        |left join users u
        |on up.user_id = u.id
+       |where 
        |${compareAgainstUsernameAndNames(searchQuery)} 
        |limit {limit} 
        |offset {offset} ;
