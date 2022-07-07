@@ -165,12 +165,19 @@ object AnormUserProfileRepository extends AnormOps {
        |from user_profiles up
        |left join users u
        |on up.user_id = u.id
-       |where username ilike '%$searchQuery%' 
-       |or first_name ilike '%$searchQuery%'
-       |or last_name ilike '%$searchQuery%' 
+       |${compareAgainstUsernameAndNames(searchQuery)} 
        |limit {limit} 
        |offset {offset} ;
        |""".stripMargin
+
+  private def compareAgainstUsernameAndNames(searchQuery: String): String = {
+    val parts = searchQuery.split(" ")
+    parts
+      .map { part =>
+        s" username ilike '%$part%' or first_name ilike '%$part%' or last_name ilike '%$part%' "
+      }
+      .mkString(" or ")
+  }
 
   private case class UserProfileRow(
     user_id: UUID,
