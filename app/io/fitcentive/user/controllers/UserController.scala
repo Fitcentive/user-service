@@ -247,6 +247,16 @@ class UserController @Inject() (
       }
     }
 
+  def getUserFollowStatus(implicit currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit request =>
+      rejectIfNotEntitled {
+        userApi
+          .getUserFollowStatus(currentUserId, targetUserId)
+          .map(users => Ok(Json.toJson(users)))
+          .recover(resultErrorAsyncHandler)
+      }(request, currentUserId)
+    }
+
   def getUser(implicit userId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit request =>
       rejectIfNotEntitled {

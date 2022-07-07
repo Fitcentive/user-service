@@ -47,6 +47,11 @@ class NeoTypesUserRelationshipsRepository @Inject() (val db: GraphDb)(implicit v
     CYPHER_GET_USER_FOLLOWING(userId)
       .readOnlyQuery[PublicUserProfile]
       .list(db)
+
+  override def getUserIfFollowingOtherUser(currentUser: UUID, otherUser: UUID): Future[Option[PublicUserProfile]] =
+    CYPHER_GET_USER_IF_FOLLOWING_OTHER_USER(currentUser, otherUser)
+      .readOnlyQuery[Option[PublicUserProfile]]
+      .single(db)
 }
 
 object NeoTypesUserRelationshipsRepository {
@@ -82,5 +87,10 @@ object NeoTypesUserRelationshipsRepository {
     c"""
        MATCH (u1: User { $followingUserId })-[r:IS_FOLLOWING]->(u2: User { $currentUserId })
        DELETE r"""
+
+  private def CYPHER_GET_USER_IF_FOLLOWING_OTHER_USER(currentUserId: UUID, otherUserId: UUID): DeferredQueryBuilder =
+    c"""
+       OPTIONAL MATCH (u1: User { $currentUserId })-[r:IS_FOLLOWING]->(u2: User { $otherUserId })
+       RETURN u1"""
 
 }

@@ -21,6 +21,7 @@ POST    /api/user/:currentUserId/unfollow/:targetUserId                         
 POST    /api/user/:currentUserId/follow/:followingUserId/remove                                 io.fitcentive.user.controllers.UserController.removeFollower(currentUserId: java.util.UUID, followingUserId: java.util.UUID)
 GET     /api/user/:userId/followers                                                             io.fitcentive.user.controllers.UserController.getUserFollowers(userId: java.util.UUID)
 GET     /api/user/:userId/following                                                             io.fitcentive.user.controllers.UserController.getUserFollowing(userId: java.util.UUID)
+GET     /api/user/:currentUserId/follow-status/:targetUserId                                    io.fitcentive.user.controllers.UserController.getUserFollowStatus(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
 
 POST     /api/user/:currentUserId/follow/:targetUserId/request                                  io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
 POST     /api/user/:targetUserId/follow/:requestingUserId                                       io.fitcentive.user.controllers.UserController.applyUserFollowRequestDecision(targetUserId: java.util.UUID, requestingUserId: java.util.UUID)

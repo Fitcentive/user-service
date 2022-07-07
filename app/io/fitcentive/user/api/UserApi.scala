@@ -2,7 +2,14 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.{PublicUserProfile, User, UserAgreements, UserFollowRequest, UserProfile}
+import io.fitcentive.user.domain.{
+  PublicUserProfile,
+  User,
+  UserAgreements,
+  UserFollowRequest,
+  UserFollowStatus,
+  UserProfile
+}
 import io.fitcentive.user.domain.errors.RequestParametersError
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories.{
@@ -111,6 +118,23 @@ class UserApi @Inject() (
     userFollowRequestRepository
       .getUserFollowRequest(currentUserId, targetUserId)
       .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+
+  def getUserFollowStatus(currentUserId: UUID, otherUserId: UUID): Future[UserFollowStatus] =
+    for {
+      isCurrentUserFollowingOtherUser <-
+        userRelationshipsRepository
+          .getUserIfFollowingOtherUser(currentUserId, otherUserId)
+          .map(_.isDefined)
+      isOtherUserFollowingCurrentUser <-
+        userRelationshipsRepository
+          .getUserIfFollowingOtherUser(otherUserId, currentUserId)
+          .map(_.isDefined)
+    } yield UserFollowStatus(
+      currentUserId,
+      otherUserId,
+      isCurrentUserFollowingOtherUser,
+      isOtherUserFollowingCurrentUser
+    )
 
   def searchForUser(
     searchQuery: String,
