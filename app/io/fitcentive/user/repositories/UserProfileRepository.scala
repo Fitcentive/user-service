@@ -14,5 +14,6 @@ trait UserProfileRepository {
   def updateUserProfilePatch(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
   def updateUserProfilePost(userId: UUID, userProfile: UserProfile.Update): Future[UserProfile]
   def getUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[UserProfile]]
+  def getPublicUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[PublicUserProfile]]
   def searchForUsers(searchQuery: String, limit: Int, offset: Int): Future[Seq[PublicUserProfile]]
 }

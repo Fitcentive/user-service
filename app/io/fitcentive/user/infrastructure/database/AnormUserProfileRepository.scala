@@ -82,6 +82,11 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
       getRecords(SQL_GET_USER_PROFILES_BY_IDS(userIds))(userProfileRowParser).map(_.toDomain)
     }
 
+  override def getPublicUserProfilesByIds(userIds: Seq[UUID]): Future[Seq[PublicUserProfile]] =
+    Future {
+      getRecords(SQL_GET_PUBLIC_USER_PROFILES_BY_IDS(userIds))(publicUserProfileRowParser).map(_.toDomain)
+    }
+
   override def searchForUsers(searchQuery: String, limit: Int, offset: Int): Future[Seq[PublicUserProfile]] =
     Future {
       getRecords(SQL_SEARCH_BY_NAME_OR_USERNAME, "searchQuery" -> searchQuery, "limit" -> limit, "offset" -> offset)(
@@ -97,6 +102,18 @@ object AnormUserProfileRepository extends AnormOps {
       """
         |select * 
         |from user_profiles up
+        |where up.user_id in (
+        |""".stripMargin
+    transformUuidsToSql(userIds, sql)
+  }
+
+  private def SQL_GET_PUBLIC_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
+    val sql =
+      """
+        |select id, username, first_name, last_name, photo_url
+        |from user_profiles up
+        |left join users u
+        |on up.user_id = u.id
         |where up.user_id in (
         |""".stripMargin
     transformUuidsToSql(userIds, sql)
