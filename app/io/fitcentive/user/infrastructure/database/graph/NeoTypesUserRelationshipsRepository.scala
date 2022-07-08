@@ -80,17 +80,17 @@ object NeoTypesUserRelationshipsRepository {
 
   private def CYPHER_MAKE_USER_UNFOLLOW_OTHER(requestingUserId: UUID, targetUserId: UUID): DeferredQueryBuilder =
     c"""
-       MATCH (u1: User { $requestingUserId })-[r:IS_FOLLOWING]->(u2: User { $targetUserId })
+       MATCH (u1: User { userId: $requestingUserId })-[r:IS_FOLLOWING]->(u2: User { userId: $targetUserId })
        DELETE r"""
 
   private def CYPHER_REMOVE_FOLLOWER_FOR_USER(currentUserId: UUID, followingUserId: UUID): DeferredQueryBuilder =
     c"""
-       MATCH (u1: User { $followingUserId })-[r:IS_FOLLOWING]->(u2: User { $currentUserId })
+       MATCH (u1: User { userId: $followingUserId })-[r:IS_FOLLOWING]->(u2: User { userId: $currentUserId })
        DELETE r"""
 
   private def CYPHER_GET_USER_IF_FOLLOWING_OTHER_USER(currentUserId: UUID, otherUserId: UUID): DeferredQueryBuilder =
     c"""
-       OPTIONAL MATCH (u1: User { $currentUserId })-[r:IS_FOLLOWING]->(u2: User { $otherUserId })
+       OPTIONAL MATCH (u1: User { userId: $currentUserId })-[r:IS_FOLLOWING]->(u2: User { userId: $otherUserId })
        RETURN u1"""
 
 }
