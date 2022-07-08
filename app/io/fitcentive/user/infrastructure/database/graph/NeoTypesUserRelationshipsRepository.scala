@@ -61,10 +61,10 @@ object NeoTypesUserRelationshipsRepository {
       MERGE (user: User { userId: ${user.userId} } )
       SET
         user.username = ${user.username},
-        user.firstName = ${user.username},
-        user.lastName = ${user.username},
-        user.photoUrl = ${user.username},
-        user.dateOfBirth = ${user.username}
+        user.firstName = ${user.firstName},
+        user.lastName = ${user.lastName},
+        user.photoUrl = ${user.photoUrl},
+        user.dateOfBirth = ${user.dateOfBirth}
       RETURN user"""
 
   private def CYPHER_MAKE_USER_FOLLOW_OTHER(requestingUserId: UUID, targetUserId: UUID): DeferredQueryBuilder =
