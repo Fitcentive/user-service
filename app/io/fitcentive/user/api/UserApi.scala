@@ -82,6 +82,8 @@ class UserApi @Inject() (
           .map(_.map(u => Right(u.id)).getOrElse(Left(EntityNotFoundError("User not found!"))))
       )
       updatedUser <- EitherT.right[DomainError](userRepository.updateUserPatch(userId, userUpdate))
+      publicUserProfile <-
+        EitherT[Future, DomainError, PublicUserProfile](upsertPublicUserProfileIntoGraphDb(updatedUser.id))
     } yield updatedUser).value
 
   def updateUserPost(userId: UUID, userUpdate: User.Post): Future[Either[DomainError, User]] =
@@ -92,6 +94,8 @@ class UserApi @Inject() (
           .map(_.map(u => Right(u.id)).getOrElse(Left(EntityNotFoundError("User not found!"))))
       )
       updatedUser <- EitherT.right[DomainError](userRepository.updateUserPost(userId, userUpdate))
+      publicUserProfile <-
+        EitherT[Future, DomainError, PublicUserProfile](upsertPublicUserProfileIntoGraphDb(updatedUser.id))
     } yield updatedUser).value
 
   def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Future[Either[DomainError, Unit]] =
@@ -265,6 +269,9 @@ class UserApi @Inject() (
       updatedUserProfileWithProfilePhoto <-
         EitherT[Future, DomainError, UserProfile](createUserImageIfRequired(updatedUserProfile))
 
+      publicUserProfile <- EitherT[Future, DomainError, PublicUserProfile](
+        upsertPublicUserProfileIntoGraphDb(updatedUserProfileWithProfilePhoto.userId)
+      )
       _ <- EitherT[Future, DomainError, Unit](
         userAuthService
           .updateUserProfile(
@@ -296,6 +303,9 @@ class UserApi @Inject() (
       updatedUserProfileWithProfilePhoto <-
         EitherT[Future, DomainError, UserProfile](createUserImageIfRequired(updatedUserProfile))
 
+      publicUserProfile <- EitherT[Future, DomainError, PublicUserProfile](
+        upsertPublicUserProfileIntoGraphDb(updatedUserProfileWithProfilePhoto.userId)
+      )
       _ <- EitherT[Future, DomainError, Unit](
         userAuthService
           .updateUserProfile(
@@ -306,6 +316,16 @@ class UserApi @Inject() (
           )
       )
     } yield updatedUserProfileWithProfilePhoto).value
+
+  private def upsertPublicUserProfileIntoGraphDb(userId: UUID): Future[Either[DomainError, PublicUserProfile]] =
+    (for {
+      publicUserProfile <- EitherT[Future, DomainError, PublicUserProfile](
+        userProfileRepository
+          .getPublicUserProfileById(userId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("Public user profile not found!"))))
+      )
+      _ <- EitherT.right[DomainError](userRelationshipsRepository.upsertUser(publicUserProfile))
+    } yield publicUserProfile).value
 
   /**
     * Creates user image if
