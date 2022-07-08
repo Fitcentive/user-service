@@ -47,6 +47,7 @@ POST    /api/user/password/reset                                                
 # Social media endpoints
 GET     /api/user/:userId/post                                                                  io.fitcentive.user.controllers.SocialMediaController.getPostsForUser(userId: java.util.UUID)
 POST    /api/user/:userId/post                                                                  io.fitcentive.user.controllers.SocialMediaController.createPostForUser(userId: java.util.UUID)
+POST    /api/user/:userId/newsfeed                                                              io.fitcentive.user.controllers.SocialMediaController.getNewsfeedForUser(userId: java.util.UUID)
 
 # Internal endpoints
 GET      /api/internal/user/email                                                               io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
