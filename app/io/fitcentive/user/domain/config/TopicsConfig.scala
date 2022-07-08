@@ -6,11 +6,17 @@ import io.fitcentive.sdk.config.PubSubTopicConfig
 case class TopicsConfig(
   emailVerificationTokenCreatedTopic: String,
   clearUsernameLockTableTopic: String,
-  userFollowRequestedTopic: String
+  userFollowRequestedTopic: String,
+  userFollowRequestDecisionTopic: String,
 ) extends PubSubTopicConfig {
 
   val topics: Seq[String] =
-    Seq(emailVerificationTokenCreatedTopic, clearUsernameLockTableTopic, userFollowRequestedTopic)
+    Seq(
+      emailVerificationTokenCreatedTopic,
+      clearUsernameLockTableTopic,
+      userFollowRequestedTopic,
+      userFollowRequestDecisionTopic
+    )
 
 }
 
@@ -20,5 +26,6 @@ object TopicsConfig {
       config.getString("email-verification-token-created"),
       config.getString("clear-username-lock-table"),
       config.getString("user-follow-requested"),
+      config.getString("user-follow-request-decision"),
     )
 }

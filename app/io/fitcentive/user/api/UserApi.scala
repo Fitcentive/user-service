@@ -127,7 +127,7 @@ class UserApi @Inject() (
           .map(_.isDefined)
       hasOtherUserRequestedToFollowCurrentUser <-
         userFollowRequestRepository
-          .getUserFollowRequest(currentUserId, otherUserId)
+          .getUserFollowRequest(otherUserId, currentUserId)
           .map(_.isDefined)
     } yield UserFollowStatus(
       currentUserId,
@@ -163,6 +163,8 @@ class UserApi @Inject() (
         if (isRequestApproved) userRelationshipsRepository.makeUserFollowOther(requestingUserId, targetUserId)
         else Future.unit
       }
+      _ <-
+        EitherT.right[DomainError](messageBusService.publishUserFollowRequestDecision(targetUserId, isRequestApproved))
     } yield ()).value
 
   def removeFollowerForUser(currentUserId: UUID, followingUserId: UUID): Future[Unit] =

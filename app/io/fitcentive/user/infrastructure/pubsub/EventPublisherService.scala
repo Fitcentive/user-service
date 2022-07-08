@@ -2,6 +2,7 @@ package io.fitcentive.user.infrastructure.pubsub
 
 import io.fitcentive.registry.events.email.EmailVerificationTokenCreated
 import io.fitcentive.registry.events.push.UserFollowRequested
+import io.fitcentive.registry.events.user.UserFollowRequestDecision
 import io.fitcentive.sdk.gcp.pubsub.PubSubPublisher
 import io.fitcentive.user.domain.config.TopicsConfig
 import io.fitcentive.user.domain.email.EmailVerificationToken
@@ -19,6 +20,10 @@ class EventPublisherService @Inject() (publisher: PubSubPublisher, settingsServi
 ) extends MessageBusService {
 
   private val publisherConfig: TopicsConfig = settingsService.pubSubConfig.topicsConfig
+
+  override def publishUserFollowRequestDecision(targetUser: UUID, isApproved: Boolean): Future[Unit] =
+    UserFollowRequestDecision(targetUser, isApproved)
+      .pipe(publisher.publish(publisherConfig.userFollowRequestDecisionTopic, _))
 
   override def publishUserFollowRequestNotification(requestingUser: UUID, targetUser: UUID): Future[Unit] =
     UserFollowRequested(requestingUser, targetUser)

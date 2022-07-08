@@ -72,6 +72,8 @@ spec:
               value: "http://auth-keycloak-http/auth"
             - name: TOPIC_USER_FOLLOW_REQUESTED
               value: "user-follow-requested"
+            - name: TOPIC_USER_FOLLOW_REQUEST_DECISION
+              value: "user-follow-request-decision"
             - name: TOPIC_EMAIL_VERIFICATION_TOKEN_CREATED
               value: "email-verification-token-created"
             - name: TOPIC_CLEAR_USERNAME_LOCK_TABLE
