@@ -58,7 +58,7 @@ object NeoTypesUserRelationshipsRepository {
 
   private def CYPHER_UPSERT_USER_INFO(user: PublicUserProfile): DeferredQueryBuilder =
     c"""
-      MERGE (user: User { userID: ${user.userId} } )
+      MERGE (user: User { userId: ${user.userId} } )
       SET
         user.username = ${user.username},
         user.firstName = ${user.username},
