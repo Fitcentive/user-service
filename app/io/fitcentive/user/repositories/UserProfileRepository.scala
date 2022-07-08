@@ -1,7 +1,7 @@
 package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
-import io.fitcentive.user.domain.{PublicUserProfile, UserProfile}
+import io.fitcentive.user.domain.user.{PublicUserProfile, UserProfile}
 import io.fitcentive.user.infrastructure.database.sql.AnormUserProfileRepository
 
 import java.util.UUID

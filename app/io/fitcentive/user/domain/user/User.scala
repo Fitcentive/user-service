@@ -1,5 +1,6 @@
-package io.fitcentive.user.domain
+package io.fitcentive.user.domain.user
 
+import io.fitcentive.user.domain.{AccountStatus, AuthProvider}
 import play.api.libs.json.{Json, Reads, Writes}
 
 import java.time.Instant

@@ -3,7 +3,7 @@ package io.fitcentive.user.infrastructure.database.sql
 import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
-import io.fitcentive.user.domain.UserFollowRequest
+import io.fitcentive.user.domain.user.UserFollowRequest
 import io.fitcentive.user.repositories.UserFollowRequestRepository
 import play.api.db.Database
 

@@ -2,7 +2,8 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.{
+import io.fitcentive.user.domain.errors.RequestParametersError
+import io.fitcentive.user.domain.user.{
   PublicUserProfile,
   User,
   UserAgreements,
@@ -10,7 +11,6 @@ import io.fitcentive.user.domain.{
   UserFollowStatus,
   UserProfile
 }
-import io.fitcentive.user.domain.errors.RequestParametersError
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories.{
   UserAgreementsRepository,

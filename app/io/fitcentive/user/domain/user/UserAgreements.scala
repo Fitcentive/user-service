@@ -1,4 +1,4 @@
-package io.fitcentive.user.domain
+package io.fitcentive.user.domain.user
 
 import play.api.libs.json.{Json, Reads, Writes}
 

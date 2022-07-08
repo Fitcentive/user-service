@@ -1,7 +1,7 @@
 package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
-import io.fitcentive.user.domain.UserAgreements
+import io.fitcentive.user.domain.user.UserAgreements
 import io.fitcentive.user.infrastructure.database.sql.AnormUserAgreementsRepository
 
 import java.util.UUID

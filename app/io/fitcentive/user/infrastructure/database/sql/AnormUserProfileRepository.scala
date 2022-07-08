@@ -4,7 +4,7 @@ import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.sdk.utils.AnormOps
-import io.fitcentive.user.domain.{PublicUserProfile, UserProfile}
+import io.fitcentive.user.domain.user.{PublicUserProfile, UserProfile}
 import io.fitcentive.user.repositories.UserProfileRepository
 import play.api.db.Database
 

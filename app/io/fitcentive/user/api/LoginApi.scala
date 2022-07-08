@@ -2,9 +2,10 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFoundError}
-import io.fitcentive.user.domain.{AuthProvider, User, UserAgreements}
+import io.fitcentive.user.domain.AuthProvider
 import io.fitcentive.user.domain.email.EmailVerificationToken
 import io.fitcentive.user.domain.errors.{AuthProviderError, EmailValidationError, TokenVerificationError}
+import io.fitcentive.user.domain.user.{User, UserAgreements}
 import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserAgreementsRepository, UserRepository}
 import io.fitcentive.user.services.{MessageBusService, TokenGenerationService, UserAuthService}
 
@@ -50,7 +51,7 @@ class LoginApi @Inject() (
           .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
       )
       user <- EitherT.right[DomainError](userRepository.createSsoUser(userCreate))
-      newUserAgreements = UserAgreements.Create(termsAndConditionsAccepted = false, subscribeToEmails = false);
+      newUserAgreements = UserAgreements.Create(termsAndConditionsAccepted = false, subscribeToEmails = false)
       _ <- EitherT.right[DomainError](userAgreementsRepository.createUserAgreements(user.id, newUserAgreements))
     } yield user).value
 
@@ -114,5 +115,5 @@ class LoginApi @Inject() (
 
 object LoginApi {
   private val emailRegex =
-    """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
+    """^[a-zA-Z0-9\\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 }

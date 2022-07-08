@@ -11,7 +11,7 @@ import io.fitcentive.user.domain.payloads.{
   UserSearchPayload,
   VerifyEmailTokenPayload
 }
-import io.fitcentive.user.domain.{User, UserAgreements, UserProfile}
+import io.fitcentive.user.domain.user.{User, UserAgreements, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
 import play.api.mvc._

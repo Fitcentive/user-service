@@ -4,7 +4,8 @@ import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.sdk.utils.AnormOps
-import io.fitcentive.user.domain.{AccountStatus, AuthProvider, User}
+import io.fitcentive.user.domain.user.User
+import io.fitcentive.user.domain.{user, AccountStatus, AuthProvider}
 import io.fitcentive.user.repositories.UserRepository
 import play.api.db.Database
 
@@ -128,7 +129,7 @@ object AnormUserRepository extends AnormOps {
     updated_at: Instant
   ) {
     def toDomain: User =
-      User(
+      user.User(
         id = id,
         email = email,
         username = username,

@@ -3,8 +3,8 @@ package io.fitcentive.user.infrastructure.database.graph
 import neotypes.implicits.syntax.string._
 import neotypes.generic.auto._
 import neotypes.implicits.syntax.cypher._
-import io.fitcentive.user.domain.PublicUserProfile
 import io.fitcentive.user.domain.types.CustomTypes.GraphDb
+import io.fitcentive.user.domain.user.PublicUserProfile
 import io.fitcentive.user.infrastructure.contexts.Neo4jExecutionContext
 import io.fitcentive.user.repositories.UserRelationshipsRepository
 import neotypes.DeferredQueryBuilder

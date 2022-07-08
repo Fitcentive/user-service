@@ -1,7 +1,7 @@
 package io.fitcentive.user.repositories
 
 import com.google.inject.ImplementedBy
-import io.fitcentive.user.domain.PublicUserProfile
+import io.fitcentive.user.domain.user.PublicUserProfile
 import io.fitcentive.user.infrastructure.database.graph.NeoTypesUserRelationshipsRepository
 
 import java.util.UUID
