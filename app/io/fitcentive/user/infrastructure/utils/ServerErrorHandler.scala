@@ -1,6 +1,6 @@
 package io.fitcentive.user.infrastructure.utils
 
-import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFoundError}
+import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotAccessible, EntityNotFoundError}
 import io.fitcentive.sdk.logging.AppLogger
 import io.fitcentive.sdk.utils.DomainErrorHandler
 import io.fitcentive.user.domain.errors.{
@@ -35,6 +35,7 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
     case RequestParametersError(reason) => BadRequest(reason)
     case EntityNotFoundError(reason)    => NotFound(reason)
     case EntityConflictError(reason)    => Conflict(reason)
+    case EntityNotAccessible(reason)    => Forbidden(reason)
     case _                              => InternalServerError("Unexpected error occurred ")
   }
 

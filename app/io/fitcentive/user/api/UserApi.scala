@@ -23,10 +23,11 @@ import io.fitcentive.user.repositories.{
 import io.fitcentive.user.services.{ImageService, MessageBusService, UserAuthService}
 
 import java.util.UUID
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
+@Singleton
 class UserApi @Inject() (
   userRepository: UserRepository,
   userAgreementsRepository: UserAgreementsRepository,
