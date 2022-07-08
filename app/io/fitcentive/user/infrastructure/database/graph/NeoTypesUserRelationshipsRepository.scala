@@ -58,7 +58,13 @@ object NeoTypesUserRelationshipsRepository {
 
   private def CYPHER_UPSERT_USER_INFO(user: PublicUserProfile): DeferredQueryBuilder =
     c"""
-      MERGE (user: User { $user } )
+      MERGE (user: User { userID: ${user.userId} } )
+      SET
+        user.username = ${user.username},
+        user.firstName = ${user.username},
+        user.lastName = ${user.username},
+        user.photoUrl = ${user.username},
+        user.dateOfBirth = ${user.username}
       RETURN user"""
 
   private def CYPHER_MAKE_USER_FOLLOW_OTHER(requestingUserId: UUID, targetUserId: UUID): DeferredQueryBuilder =
