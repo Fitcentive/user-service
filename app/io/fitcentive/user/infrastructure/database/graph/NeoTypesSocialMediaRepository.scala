@@ -40,7 +40,8 @@ object NeoTypesSocialMediaRepository {
       MATCH (u: User { userId: ${post.userId} })
       WITH u
       CREATE (u)-[:POSTED]->(post: Post { ${post.toNewInsertObject} } )
-      RETURN post"""
+      WITH post, 0 as numberOfLikes, 0 as numberOfComments
+      RETURN post, numberOfLikes, numberOfComments"""
 
   private def CYPHER_GET_USER_POSTS(userId: UUID): DeferredQueryBuilder =
     c"""
