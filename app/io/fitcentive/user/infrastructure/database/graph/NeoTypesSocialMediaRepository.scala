@@ -52,7 +52,7 @@ object NeoTypesSocialMediaRepository {
       WITH post.postId AS postId, post.userId AS userId, post.text AS text, 
            post.photoUrl AS photoUrl,  0 as numberOfLikes, 0 as numberOfComments, 
            post.createdAt AS createdAt, post.updatedAt AS updatedAt
-      RETURN post.post, numberOfLikes, numberOfComments"""
+      RETURN postId, userId, text, photoUrl, numberOfLikes, numberOfComments, createdAt, updatedAt"""
   }
 
   private def CYPHER_GET_USER_POSTS(userId: UUID): DeferredQueryBuilder =
