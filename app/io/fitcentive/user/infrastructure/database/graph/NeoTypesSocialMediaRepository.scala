@@ -62,9 +62,12 @@ object NeoTypesSocialMediaRepository {
       OPTIONAL MATCH (u: User)-[rel:LIKED]->(post)
       WITH post, count(rel) AS numberOfLikes
       OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
-      WITH post, numberOfLikes, count(c) AS numberOfComments
-      ORDER BY post.updated_at DESC
-      RETURN post, numberOfLikes, numberOfComments"""
+      WITH 
+        post.postId AS postId, post.userId AS userId, post.text AS text, 
+        numberOfLikes, count(c) AS numberOfComments
+        post.photoUrl AS photoUrl, post.createdAt AS createdAt, post.updatedAt AS updatedAt
+      ORDER BY updatedAt DESC
+      RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt"""
 
   private def CYPHER_GET_USER_NEWSFEED_POSTS(currentUserId: UUID): DeferredQueryBuilder =
     c"""
@@ -74,8 +77,11 @@ object NeoTypesSocialMediaRepository {
         OPTIONAL MATCH (u: User)-[rel:LIKED]->(post)
         WITH post, count(rel) AS numberOfLikes
         OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
-        WITH post, numberOfLikes, count(c) AS numberOfComments
-        RETURN post, numberOfLikes, numberOfComments
+        WITH 
+          post.postId AS postId, post.userId AS userId, post.text AS text, 
+          numberOfLikes, count(c) AS numberOfComments
+          post.photoUrl AS photoUrl, post.createdAt AS createdAt, post.updatedAt AS updatedAt
+        RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt
           
         UNION
         
@@ -84,8 +90,11 @@ object NeoTypesSocialMediaRepository {
         OPTIONAL MATCH (u: User)-[rel:LIKED]->(post)
         WITH post, count(rel) AS numberOfLikes
         OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
-        WITH post, numberOfLikes, count(c) AS numberOfComments
-        RETURN post, numberOfLikes, numberOfComments        
+        WITH 
+          post.postId AS postId, post.userId AS userId, post.text AS text, 
+          numberOfLikes, count(c) AS numberOfComments
+          post.photoUrl AS photoUrl, post.createdAt AS createdAt, post.updatedAt AS updatedAt
+        RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt
       }
    
       RETURN post, numberOfLikes, numberOfComments
