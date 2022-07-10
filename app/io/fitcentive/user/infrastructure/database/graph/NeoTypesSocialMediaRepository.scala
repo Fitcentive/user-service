@@ -79,7 +79,7 @@ object NeoTypesSocialMediaRepository {
         OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
         WITH 
           post.postId AS postId, post.userId AS userId, post.text AS text, 
-          numberOfLikes, count(c) AS numberOfComments
+          numberOfLikes, count(c) AS numberOfComments,
           post.photoUrl AS photoUrl, post.createdAt AS createdAt, post.updatedAt AS updatedAt
         RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt
           
@@ -92,7 +92,7 @@ object NeoTypesSocialMediaRepository {
         OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
         WITH 
           post.postId AS postId, post.userId AS userId, post.text AS text, 
-          numberOfLikes, count(c) AS numberOfComments
+          numberOfLikes, count(c) AS numberOfComments,
           post.photoUrl AS photoUrl, post.createdAt AS createdAt, post.updatedAt AS updatedAt
         RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt
       }
