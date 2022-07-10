@@ -97,7 +97,7 @@ object NeoTypesSocialMediaRepository {
         RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt
       }
    
-      RETURN post, numberOfLikes, numberOfComments
-      ORDER BY post.updatedAt DESC"""
+      RETURN postId, userId, text, numberOfLikes, numberOfComments, photoUrl, createdAt, updatedAt
+      ORDER BY updatedAt DESC"""
 
 }
