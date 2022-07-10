@@ -21,11 +21,13 @@ class SocialMediaApi @Inject() (
 
   def getPostsByUser(userId: UUID, requestingUserId: UUID): Future[Either[DomainError, Seq[Post]]] =
     (for {
-      _ <- EitherT[Future, DomainError, PublicUserProfile](
-        userRelationshipsRepository
-          .getUserIfFollowingOtherUser(requestingUserId, userId)
-          .map(_.map(Right.apply).getOrElse(Left(EntityNotAccessible("User not following other user!"))))
-      )
+      _ <- EitherT[Future, DomainError, Boolean] {
+        if (requestingUserId == userId) Future.successful(Right(true))
+        else
+          userRelationshipsRepository
+            .getUserIfFollowingOtherUser(requestingUserId, userId)
+            .map(_.map(_ => Right(true)).getOrElse(Left(EntityNotAccessible("User not following other user!"))))
+      }
       posts <- EitherT.right[DomainError](socialMediaRepository.getPostsForUser(userId))
     } yield posts).value
 
