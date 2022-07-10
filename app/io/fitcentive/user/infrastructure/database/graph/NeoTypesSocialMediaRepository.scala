@@ -59,9 +59,9 @@ object NeoTypesSocialMediaRepository {
     c"""
       MATCH (currentUser: User { userId: $userId })-[:POSTED]->(post: Post)
       WITH post
-      MATCH (u: User)-[rel:LIKED]->(post)
+      OPTIONAL MATCH (u: User)-[rel:LIKED]->(post)
       WITH post, count(rel) AS numberOfLikes
-      MATCH (post)-[:HAS_COMMENT]->(c: Comment)
+      OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
       WITH post, numberOfLikes, count(c) AS numberOfComments
       ORDER BY post.updated_at DESC
       RETURN post, numberOfLikes, numberOfComments"""
@@ -71,9 +71,9 @@ object NeoTypesSocialMediaRepository {
       CALL {
         MATCH (current: User { userId: $currentUserId })-[:IS_FOLLOWING]->(friend: User)-[:POSTED]->(post: Post)
         WITH post
-        MATCH (u: User)-[rel:LIKED]->(post)
+        OPTIONAL MATCH (u: User)-[rel:LIKED]->(post)
         WITH post, count(rel) AS numberOfLikes
-        MATCH (post)-[:HAS_COMMENT]->(c: Comment)
+        OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
         WITH post, numberOfLikes, count(c) AS numberOfComments
         RETURN post, numberOfLikes, numberOfComments
           
@@ -81,9 +81,9 @@ object NeoTypesSocialMediaRepository {
         
         MATCH (currentUser: User { userId: $currentUserId })-[:POSTED]->(post: Post)
         WITH post
-        MATCH (u: User)-[rel:LIKED]->(post)
+        OPTIONAL MATCH (u: User)-[rel:LIKED]->(post)
         WITH post, count(rel) AS numberOfLikes
-        MATCH (post)-[:HAS_COMMENT]->(c: Comment)
+        OPTIONAL MATCH (post)-[:HAS_COMMENT]->(c: Comment)
         WITH post, numberOfLikes, count(c) AS numberOfComments
         RETURN post, numberOfLikes, numberOfComments        
       }
