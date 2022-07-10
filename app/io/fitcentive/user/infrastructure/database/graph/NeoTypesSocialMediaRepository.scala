@@ -49,8 +49,10 @@ object NeoTypesSocialMediaRepository {
         post.updatedAt = ${postInsert.updatedAt}
       WITH u, post
       CREATE (u)-[:POSTED]->(post)
-      WITH post, 0 as numberOfLikes, 0 as numberOfComments
-      RETURN post, numberOfLikes, numberOfComments"""
+      WITH post.postId AS postId, post.userId AS userId, post.text AS text, 
+           post.photoUrl AS photoUrl,  0 as numberOfLikes, 0 as numberOfComments, 
+           post.createdAt AS createdAt, post.updatedAt AS updatedAt
+      RETURN post.post, numberOfLikes, numberOfComments"""
   }
 
   private def CYPHER_GET_USER_POSTS(userId: UUID): DeferredQueryBuilder =
