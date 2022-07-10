@@ -35,13 +35,23 @@ class NeoTypesSocialMediaRepository @Inject() (val db: GraphDb)(implicit val ec:
 }
 
 object NeoTypesSocialMediaRepository {
-  private def CYPHER_CREATE_USER_POST(post: Post.Create): DeferredQueryBuilder =
+  private def CYPHER_CREATE_USER_POST(post: Post.Create): DeferredQueryBuilder = {
+    val postInsert = post.toNewInsertObject
     c"""
       MATCH (u: User { userId: ${post.userId} })
       WITH u
-      CREATE (u)-[:POSTED]->(post: Post { ${post.toNewInsertObject} } )
+      CREATE (post: Post { postId: ${postInsert.postId} } )
+      SET
+        post.userId = ${postInsert.userId},
+        post.text = ${postInsert.text},
+        post.photoUrl = ${postInsert.photoUrl},
+        post.createdAt = ${postInsert.createdAt},
+        post.updatedAt = ${postInsert.updatedAt}
+      WITH u, post
+      CREATE (u)-[:POSTED]->(post)
       WITH post, 0 as numberOfLikes, 0 as numberOfComments
       RETURN post, numberOfLikes, numberOfComments"""
+  }
 
   private def CYPHER_GET_USER_POSTS(userId: UUID): DeferredQueryBuilder =
     c"""
