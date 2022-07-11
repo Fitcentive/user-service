@@ -3,6 +3,7 @@ package io.fitcentive.user.controllers
 import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.SocialMediaApi
+import io.fitcentive.user.domain.payloads.CreateCommentPayload
 import io.fitcentive.user.domain.social.{Post, PostComment}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
@@ -86,11 +87,11 @@ class SocialMediaController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
-  def addCommentToPost(postId: UUID): Action[AnyContent] =
+  def addCommentToPost(userId: UUID, postId: UUID): Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
-      validateJson[PostComment.Create](userRequest.request.body.asJson) { comment =>
+      validateJson[CreateCommentPayload](userRequest.request.body.asJson) { comment =>
         socialMediaApi
-          .addCommentToPost(comment)
+          .addCommentToPost(PostComment.Create(postId = postId, userId = userId, text = comment.text))
           .map(commentResponse => Ok(Json.toJson(commentResponse)))
           .recover(resultErrorAsyncHandler)
       }
