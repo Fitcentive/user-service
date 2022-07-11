@@ -75,13 +75,21 @@ object NeoTypesSocialMediaRepository {
 
   private def CYPHER_MAKE_USER_LIKE_POST(userId: UUID, postId: UUID): DeferredQueryBuilder = {
     c"""
-     MERGE (u: User { userId: $userId })-[rel:LIKED]->(p: Post { postId: $postId })
+     MATCH (user: User { userId: $userId })
+     WITH user
+     MATCH (post: Post { postId: $postId })
+     WITH user, post
+     MERGE (user)-[rel:LIKED]->(post)
      """
   }
 
   private def CYPHER_MAKE_USER_UNLIKE_POST(userId: UUID, postId: UUID): DeferredQueryBuilder = {
     c"""
-     MATCH (u: User { userId: $userId })-[rel:LIKED]->(p: Post { postId: $postId })
+     MATCH (user: User { userId: $userId })
+     WITH user
+     MATCH (post: Post { postId: $postId })
+     WITH user, post
+     MATCH (user)-[rel:LIKED]->(post)
      DELETE rel
      """
   }
