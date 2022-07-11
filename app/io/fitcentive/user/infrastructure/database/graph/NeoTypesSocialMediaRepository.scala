@@ -25,12 +25,12 @@ class NeoTypesSocialMediaRepository @Inject() (val db: GraphDb)(implicit val ec:
       .single(db)
 
   override def makeUserLikePost(userId: UUID, postId: UUID): Future[Unit] =
-    CYPHER_MAKE_USER_UNLIKE_POST(userId, postId)
+    CYPHER_MAKE_USER_LIKE_POST(userId, postId)
       .readOnlyQuery[Unit]
       .single(db)
 
   override def makeUserUnlikePost(userId: UUID, postId: UUID): Future[Unit] =
-    CYPHER_MAKE_USER_LIKE_POST(userId, postId)
+    CYPHER_MAKE_USER_UNLIKE_POST(userId, postId)
       .readOnlyQuery[Unit]
       .single(db)
 
