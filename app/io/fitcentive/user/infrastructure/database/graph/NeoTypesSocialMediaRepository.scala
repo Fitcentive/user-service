@@ -1,7 +1,8 @@
 package io.fitcentive.user.infrastructure.database.graph
 
-import io.fitcentive.user.domain.social.Post
+import io.fitcentive.user.domain.social.{Post, PostComment}
 import io.fitcentive.user.domain.types.CustomTypes.GraphDb
+import io.fitcentive.user.domain.user.PublicUserProfile
 import io.fitcentive.user.infrastructure.contexts.Neo4jExecutionContext
 import io.fitcentive.user.repositories.SocialMediaRepository
 import neotypes.DeferredQueryBuilder
@@ -17,6 +18,36 @@ class NeoTypesSocialMediaRepository @Inject() (val db: GraphDb)(implicit val ec:
   extends SocialMediaRepository {
 
   import NeoTypesSocialMediaRepository._
+
+  override def getUserIfLikedPost(userId: UUID, postId: UUID): Future[Option[PublicUserProfile]] =
+    CYPHER_GET_USER_IF_LIKED_POST(userId, postId)
+      .readOnlyQuery[Option[PublicUserProfile]]
+      .single(db)
+
+  override def makeUserLikePost(userId: UUID, postId: UUID): Future[Unit] =
+    CYPHER_MAKE_USER_UNLIKE_POST(userId, postId)
+      .readOnlyQuery[Unit]
+      .single(db)
+
+  override def makeUserUnlikePost(userId: UUID, postId: UUID): Future[Unit] =
+    CYPHER_MAKE_USER_LIKE_POST(userId, postId)
+      .readOnlyQuery[Unit]
+      .single(db)
+
+  override def getUsersWhoLikedPost(postId: UUID): Future[Seq[PublicUserProfile]] =
+    CYPHER_GET_USERS_WHO_LIKED_POST(postId)
+      .readOnlyQuery[PublicUserProfile]
+      .list(db)
+
+  override def addCommentToPost(comment: PostComment.Create): Future[PostComment] =
+    CYPHER_ADD_COMMENT_TO_POST(comment)
+      .readOnlyQuery[PostComment]
+      .single(db)
+
+  override def getCommentsForPost(postId: UUID): Future[Seq[PostComment]] =
+    CYPHER_GET_COMMENTS_FOR_POST(postId)
+      .readOnlyQuery[PostComment]
+      .list(db)
 
   override def getNewsfeedPostsForCurrentUser(userId: UUID): Future[Seq[Post]] =
     CYPHER_GET_USER_NEWSFEED_POSTS(userId)
@@ -35,6 +66,63 @@ class NeoTypesSocialMediaRepository @Inject() (val db: GraphDb)(implicit val ec:
 }
 
 object NeoTypesSocialMediaRepository {
+  private def CYPHER_GET_USER_IF_LIKED_POST(userId: UUID, postId: UUID): DeferredQueryBuilder = {
+    c"""
+     OPTIONAL MATCH (u: User { userId: ${userId} })-[rel:LIKED]->(p: Post { postId: $postId })
+     RETURN u
+     """
+  }
+
+  private def CYPHER_MAKE_USER_LIKE_POST(userId: UUID, postId: UUID): DeferredQueryBuilder = {
+    c"""
+     MERGE (u: User { userId: $userId })-[rel:LIKED]->(p: Post { postId: $postId })
+     """
+  }
+
+  private def CYPHER_MAKE_USER_UNLIKE_POST(userId: UUID, postId: UUID): DeferredQueryBuilder = {
+    c"""
+     MATCH (u: User { userId: $userId })-[rel:LIKED]->(p: Post { postId: $postId })
+     DELETE rel
+     """
+  }
+
+  private def CYPHER_GET_USERS_WHO_LIKED_POST(postId: UUID): DeferredQueryBuilder = {
+    c"""
+     MATCH (u: User)-[rel:LIKED]->(p: Post { postId: $postId })
+     RETURN u
+     """
+  }
+
+  private def CYPHER_ADD_COMMENT_TO_POST(comment: PostComment.Create): DeferredQueryBuilder = {
+    val commentInsert = comment.toNewInsertObject
+    c"""
+     MATCH (user: User { userId: ${comment.userId} })
+     WITH user
+     MATCH (post: Post { postId: ${comment.postId} })
+     WITH user, post
+     CREATE (comment: Comment { commentId: ${commentInsert.commentId} } )
+     SET
+        comment.postId = ${commentInsert.postId},
+        comment.userId = ${commentInsert.userId},
+        comment.text = ${commentInsert.text},
+        comment.createdAt = ${commentInsert.createdAt},
+        comment.updatedAt = ${commentInsert.updatedAt}
+     WITH user, post, comment
+     CREATE (post)-[:HAS_COMMENT]->(comment)
+     WITH user, post, comment
+     CREATE (user)-[:COMMENTED]->(comment)
+     WITH comment.commentId AS commentId, comment.postId AS postId, comment.userId AS userId, 
+          comment.text AS text, comment.createdAt AS createdAt, comment.updatedAt AS updatedAt
+     RETURN postId, commentId, userId, text, createdAt, updatedAt"""
+  }
+
+  private def CYPHER_GET_COMMENTS_FOR_POST(postId: UUID): DeferredQueryBuilder = {
+    c"""
+     MATCH (post: Post { postId: $postId })-[rel:HAS_COMMENT]->(comment: Comment)
+     RETURN comment
+     """
+  }
+
   private def CYPHER_CREATE_USER_POST(post: Post.Create): DeferredQueryBuilder = {
     val postInsert = post.toNewInsertObject
     c"""

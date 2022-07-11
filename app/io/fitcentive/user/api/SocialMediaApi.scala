@@ -1,8 +1,8 @@
 package io.fitcentive.user.api
 
 import cats.data.EitherT
-import io.fitcentive.sdk.error.{DomainError, EntityNotAccessible}
-import io.fitcentive.user.domain.social.Post
+import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotAccessible, EntityNotFoundError}
+import io.fitcentive.user.domain.social.{Post, PostComment}
 import io.fitcentive.user.domain.user.PublicUserProfile
 import io.fitcentive.user.repositories.{SocialMediaRepository, UserRelationshipsRepository}
 
@@ -36,5 +36,34 @@ class SocialMediaApi @Inject() (
     */
   def getNewsfeedPostsForUser(userId: UUID): Future[Seq[Post]] =
     socialMediaRepository.getNewsfeedPostsForCurrentUser(userId)
+
+  def likePostForUser(postId: UUID, userId: UUID): Future[Either[DomainError, Unit]] =
+    (for {
+      _ <- EitherT[Future, DomainError, Unit](
+        socialMediaRepository
+          .getUserIfLikedPost(userId, postId)
+          .map(_.map(_ => Left(EntityConflictError("User has already liked post!"))).getOrElse(Right()))
+      )
+      _ <- EitherT.right[DomainError](socialMediaRepository.makeUserLikePost(userId, postId))
+    } yield ()).value
+
+  def unlikePostForUser(postId: UUID, userId: UUID): Future[Either[DomainError, Unit]] =
+    (for {
+      _ <- EitherT[Future, DomainError, PublicUserProfile](
+        socialMediaRepository
+          .getUserIfLikedPost(userId, postId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User has not liked post yet!"))))
+      )
+      _ <- EitherT.right[DomainError](socialMediaRepository.makeUserUnlikePost(userId, postId))
+    } yield ()).value
+
+  def getUsersWhoLikedPost(postId: UUID): Future[Seq[PublicUserProfile]] =
+    socialMediaRepository.getUsersWhoLikedPost(postId)
+
+  def addCommentToPost(comment: PostComment.Create): Future[PostComment] =
+    socialMediaRepository.addCommentToPost(comment)
+
+  def getCommentsForPost(postId: UUID): Future[Seq[PostComment]] =
+    socialMediaRepository.getCommentsForPost(postId)
 
 }

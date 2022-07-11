@@ -49,6 +49,13 @@ GET     /api/user/:userId/post                                                  
 POST    /api/user/:userId/post                                                                  io.fitcentive.user.controllers.SocialMediaController.createPostForUser(userId: java.util.UUID)
 GET     /api/user/:userId/newsfeed                                                              io.fitcentive.user.controllers.SocialMediaController.getNewsfeedForUser(userId: java.util.UUID)
 
+POST    /api/user/:userId/post/:postId/like                                                     io.fitcentive.user.controllers.SocialMediaController.likePostForUser(userId: java.util.UUID, postId: java.util.UUID)
+POST    /api/user/:userId/post/:postId/unlike                                                   io.fitcentive.user.controllers.SocialMediaController.unlikePostForUser(userId: java.util.UUID, postId: java.util.UUID)
+
+GET     /api/user/:userId/post/:postId/comment                                                  io.fitcentive.user.controllers.SocialMediaController.getCommentsForPost(postId: java.util.UUID)
+POST    /api/user/:userId/post/:postId/comment                                                  io.fitcentive.user.controllers.SocialMediaController.addCommentToPost(postId: java.util.UUID)
+GET     /api/user/:userId/post/:postId/liked-users                                              io.fitcentive.user.controllers.SocialMediaController.getUsersWhoLikedPost(postId: java.util.UUID)
+
 # Internal endpoints
 GET      /api/internal/user/email                                                               io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
 POST     /api/internal/user/sso                                                                 io.fitcentive.user.controllers.UserController.createSsoUser

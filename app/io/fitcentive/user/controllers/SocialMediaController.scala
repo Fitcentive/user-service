@@ -3,7 +3,7 @@ package io.fitcentive.user.controllers
 import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.SocialMediaApi
-import io.fitcentive.user.domain.social.Post
+import io.fitcentive.user.domain.social.{Post, PostComment}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
@@ -48,6 +48,52 @@ class SocialMediaController @Inject() (
         .getNewsfeedPostsForUser(userId)
         .map(posts => Ok(Json.toJson(posts)))
         .recover(resultErrorAsyncHandler)
+    }
+
+  def likePostForUser(implicit userId: UUID, postId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        socialMediaApi
+          .likePostForUser(postId, userId)
+          .map(handleEitherResult(_)(_ => Ok))
+          .recover(resultErrorAsyncHandler)
+      }(userRequest, userId)
+    }
+
+  def unlikePostForUser(implicit userId: UUID, postId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        socialMediaApi
+          .unlikePostForUser(postId, userId)
+          .map(handleEitherResult(_)(_ => Ok))
+          .recover(resultErrorAsyncHandler)
+      }(userRequest, userId)
+    }
+
+  def getUsersWhoLikedPost(postId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      socialMediaApi
+        .getUsersWhoLikedPost(postId)
+        .map(users => Ok(Json.toJson(users)))
+        .recover(resultErrorAsyncHandler)
+    }
+
+  def getCommentsForPost(postId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      socialMediaApi
+        .getCommentsForPost(postId)
+        .map(users => Ok(Json.toJson(users)))
+        .recover(resultErrorAsyncHandler)
+    }
+
+  def addCommentToPost(postId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      validateJson[PostComment.Create](userRequest.request.body.asJson) { comment =>
+        socialMediaApi
+          .addCommentToPost(comment)
+          .map(commentResponse => Ok(Json.toJson(commentResponse)))
+          .recover(resultErrorAsyncHandler)
+      }
     }
 
 }
