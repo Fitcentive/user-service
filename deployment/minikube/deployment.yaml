@@ -58,6 +58,10 @@ spec:
               value: "http://auth-service"
             - name: AUTH_SERVICE_PORT
               value: "9000"
+            - name: SOCIAL_SERVICE_HOST
+              value: "http://social-service"
+            - name: SOCIAL_SERVICE_PORT
+              value: "9000"
             - name: IMAGE_SERVICE_HOST
               value: "http://image-service"
             - name: IMAGE_SERVICE_PORT

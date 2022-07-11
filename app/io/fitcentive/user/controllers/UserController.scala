@@ -3,14 +3,7 @@ package io.fitcentive.user.controllers
 import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.{LoginApi, UserApi}
-import io.fitcentive.user.domain.payloads.{
-  GetDataByIdsPayload,
-  RequestEmailVerificationTokenPayload,
-  ResetPasswordPayload,
-  UserFollowRequestDecisionPayload,
-  UserSearchPayload,
-  VerifyEmailTokenPayload
-}
+import io.fitcentive.user.domain.payloads._
 import io.fitcentive.user.domain.user.{User, UserAgreements, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
@@ -103,6 +96,30 @@ class UserController @Inject() (
   // -----------------------------
   // Internal Auth routes
   // -----------------------------
+  def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    internalAuthAction.async { implicit userRequest =>
+      userApi
+        .requestToFollowUser(currentUserId, targetUserId)
+        .map(handleEitherResult(_)(_ => Accepted))
+        .recover(resultErrorAsyncHandler)
+    }
+
+  def getUserFollowRequest(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    internalAuthAction.async { implicit userRequest =>
+      userApi
+        .getUserFollowRequest(currentUserId, targetUserId)
+        .map(handleEitherResult(_)(response => Ok(Json.toJson(response))))
+        .recover(resultErrorAsyncHandler)
+    }
+
+  def deleteUserFollowRequest(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+    internalAuthAction.async { implicit userRequest =>
+      userApi
+        .deleteUserFollowRequest(currentUserId, targetUserId)
+        .map(_ => Ok)
+        .recover(resultErrorAsyncHandler)
+    }
+
   def createOrUpdateUserProfileInternal(userId: UUID): Action[AnyContent] =
     internalAuthAction.async { implicit request =>
       validateJson[UserProfile.Update](request.body.asJson) { userProfileUpdate =>
@@ -165,16 +182,6 @@ class UserController @Inject() (
       }
     }
 
-  def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit userRequest =>
-      rejectIfNotEntitled {
-        userApi
-          .requestToFollowUser(currentUserId, targetUserId)
-          .map(handleEitherResult(_)(_ => Accepted))
-          .recover(resultErrorAsyncHandler)
-      }(userRequest, currentUserId)
-    }
-
   def searchForUser(limit: Option[Int] = None, offset: Option[Int] = None): Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
       validateJson[UserSearchPayload](userRequest.request.body.asJson) { payload =>
@@ -183,68 +190,6 @@ class UserController @Inject() (
           .map(results => Ok(Json.toJson(results)))
           .recover(resultErrorAsyncHandler)
       }
-    }
-
-  def applyUserFollowRequestDecision(targetUserId: UUID, requestingUserId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit userRequest =>
-      rejectIfNotEntitled {
-        validateJson[UserFollowRequestDecisionPayload](userRequest.request.body.asJson) { decision =>
-          userApi
-            .applyUserFollowRequestDecision(targetUserId, requestingUserId, decision.isRequestApproved)
-            .map(handleEitherResult(_)(_ => Ok))
-            .recover(resultErrorAsyncHandler)
-        }
-      }(userRequest, targetUserId)
-    }
-
-  def unfollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit userRequest =>
-      rejectIfNotEntitled {
-        userApi
-          .unfollowUser(currentUserId, targetUserId)
-          .map(_ => Ok)
-          .recover(resultErrorAsyncHandler)
-      }(userRequest, currentUserId)
-    }
-
-  def removeFollower(currentUserId: UUID, followingUserId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit userRequest =>
-      rejectIfNotEntitled {
-        userApi
-          .removeFollowerForUser(currentUserId, followingUserId)
-          .map(_ => Ok)
-          .recover(resultErrorAsyncHandler)
-      }(userRequest, currentUserId)
-    }
-
-  def getUserFollowers(implicit userId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit request =>
-      rejectIfNotEntitled {
-        userApi
-          .getUserFollowers(userId)
-          .map(users => Ok(Json.toJson(users)))
-          .recover(resultErrorAsyncHandler)
-      }
-    }
-
-  def getUserFollowing(implicit userId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit request =>
-      rejectIfNotEntitled {
-        userApi
-          .getUserFollowing(userId)
-          .map(users => Ok(Json.toJson(users)))
-          .recover(resultErrorAsyncHandler)
-      }
-    }
-
-  def getUserFollowStatus(implicit currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
-    userAuthAction.async { implicit request =>
-      rejectIfNotEntitled {
-        userApi
-          .getUserFollowStatus(currentUserId, targetUserId)
-          .map(users => Ok(Json.toJson(users)))
-          .recover(resultErrorAsyncHandler)
-      }(request, currentUserId)
     }
 
   def getUser(implicit userId: UUID): Action[AnyContent] =

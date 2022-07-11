@@ -3,24 +3,16 @@ package io.fitcentive.user.api
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
 import io.fitcentive.user.domain.errors.RequestParametersError
-import io.fitcentive.user.domain.user.{
-  PublicUserProfile,
-  User,
-  UserAgreements,
-  UserFollowRequest,
-  UserFollowStatus,
-  UserProfile
-}
+import io.fitcentive.user.domain.user.{PublicUserProfile, User, UserAgreements, UserFollowRequest, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories.{
   UserAgreementsRepository,
   UserFollowRequestRepository,
   UserProfileRepository,
-  UserRelationshipsRepository,
   UserRepository,
   UsernameLockRepository
 }
-import io.fitcentive.user.services.{ImageService, MessageBusService, UserAuthService}
+import io.fitcentive.user.services.{ImageService, SocialService, UserAuthService}
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -36,8 +28,7 @@ class UserApi @Inject() (
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository,
   userFollowRequestRepository: UserFollowRequestRepository,
-  userRelationshipsRepository: UserRelationshipsRepository,
-  messageBusService: MessageBusService,
+  socialService: SocialService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
@@ -99,6 +90,14 @@ class UserApi @Inject() (
         EitherT[Future, DomainError, PublicUserProfile](upsertPublicUserProfileIntoGraphDb(updatedUser.id))
     } yield updatedUser).value
 
+  def getUserFollowRequest(requestingUserId: UUID, targetUserId: UUID): Future[Either[DomainError, UserFollowRequest]] =
+    userFollowRequestRepository
+      .getUserFollowRequest(requestingUserId, targetUserId)
+      .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User follow request not found"))))
+
+  def deleteUserFollowRequest(requestingUserId: UUID, targetUserId: UUID): Future[Unit] =
+    userFollowRequestRepository.deleteUserFollowRequest(requestingUserId, targetUserId)
+
   def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Future[Either[DomainError, Unit]] =
     (for {
       _ <- EitherT[Future, DomainError, User](
@@ -112,36 +111,7 @@ class UserApi @Inject() (
           .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
       )
       _ <- EitherT.right[DomainError](userFollowRequestRepository.requestToFollowUser(currentUserId, targetUserId))
-      _ <-
-        EitherT.right[DomainError](messageBusService.publishUserFollowRequestNotification(currentUserId, targetUserId))
     } yield ()).value
-
-  def getUserFollowStatus(currentUserId: UUID, otherUserId: UUID): Future[UserFollowStatus] =
-    for {
-      isCurrentUserFollowingOtherUser <-
-        userRelationshipsRepository
-          .getUserIfFollowingOtherUser(currentUserId, otherUserId)
-          .map(_.isDefined)
-      isOtherUserFollowingCurrentUser <-
-        userRelationshipsRepository
-          .getUserIfFollowingOtherUser(otherUserId, currentUserId)
-          .map(_.isDefined)
-      hasCurrentUserRequestedToFollowOtherUser <-
-        userFollowRequestRepository
-          .getUserFollowRequest(currentUserId, otherUserId)
-          .map(_.isDefined)
-      hasOtherUserRequestedToFollowCurrentUser <-
-        userFollowRequestRepository
-          .getUserFollowRequest(otherUserId, currentUserId)
-          .map(_.isDefined)
-    } yield UserFollowStatus(
-      currentUserId,
-      otherUserId,
-      isCurrentUserFollowingOtherUser,
-      isOtherUserFollowingCurrentUser,
-      hasCurrentUserRequestedToFollowOtherUser,
-      hasOtherUserRequestedToFollowCurrentUser
-    )
 
   def searchForUser(
     searchQuery: String,
@@ -150,39 +120,6 @@ class UserApi @Inject() (
   ): Future[Seq[PublicUserProfile]] =
     userProfileRepository
       .searchForUsers(searchQuery, limit.fold(defaultLimit)(identity), offset.fold(defaultOffset)(identity))
-
-  def applyUserFollowRequestDecision(
-    targetUserId: UUID,
-    requestingUserId: UUID,
-    isRequestApproved: Boolean
-  ): Future[Either[DomainError, Unit]] =
-    (for {
-      _ <- EitherT[Future, DomainError, UserFollowRequest](
-        userFollowRequestRepository
-          .getUserFollowRequest(requestingUserId, targetUserId)
-          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User follow request not found!"))))
-      )
-      _ <-
-        EitherT.right[DomainError](userFollowRequestRepository.deleteUserFollowRequest(requestingUserId, targetUserId))
-      _ <- EitherT.right[DomainError] {
-        if (isRequestApproved) userRelationshipsRepository.makeUserFollowOther(requestingUserId, targetUserId)
-        else Future.unit
-      }
-      _ <-
-        EitherT.right[DomainError](messageBusService.publishUserFollowRequestDecision(targetUserId, isRequestApproved))
-    } yield ()).value
-
-  def removeFollowerForUser(currentUserId: UUID, followingUserId: UUID): Future[Unit] =
-    userRelationshipsRepository.removeFollowerForUser(currentUserId, followingUserId)
-
-  def unfollowUser(currentUserId: UUID, targetUserId: UUID): Future[Unit] =
-    userRelationshipsRepository.makeUserUnFollowOther(currentUserId, targetUserId)
-
-  def getUserFollowers(currentUserId: UUID): Future[Seq[PublicUserProfile]] =
-    userRelationshipsRepository.getUserFollowers(currentUserId)
-
-  def getUserFollowing(currentUserId: UUID): Future[Seq[PublicUserProfile]] =
-    userRelationshipsRepository.getUserFollowing(currentUserId)
 
   def updateUserAgreements(
     userId: UUID,
@@ -325,7 +262,7 @@ class UserApi @Inject() (
           .getPublicUserProfileById(userId)
           .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("Public user profile not found!"))))
       )
-      _ <- EitherT.right[DomainError](userRelationshipsRepository.upsertUser(publicUserProfile))
+      _ <- EitherT[Future, DomainError, Unit](socialService.upsertUser(publicUserProfile))
     } yield publicUserProfile).value
 
   /**

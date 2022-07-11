@@ -17,15 +17,6 @@ GET      /api/user/:userId                                                      
 PATCH    /api/user/:userId                                                                      io.fitcentive.user.controllers.UserController.updateUserPatch(userId: java.util.UUID)
 POST     /api/user/:userId                                                                      io.fitcentive.user.controllers.UserController.updateUserPost(userId: java.util.UUID)
 
-POST    /api/user/:currentUserId/unfollow/:targetUserId                                         io.fitcentive.user.controllers.UserController.unfollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
-POST    /api/user/:currentUserId/follow/:followingUserId/remove                                 io.fitcentive.user.controllers.UserController.removeFollower(currentUserId: java.util.UUID, followingUserId: java.util.UUID)
-GET     /api/user/:userId/followers                                                             io.fitcentive.user.controllers.UserController.getUserFollowers(userId: java.util.UUID)
-GET     /api/user/:userId/following                                                             io.fitcentive.user.controllers.UserController.getUserFollowing(userId: java.util.UUID)
-
-POST     /api/user/:currentUserId/follow/:targetUserId/request                                  io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
-POST     /api/user/:targetUserId/follow/:requestingUserId                                       io.fitcentive.user.controllers.UserController.applyUserFollowRequestDecision(targetUserId: java.util.UUID, requestingUserId: java.util.UUID)
-GET      /api/user/:currentUserId/follow-status/:targetUserId                                   io.fitcentive.user.controllers.UserController.getUserFollowStatus(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
-
 POST     /api/user/public/search                                                                io.fitcentive.user.controllers.UserController.searchForUser(limit: Option[Int] ?= None, offset: Option[Int] ?= None)
 POST     /api/user/public/profile/get-by-ids                                                    io.fitcentive.user.controllers.UserController.getPublicUserProfilesByIds
 
@@ -44,20 +35,11 @@ POST    /api/user/password/reset-request                                        
 POST    /api/user/password/validate-token                                                       io.fitcentive.user.controllers.UserController.verifyEmailToken
 POST    /api/user/password/reset                                                                io.fitcentive.user.controllers.UserController.resetPassword
 
-# Social media endpoints
-GET     /api/user/:userId/post                                                                  io.fitcentive.user.controllers.SocialMediaController.getPostsForUser(userId: java.util.UUID)
-POST    /api/user/:userId/post                                                                  io.fitcentive.user.controllers.SocialMediaController.createPostForUser(userId: java.util.UUID)
-GET     /api/user/:userId/newsfeed                                                              io.fitcentive.user.controllers.SocialMediaController.getNewsfeedForUser(userId: java.util.UUID)
-
-POST    /api/user/:userId/post/:postId/like                                                     io.fitcentive.user.controllers.SocialMediaController.likePostForUser(userId: java.util.UUID, postId: java.util.UUID)
-POST    /api/user/:userId/post/:postId/unlike                                                   io.fitcentive.user.controllers.SocialMediaController.unlikePostForUser(userId: java.util.UUID, postId: java.util.UUID)
-POST    /api/user/:userId/post/:postId/comment                                                  io.fitcentive.user.controllers.SocialMediaController.addCommentToPost(userId: java.util.UUID, postId: java.util.UUID)
-
-GET     /api/user/social/post/:postId/comment                                                   io.fitcentive.user.controllers.SocialMediaController.getCommentsForPost(postId: java.util.UUID)
-GET     /api/user/social/post/:postId/liked-users                                               io.fitcentive.user.controllers.SocialMediaController.getUsersWhoLikedPost(postId: java.util.UUID)
-POST    /api/user/social/posts/get-liked-user-ids                                               io.fitcentive.user.controllers.SocialMediaController.getUserIdsWhoLikedPosts
-
 # Internal endpoints
 GET      /api/internal/user/email                                                               io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
 POST     /api/internal/user/sso                                                                 io.fitcentive.user.controllers.UserController.createSsoUser
 POST     /api/internal/user/:userId/profile                                                     io.fitcentive.user.controllers.UserController.createOrUpdateUserProfileInternal(userId: java.util.UUID)
+
+POST     /api/internal/user/:currentUserId/follow-request/:targetUserId/request                 io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
+GET      /api/internal/user/:currentUserId/follow-request/:targetUserId/request                 io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
+DELETE   /api/internal/user/:currentUserId/follow-request/:targetUserId/request                 io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)

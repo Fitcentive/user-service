@@ -21,14 +21,6 @@ class EventPublisherService @Inject() (publisher: PubSubPublisher, settingsServi
 
   private val publisherConfig: TopicsConfig = settingsService.pubSubConfig.topicsConfig
 
-  override def publishUserFollowRequestDecision(targetUser: UUID, isApproved: Boolean): Future[Unit] =
-    UserFollowRequestDecision(targetUser, isApproved)
-      .pipe(publisher.publish(publisherConfig.userFollowRequestDecisionTopic, _))
-
-  override def publishUserFollowRequestNotification(requestingUser: UUID, targetUser: UUID): Future[Unit] =
-    UserFollowRequested(requestingUser, targetUser)
-      .pipe(publisher.publish(publisherConfig.userFollowRequestedTopic, _))
-
   override def publishEmailVerificationTokenCreated(event: EmailVerificationToken): Future[Unit] =
     event.toOut
       .pipe(publisher.publish(publisherConfig.emailVerificationTokenCreatedTopic, _))

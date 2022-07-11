@@ -10,6 +10,4 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[EventPublisherService])
 trait MessageBusService {
   def publishEmailVerificationTokenCreated(event: EmailVerificationToken): Future[Unit]
-  def publishUserFollowRequestNotification(requestingUser: UUID, targetUser: UUID): Future[Unit]
-  def publishUserFollowRequestDecision(targetUser: UUID, isApproved: Boolean): Future[Unit]
 }
