@@ -2,6 +2,7 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotAccessible, EntityNotFoundError}
+import io.fitcentive.user.domain.responses.UsersWhoLikedPost
 import io.fitcentive.user.domain.social.{Post, PostComment}
 import io.fitcentive.user.domain.user.PublicUserProfile
 import io.fitcentive.user.repositories.{SocialMediaRepository, UserRelationshipsRepository}
@@ -59,6 +60,16 @@ class SocialMediaApi @Inject() (
 
   def getUsersWhoLikedPost(postId: UUID): Future[Seq[PublicUserProfile]] =
     socialMediaRepository.getUsersWhoLikedPost(postId)
+
+  def getUsersWhoLikedPosts(postIds: Seq[UUID]): Future[Seq[UsersWhoLikedPost]] =
+    Future.sequence {
+      postIds.map { postId =>
+        socialMediaRepository
+          .getUsersWhoLikedPost(postId)
+          .map(_.map(_.userId))
+          .map(userIds => UsersWhoLikedPost(postId, userIds))
+      }
+    }
 
   def addCommentToPost(comment: PostComment.Create): Future[PostComment] =
     socialMediaRepository.addCommentToPost(comment)

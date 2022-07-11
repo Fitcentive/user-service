@@ -55,6 +55,7 @@ POST    /api/user/:userId/post/:postId/comment                                  
 
 GET     /api/user/social/post/:postId/comment                                                   io.fitcentive.user.controllers.SocialMediaController.getCommentsForPost(postId: java.util.UUID)
 GET     /api/user/social/post/:postId/liked-users                                               io.fitcentive.user.controllers.SocialMediaController.getUsersWhoLikedPost(postId: java.util.UUID)
+POST    /api/user/social/posts/get-liked-user-ids                                               io.fitcentive.user.controllers.SocialMediaController.getUserIdsWhoLikedPosts
 
 # Internal endpoints
 GET      /api/internal/user/email                                                               io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)

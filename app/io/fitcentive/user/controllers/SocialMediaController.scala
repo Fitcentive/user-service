@@ -1,9 +1,9 @@
 package io.fitcentive.user.controllers
 
-import io.fitcentive.sdk.play.{InternalAuthAction, UserAuthAction}
+import io.fitcentive.sdk.play.UserAuthAction
 import io.fitcentive.sdk.utils.PlayControllerOps
 import io.fitcentive.user.api.SocialMediaApi
-import io.fitcentive.user.domain.payloads.CreateCommentPayload
+import io.fitcentive.user.domain.payloads.{CreateCommentPayload, GetUsersWhoLikedPostsPayload}
 import io.fitcentive.user.domain.social.{Post, PostComment}
 import io.fitcentive.user.infrastructure.utils.ServerErrorHandler
 import play.api.libs.json.Json
@@ -77,6 +77,16 @@ class SocialMediaController @Inject() (
         .getUsersWhoLikedPost(postId)
         .map(users => Ok(Json.toJson(users)))
         .recover(resultErrorAsyncHandler)
+    }
+
+  def getUserIdsWhoLikedPosts: Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      validateJson[GetUsersWhoLikedPostsPayload](userRequest.request.body.asJson) { payload =>
+        socialMediaApi
+          .getUsersWhoLikedPosts(payload.postIds)
+          .map(users => Ok(Json.toJson(users)))
+          .recover(resultErrorAsyncHandler)
+      }
     }
 
   def getCommentsForPost(postId: UUID): Action[AnyContent] =
