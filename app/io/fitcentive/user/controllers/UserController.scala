@@ -96,6 +96,14 @@ class UserController @Inject() (
   // -----------------------------
   // Internal Auth routes
   // -----------------------------
+  def getUserProfileInternal(userId: UUID): Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      userApi
+        .getUserProfile(userId)
+        .map(handleEitherResult(_)(userProfile => Ok(Json.toJson(userProfile))))
+        .recover(resultErrorAsyncHandler)
+    }
+
   def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
     internalAuthAction.async { implicit userRequest =>
       userApi
