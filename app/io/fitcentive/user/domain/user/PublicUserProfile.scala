@@ -14,7 +14,7 @@ case class PublicUserProfile(
   photoUrl: Option[String],
   dateOfBirth: Option[LocalDate],
   locationCenter: Option[Coordinates],
-  locationRadius: Option[Integer]
+  locationRadius: Option[Int]
 )
 
 object PublicUserProfile {

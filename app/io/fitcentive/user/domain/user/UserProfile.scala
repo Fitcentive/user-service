@@ -13,7 +13,7 @@ case class UserProfile(
   photoUrl: Option[String],
   dateOfBirth: Option[LocalDate],
   locationCenter: Option[Coordinates],
-  locationRadius: Option[Integer]
+  locationRadius: Option[Int]
 ) {
   def toUpdate: UserProfile.Update =
     UserProfile.Update(
@@ -36,7 +36,7 @@ object UserProfile {
     photoUrl: Option[String],
     dateOfBirth: Option[LocalDate],
     locationCenter: Option[Coordinates],
-    locationRadius: Option[Integer]
+    locationRadius: Option[Int]
   )
 
   object Update {

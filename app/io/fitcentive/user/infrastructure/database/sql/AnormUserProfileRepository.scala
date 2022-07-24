@@ -256,7 +256,7 @@ object AnormUserProfileRepository extends AnormOps {
     photo_url: Option[String],
     date_of_birth: Option[LocalDate],
     location_center: Option[String],
-    location_radius: Option[Integer],
+    location_radius: Option[Int],
     created_at: Instant,
     updated_at: Instant
   ) {
@@ -280,7 +280,7 @@ object AnormUserProfileRepository extends AnormOps {
     photo_url: Option[String],
     date_of_birth: Option[LocalDate],
     location_center: Option[String],
-    location_radius: Option[Integer],
+    location_radius: Option[Int],
   ) {
     def toDomain: PublicUserProfile =
       PublicUserProfile(
