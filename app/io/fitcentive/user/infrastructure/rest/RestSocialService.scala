@@ -2,11 +2,10 @@ package io.fitcentive.user.infrastructure.rest
 
 import io.fitcentive.sdk.config.ServerConfig
 import io.fitcentive.sdk.error.DomainError
-import io.fitcentive.user.domain.errors.{AuthUserUpdateError, SocialServiceError}
+import io.fitcentive.user.domain.errors.SocialServiceError
 import io.fitcentive.user.domain.user.PublicUserProfile
-import io.fitcentive.user.infrastructure.rest.RestUserAuthService.UpdateUserAuthProfilePayload
 import io.fitcentive.user.infrastructure.utils.ServiceSecretSupport
-import io.fitcentive.user.services.{SettingsService, SocialService, UserAuthService}
+import io.fitcentive.user.services.{SettingsService, SocialService}
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient

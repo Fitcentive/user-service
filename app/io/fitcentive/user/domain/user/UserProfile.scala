@@ -1,5 +1,6 @@
 package io.fitcentive.user.domain.user
 
+import io.fitcentive.user.domain.location.Coordinates
 import play.api.libs.json.{Json, Reads, Writes}
 
 import java.time.LocalDate
@@ -10,10 +11,19 @@ case class UserProfile(
   firstName: Option[String],
   lastName: Option[String],
   photoUrl: Option[String],
-  dateOfBirth: Option[LocalDate]
+  dateOfBirth: Option[LocalDate],
+  locationCenter: Option[Coordinates],
+  locationRadius: Option[Integer]
 ) {
   def toUpdate: UserProfile.Update =
-    UserProfile.Update(firstName = firstName, lastName = lastName, photoUrl = photoUrl, dateOfBirth = dateOfBirth)
+    UserProfile.Update(
+      firstName = firstName,
+      lastName = lastName,
+      photoUrl = photoUrl,
+      dateOfBirth = dateOfBirth,
+      locationCenter = locationCenter,
+      locationRadius = locationRadius
+    )
 }
 
 object UserProfile {
@@ -24,7 +34,9 @@ object UserProfile {
     firstName: Option[String],
     lastName: Option[String],
     photoUrl: Option[String],
-    dateOfBirth: Option[LocalDate]
+    dateOfBirth: Option[LocalDate],
+    locationCenter: Option[Coordinates],
+    locationRadius: Option[Integer]
   )
 
   object Update {

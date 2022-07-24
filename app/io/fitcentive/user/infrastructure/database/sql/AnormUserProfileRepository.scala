@@ -4,6 +4,7 @@ import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.sdk.utils.AnormOps
+import io.fitcentive.user.domain.location.Coordinates
 import io.fitcentive.user.domain.user.{PublicUserProfile, UserProfile}
 import io.fitcentive.user.repositories.UserProfileRepository
 import play.api.db.Database
@@ -30,14 +31,15 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
     Future {
       Instant.now.pipe { now =>
         executeSqlWithExpectedReturn[UserProfileRow](
-          SQL_CREATE_AND_RETURN_USER_PROFILE,
+          SQL_CREATE_AND_RETURN_USER_PROFILE(userProfile.locationCenter),
           Seq(
             "userId" -> userId,
             "firstName" -> userProfile.firstName,
             "lastName" -> userProfile.lastName,
             "photoUrl" -> userProfile.photoUrl,
             "dateOfBirth" -> userProfile.dateOfBirth,
-            "now" -> now
+            "now" -> now,
+            "locationRadius" -> userProfile.locationRadius,
           )
         )(userProfileRowParser).toDomain
       }
@@ -47,14 +49,15 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
     Future {
       Instant.now.pipe { now =>
         executeSqlWithExpectedReturn[UserProfileRow](
-          SQL_UPDATE_AND_REPLACE_AND_RETURN_USER_PROFILE,
+          SQL_UPDATE_AND_REPLACE_AND_RETURN_USER_PROFILE(userProfile.locationCenter),
           Seq(
             "userId" -> userId,
             "firstName" -> userProfile.firstName,
             "lastName" -> userProfile.lastName,
             "photoUrl" -> userProfile.photoUrl,
             "dateOfBirth" -> userProfile.dateOfBirth,
-            "now" -> now
+            "now" -> now,
+            "locationRadius" -> userProfile.locationRadius,
           )
         )(userProfileRowParser).toDomain
       }
@@ -64,14 +67,15 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
     Future {
       Instant.now.pipe { now =>
         executeSqlWithExpectedReturn[UserProfileRow](
-          SQL_UPDATE_AND_RETURN_USER_PROFILE,
+          SQL_UPDATE_AND_RETURN_USER_PROFILE(userProfile.locationCenter),
           Seq(
             "userId" -> userId,
             "firstName" -> userProfile.firstName,
             "lastName" -> userProfile.lastName,
             "photoUrl" -> userProfile.photoUrl,
             "dateOfBirth" -> userProfile.dateOfBirth,
-            "now" -> now
+            "now" -> now,
+            "locationRadius" -> userProfile.locationRadius
           )
         )(userProfileRowParser).toDomain
       }
@@ -105,7 +109,7 @@ object AnormUserProfileRepository extends AnormOps {
   private def SQL_GET_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
     val sql =
       """
-        |select * 
+        |select user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
         |from user_profiles up
         |where up.user_id in (
         |""".stripMargin
@@ -114,7 +118,7 @@ object AnormUserProfileRepository extends AnormOps {
 
   private val SQL_GET_PUBLIC_USER_PROFILE_BY_ID: String =
     """
-        |select id, username, first_name, last_name, photo_url, date_of_birth
+        |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
         |from user_profiles up
         |left join users u
         |on up.user_id = u.id
@@ -124,7 +128,7 @@ object AnormUserProfileRepository extends AnormOps {
   private def SQL_GET_PUBLIC_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
     val sql =
       """
-        |select id, username, first_name, last_name, photo_url, date_of_birth
+        |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
         |from user_profiles up
         |left join users u
         |on up.user_id = u.id
@@ -135,47 +139,98 @@ object AnormUserProfileRepository extends AnormOps {
 
   private val SQL_GET_USER_PROFILE_BY_ID: String =
     """
-      |select * 
+      |select user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at
       |from user_profiles up
       |where up.user_id = {userId}::uuid ;
       |""".stripMargin
 
-  private val SQL_CREATE_AND_RETURN_USER_PROFILE: String =
-    """
-      |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, created_at, updated_at)
-      |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, {now}, {now})
-      |returning * ;
-      |""".stripMargin
+  private def SQL_CREATE_AND_RETURN_USER_PROFILE(coordinatesOpt: Option[Coordinates]): String = {
+    coordinatesOpt match {
+      case Some(Coordinates(lat, lng)) =>
+        s"""
+           |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, location_center, location_radius, created_at, updated_at)
+           |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, ST_GeomFromText('POINT($lat $lng)', $SRID), {locationRadius}, {now}, {now})
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |""".stripMargin
 
-  private val SQL_UPDATE_AND_RETURN_USER_PROFILE: String =
-    s"""
-     |update user_profiles u
-     |set 
-     |first_name = case when {firstName} is null then u.first_name else {firstName} end, 
-     |last_name = case when {lastName} is null then u.last_name else {lastName} end, 
-     |photo_url = case when {photoUrl} is null then u.photo_url else {photoUrl} end, 
-     |date_of_birth = case when {dateOfBirth}::date is null then u.date_of_birth else {dateOfBirth}::date end, 
-     |updated_at = {now}
-     |where u.user_id = {userId}::uuid 
-     |returning *;
-     |""".stripMargin
+      case None =>
+        s"""
+           |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, location_radius, created_at, updated_at)
+           |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, {locationRadius}, {now}, {now})
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |""".stripMargin
+    }
+  }
 
-  private val SQL_UPDATE_AND_REPLACE_AND_RETURN_USER_PROFILE: String =
-    s"""
-       |update user_profiles u
-       |set 
-       |first_name = {firstName}, 
-       |last_name = {lastName}, 
-       |photo_url = {photoUrl}, 
-       |date_of_birth = {dateOfBirth}::date, 
-       |updated_at = {now}
-       |where u.user_id = {userId}::uuid 
-       |returning *;
-       |""".stripMargin
+  private def SQL_UPDATE_AND_RETURN_USER_PROFILE(coordinatesOpt: Option[Coordinates]): String = {
+    coordinatesOpt match {
+      case Some(Coordinates(lat, lng)) =>
+        s"""
+           |update user_profiles u
+           |set 
+           |first_name = case when {firstName} is null then u.first_name else {firstName} end, 
+           |last_name = case when {lastName} is null then u.last_name else {lastName} end, 
+           |photo_url = case when {photoUrl} is null then u.photo_url else {photoUrl} end, 
+           |date_of_birth = case when {dateOfBirth}::date is null then u.date_of_birth else {dateOfBirth}::date end, 
+           |location_radius = case when {locationRadius} is null then u.location_radius else {locationRadius} end, 
+           |location_center = ST_GeomFromText('POINT($lat $lng)', $SRID), 
+           |updated_at = {now}
+           |where u.user_id = {userId}::uuid 
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |""".stripMargin
+
+      case None =>
+        s"""
+           |update user_profiles u
+           |set 
+           |first_name = case when {firstName} is null then u.first_name else {firstName} end, 
+           |last_name = case when {lastName} is null then u.last_name else {lastName} end, 
+           |photo_url = case when {photoUrl} is null then u.photo_url else {photoUrl} end, 
+           |date_of_birth = case when {dateOfBirth}::date is null then u.date_of_birth else {dateOfBirth}::date end, 
+           |location_radius = case when {locationRadius} is null then u.location_radius else {locationRadius} end, 
+           |updated_at = {now}
+           |where u.user_id = {userId}::uuid 
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |""".stripMargin
+    }
+  }
+
+  private def SQL_UPDATE_AND_REPLACE_AND_RETURN_USER_PROFILE(coordinatesOpt: Option[Coordinates]): String =
+    coordinatesOpt match {
+      case Some(Coordinates(lat, lng)) =>
+        s"""
+           |update user_profiles u
+           |set 
+           |first_name = {firstName}, 
+           |last_name = {lastName}, 
+           |photo_url = {photoUrl}, 
+           |date_of_birth = {dateOfBirth}::date, 
+           |location_radius = {locationRadius}, 
+           |location_center = ST_GeomFromText('POINT($lat $lng)', $SRID), 
+           |updated_at = {now}
+           |where u.user_id = {userId}::uuid 
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |""".stripMargin
+
+      case None =>
+        s"""
+           |update user_profiles u
+           |set 
+           |first_name = {firstName}, 
+           |last_name = {lastName}, 
+           |photo_url = {photoUrl}, 
+           |date_of_birth = {dateOfBirth}::date, 
+           |location_radius = {locationRadius}, 
+           |location_center = null, 
+           |updated_at = {now}
+           |where u.user_id = {userId}::uuid 
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |""".stripMargin
+    }
 
   private def SQL_SEARCH_BY_NAME_OR_USERNAME(searchQuery: String): String =
     s"""
-       |select id, username, first_name, last_name, photo_url, date_of_birth
+       |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
        |from user_profiles up
        |left join users u
        |on up.user_id = u.id
@@ -200,6 +255,8 @@ object AnormUserProfileRepository extends AnormOps {
     last_name: Option[String],
     photo_url: Option[String],
     date_of_birth: Option[LocalDate],
+    location_center: Option[String],
+    location_radius: Option[Integer],
     created_at: Instant,
     updated_at: Instant
   ) {
@@ -209,7 +266,9 @@ object AnormUserProfileRepository extends AnormOps {
         firstName = first_name,
         lastName = last_name,
         photoUrl = photo_url,
-        dateOfBirth = date_of_birth
+        dateOfBirth = date_of_birth,
+        locationCenter = location_center.map(Coordinates.fromString),
+        locationRadius = location_radius,
       )
   }
 
@@ -220,6 +279,8 @@ object AnormUserProfileRepository extends AnormOps {
     last_name: Option[String],
     photo_url: Option[String],
     date_of_birth: Option[LocalDate],
+    location_center: Option[String],
+    location_radius: Option[Integer],
   ) {
     def toDomain: PublicUserProfile =
       PublicUserProfile(
@@ -229,9 +290,14 @@ object AnormUserProfileRepository extends AnormOps {
         lastName = last_name,
         photoUrl = photo_url,
         dateOfBirth = date_of_birth,
+        locationCenter = location_center.map(Coordinates.fromString),
+        locationRadius = location_radius,
       )
   }
 
   private val userProfileRowParser: RowParser[UserProfileRow] = Macro.namedParser[UserProfileRow]
   private val publicUserProfileRowParser: RowParser[PublicUserProfileRow] = Macro.namedParser[PublicUserProfileRow]
+
+  // points in geographic wgs84 coordinates (epsg:4326)
+  private val SRID: Int = 4326
 }
