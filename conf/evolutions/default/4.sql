@@ -10,6 +10,6 @@ insert into gender_types (name) values ('Female');
 insert into gender_types (name) values ('Other');
 
 alter table user_profiles
-    add column gender varchar constraint fk_gender_types references gender_types;
+    add column gender varchar constraint fk_gender_types foreign key (gender) references gender_types (name);
 
 # -- !Downs
