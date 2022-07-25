@@ -1,5 +1,6 @@
 package io.fitcentive.user.domain.user
 
+import io.fitcentive.user.domain.Gender
 import io.fitcentive.user.domain.location.Coordinates
 import play.api.libs.json.{Json, Reads, Writes}
 
@@ -14,7 +15,8 @@ case class PublicUserProfile(
   photoUrl: Option[String],
   dateOfBirth: Option[LocalDate],
   locationCenter: Option[Coordinates],
-  locationRadius: Option[Int]
+  locationRadius: Option[Int],
+  gender: Option[Gender],
 )
 
 object PublicUserProfile {

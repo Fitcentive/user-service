@@ -4,6 +4,7 @@ import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
 import io.fitcentive.sdk.utils.AnormOps
+import io.fitcentive.user.domain.Gender
 import io.fitcentive.user.domain.location.Coordinates
 import io.fitcentive.user.domain.user.{PublicUserProfile, UserProfile}
 import io.fitcentive.user.repositories.UserProfileRepository
@@ -40,6 +41,7 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
             "dateOfBirth" -> userProfile.dateOfBirth,
             "now" -> now,
             "locationRadius" -> userProfile.locationRadius,
+            "gender" -> userProfile.gender,
           )
         )(userProfileRowParser).toDomain
       }
@@ -58,6 +60,7 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
             "dateOfBirth" -> userProfile.dateOfBirth,
             "now" -> now,
             "locationRadius" -> userProfile.locationRadius,
+            "gender" -> userProfile.gender,
           )
         )(userProfileRowParser).toDomain
       }
@@ -75,7 +78,8 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
             "photoUrl" -> userProfile.photoUrl,
             "dateOfBirth" -> userProfile.dateOfBirth,
             "now" -> now,
-            "locationRadius" -> userProfile.locationRadius
+            "locationRadius" -> userProfile.locationRadius,
+            "gender" -> userProfile.gender,
           )
         )(userProfileRowParser).toDomain
       }
@@ -109,7 +113,7 @@ object AnormUserProfileRepository extends AnormOps {
   private def SQL_GET_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
     val sql =
       """
-        |select user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
+        |select user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender
         |from user_profiles up
         |where up.user_id in (
         |""".stripMargin
@@ -118,7 +122,7 @@ object AnormUserProfileRepository extends AnormOps {
 
   private val SQL_GET_PUBLIC_USER_PROFILE_BY_ID: String =
     """
-        |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
+        |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender
         |from user_profiles up
         |left join users u
         |on up.user_id = u.id
@@ -128,7 +132,7 @@ object AnormUserProfileRepository extends AnormOps {
   private def SQL_GET_PUBLIC_USER_PROFILES_BY_IDS(userIds: Seq[UUID]): String = {
     val sql =
       """
-        |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
+        |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender
         |from user_profiles up
         |left join users u
         |on up.user_id = u.id
@@ -139,7 +143,7 @@ object AnormUserProfileRepository extends AnormOps {
 
   private val SQL_GET_USER_PROFILE_BY_ID: String =
     """
-      |select user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at
+      |select user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender, created_at, updated_at
       |from user_profiles up
       |where up.user_id = {userId}::uuid ;
       |""".stripMargin
@@ -148,16 +152,16 @@ object AnormUserProfileRepository extends AnormOps {
     coordinatesOpt match {
       case Some(Coordinates(lat, lng)) =>
         s"""
-           |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, location_center, location_radius, created_at, updated_at)
-           |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, ST_GeomFromText('POINT($lat $lng)', $SRID), {locationRadius}, {now}, {now})
-           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, location_center, location_radius, gender, created_at, updated_at)
+           |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, ST_GeomFromText('POINT($lat $lng)', $SRID), {locationRadius}, {gender}, {now}, {now})
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender, created_at, updated_at;
            |""".stripMargin
 
       case None =>
         s"""
-           |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, location_radius, created_at, updated_at)
-           |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, {locationRadius}, {now}, {now})
-           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |insert into user_profiles (user_id, first_name, last_name, photo_url, date_of_birth, location_radius, gender, created_at, updated_at)
+           |values ({userId}::uuid, {firstName}, {lastName}, {photoUrl}, {dateOfBirth}, {locationRadius}, {gender}, {now}, {now})
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender, created_at, updated_at;
            |""".stripMargin
     }
   }
@@ -173,6 +177,7 @@ object AnormUserProfileRepository extends AnormOps {
            |photo_url = case when {photoUrl} is null then u.photo_url else {photoUrl} end, 
            |date_of_birth = case when {dateOfBirth}::date is null then u.date_of_birth else {dateOfBirth}::date end, 
            |location_radius = case when {locationRadius} is null then u.location_radius else {locationRadius} end, 
+           |gender = case when {gender} is null then u.gender else {gender} end, 
            |location_center = ST_GeomFromText('POINT($lat $lng)', $SRID), 
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
@@ -188,6 +193,7 @@ object AnormUserProfileRepository extends AnormOps {
            |photo_url = case when {photoUrl} is null then u.photo_url else {photoUrl} end, 
            |date_of_birth = case when {dateOfBirth}::date is null then u.date_of_birth else {dateOfBirth}::date end, 
            |location_radius = case when {locationRadius} is null then u.location_radius else {locationRadius} end, 
+           |gender = case when {gender} is null then u.gender else {gender} end,
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
            |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
@@ -206,7 +212,8 @@ object AnormUserProfileRepository extends AnormOps {
            |photo_url = {photoUrl}, 
            |date_of_birth = {dateOfBirth}::date, 
            |location_radius = {locationRadius}, 
-           |location_center = ST_GeomFromText('POINT($lat $lng)', $SRID), 
+           |location_center = ST_GeomFromText('POINT($lat $lng)', $SRID),
+           |gender = {gender},
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
            |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
@@ -221,7 +228,8 @@ object AnormUserProfileRepository extends AnormOps {
            |photo_url = {photoUrl}, 
            |date_of_birth = {dateOfBirth}::date, 
            |location_radius = {locationRadius}, 
-           |location_center = null, 
+           |location_center = null,
+           |gender = {gender},
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
            |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
@@ -230,7 +238,7 @@ object AnormUserProfileRepository extends AnormOps {
 
   private def SQL_SEARCH_BY_NAME_OR_USERNAME(searchQuery: String): String =
     s"""
-       |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius
+       |select id, username, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, gender
        |from user_profiles up
        |left join users u
        |on up.user_id = u.id
@@ -257,6 +265,7 @@ object AnormUserProfileRepository extends AnormOps {
     date_of_birth: Option[LocalDate],
     location_center: Option[String],
     location_radius: Option[Int],
+    gender: Option[String],
     created_at: Instant,
     updated_at: Instant
   ) {
@@ -269,6 +278,7 @@ object AnormUserProfileRepository extends AnormOps {
         dateOfBirth = date_of_birth,
         locationCenter = location_center.map(Coordinates.fromString),
         locationRadius = location_radius,
+        gender = gender.map(Gender.apply)
       )
   }
 
@@ -281,6 +291,7 @@ object AnormUserProfileRepository extends AnormOps {
     date_of_birth: Option[LocalDate],
     location_center: Option[String],
     location_radius: Option[Int],
+    gender: Option[String],
   ) {
     def toDomain: PublicUserProfile =
       PublicUserProfile(
@@ -292,6 +303,7 @@ object AnormUserProfileRepository extends AnormOps {
         dateOfBirth = date_of_birth,
         locationCenter = location_center.map(Coordinates.fromString),
         locationRadius = location_radius,
+        gender = gender.map(Gender.apply)
       )
   }
 
