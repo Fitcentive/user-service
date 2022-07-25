@@ -181,7 +181,7 @@ object AnormUserProfileRepository extends AnormOps {
            |location_center = ST_GeomFromText('POINT($lat $lng)', $SRID), 
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
-           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, gender, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
            |""".stripMargin
 
       case None =>
@@ -196,7 +196,7 @@ object AnormUserProfileRepository extends AnormOps {
            |gender = case when {gender} is null then u.gender else {gender} end,
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
-           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, gender, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
            |""".stripMargin
     }
   }
@@ -216,7 +216,7 @@ object AnormUserProfileRepository extends AnormOps {
            |gender = {gender},
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
-           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, gender, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
            |""".stripMargin
 
       case None =>
@@ -232,7 +232,7 @@ object AnormUserProfileRepository extends AnormOps {
            |gender = {gender},
            |updated_at = {now}
            |where u.user_id = {userId}::uuid 
-           |returning user_id, first_name, last_name, photo_url, date_of_birth, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
+           |returning user_id, first_name, last_name, photo_url, date_of_birth, gender, ST_ASTEXT(location_center) as location_center, location_radius, created_at, updated_at;
            |""".stripMargin
     }
 
