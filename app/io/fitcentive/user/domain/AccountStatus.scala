@@ -12,6 +12,7 @@ object AccountStatus {
       case UsernameCreationRequired.stringValue   => UsernameCreationRequired
       case TermsAndConditionsRequired.stringValue => TermsAndConditionsRequired
       case ProfileInfoRequired.stringValue        => ProfileInfoRequired
+      case LocationRadiusRequired.stringValue     => LocationRadiusRequired
       case LoginReady.stringValue                 => LoginReady
       case _                                      => throw new Exception("Unexpected account status")
     }
@@ -21,6 +22,7 @@ object AccountStatus {
       case UsernameCreationRequired   => JsString(UsernameCreationRequired.stringValue)
       case TermsAndConditionsRequired => JsString(TermsAndConditionsRequired.stringValue)
       case ProfileInfoRequired        => JsString(ProfileInfoRequired.stringValue)
+      case LocationRadiusRequired     => JsString(LocationRadiusRequired.stringValue)
       case LoginReady                 => JsString(LoginReady.stringValue)
     }
   }
@@ -35,6 +37,10 @@ object AccountStatus {
 
   case object ProfileInfoRequired extends AccountStatus {
     val stringValue: String = "ProfileInfoRequired"
+  }
+
+  case object LocationRadiusRequired extends AccountStatus {
+    val stringValue: String = "LocationRadiusRequired"
   }
 
   case object LoginReady extends AccountStatus {
