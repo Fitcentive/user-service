@@ -20,6 +20,5 @@ case class PublicUserProfile(
 )
 
 object PublicUserProfile {
-  implicit lazy val reads: Reads[PublicUserProfile] = Json.reads[PublicUserProfile]
   implicit lazy val writes: Writes[PublicUserProfile] = Json.writes[PublicUserProfile]
 }
