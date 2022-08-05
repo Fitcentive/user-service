@@ -96,6 +96,16 @@ class UserController @Inject() (
   // -----------------------------
   // Internal Auth routes
   // -----------------------------
+  def getPublicUserProfilesByIdsInternal: Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      validateJson[GetDataByIdsPayload](request.body.asJson) { getPublicUserProfilesByIdsPayload =>
+        userApi
+          .getPublicUserProfilesByIds(getPublicUserProfilesByIdsPayload.userIds)
+          .map(users => Ok(Json.toJson(users)))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
   def getUserProfileInternal(userId: UUID): Action[AnyContent] =
     internalAuthAction.async { implicit request =>
       userApi
