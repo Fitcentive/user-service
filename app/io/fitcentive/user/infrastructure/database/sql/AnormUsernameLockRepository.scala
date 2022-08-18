@@ -62,7 +62,7 @@ object AnormUsernameLockRepository {
   private val SQL_ADD_USERNAME: String =
     """
       |insert into username_lock (username, user_id) 
-      |values ({username},  {userId}) ;
+      |values ({username},  {userId}::uuid) ;
       |""".stripMargin
 
   private case class LockRow(user_id: UUID, username: String) {
