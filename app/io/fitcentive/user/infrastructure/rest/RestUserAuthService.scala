@@ -42,7 +42,6 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
         }
       }
 
-  // todo - make sure this URL isnt accessible from the outside world
   override def resetUserPassword(email: String, password: String): Future[Either[DomainError, Unit]] = {
     wsClient
       .url(s"$baseUrl/api/internal/auth/user/reset-password")

@@ -1,11 +1,13 @@
 package io.fitcentive.user.infrastructure.database.sql
 
-import anorm.SqlParser
+import anorm.{Macro, RowParser}
 import io.fitcentive.sdk.infrastructure.contexts.DatabaseExecutionContext
 import io.fitcentive.sdk.infrastructure.database.DatabaseClient
+import io.fitcentive.user.domain.lock.UsernameLock
 import io.fitcentive.user.repositories.UsernameLockRepository
 import play.api.db.Database
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
@@ -26,14 +28,14 @@ class AnormUsernameLockRepository @Inject() (val db: Database)(implicit val dbec
       executeSqlWithoutReturning(SQL_REMOVE_USERNAME, Seq("username" -> username))
     }
 
-  override def saveUsername(username: String): Future[Unit] =
+  override def saveUsername(username: String, userId: UUID): Future[Unit] =
     Future {
-      executeSqlWithoutReturning(SQL_ADD_USERNAME, Seq("username" -> username))
+      executeSqlWithoutReturning(SQL_ADD_USERNAME, Seq("username" -> username, "userId" -> userId))
     }
 
-  override def getUsername(username: String): Future[Option[String]] =
+  override def getUsername(username: String): Future[Option[UsernameLock]] =
     Future {
-      getRecordOpt(SQL_GET_USERNAME, "username" -> username)(SqlParser.scalar[String])
+      getRecordOpt(SQL_GET_USERNAME, "username" -> username)(lockRowParser).map(_.toDomain)
     }
 }
 
@@ -59,7 +61,13 @@ object AnormUsernameLockRepository {
 
   private val SQL_ADD_USERNAME: String =
     """
-      |insert into username_lock (username) 
-      |values ({username}) ;
+      |insert into username_lock (username, user_id) 
+      |values ({username},  {userId}) ;
       |""".stripMargin
+
+  private case class LockRow(user_id: UUID, username: String) {
+    def toDomain: UsernameLock = UsernameLock(userId = user_id, username = username)
+  }
+
+  private val lockRowParser: RowParser[LockRow] = Macro.namedParser[LockRow]
 }

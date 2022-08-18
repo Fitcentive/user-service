@@ -282,10 +282,10 @@ class UserController @Inject() (
       }
     }
 
-  def checkIfUsernameExists(username: String): Action[AnyContent] =
+  def checkIfUsernameExists(userId: UUID, username: String): Action[AnyContent] =
     userAuthAction.async { implicit request =>
       userApi
-        .checkIfUserExistsForUsername(username)
+        .checkIfUserExistsForUsername(username, userId)
         .map {
           case true  => Ok
           case false => NotFound

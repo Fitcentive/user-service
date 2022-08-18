@@ -38,32 +38,29 @@ class UserApi @Inject() (
   def clearUsernameLockTable: Future[Unit] =
     usernameLockRepository.removeAll
 
-  def checkIfUserExistsForParameters(
-    usernameOpt: Option[String],
-    emailOpt: Option[String]
-  ): Future[Either[DomainError, Boolean]] = {
-    (usernameOpt, emailOpt) match {
-      case (Some(username), None) => checkIfUserExistsForUsername(username).map(Right.apply)
-      case (None, Some(email))    => checkIfUserExistsForEmail(email).map(Right.apply)
-      case (Some(_), Some(_)) | (None, None) =>
-        Future.successful(Left(RequestParametersError("At least one of `username` or `email` required")))
-    }
-  }
-
   def checkIfUserExistsForEmail(email: String): Future[Boolean] =
     userRepository.getUserByEmail(email).map(_.isDefined)
 
   /**
     * Checks if username is already in use or not
-    * If username is available, then it is added to the username_lock table
+    * Username is said to be in use iff
+    *   1. User exists with username
+    *   2. OR username exists in username_lock table AND is not reserved by current user in question
+    * If username is available (not in use), then it is added to the username_lock table
     * username_lock table is cleared out periodically by k8s cron job
     */
-  def checkIfUserExistsForUsername(username: String): Future[Boolean] =
+  def checkIfUserExistsForUsername(username: String, userId: UUID): Future[Boolean] =
     for {
       savedUsernameOpt <- userRepository.getUserByUsername(username)
       lockedUsernameOpt <- usernameLockRepository.getUsername(username)
-      usernameExists = savedUsernameOpt.isDefined || lockedUsernameOpt.isDefined
-      _ <- if (usernameExists) Future.unit else usernameLockRepository.saveUsername(username)
+      usernameExists = savedUsernameOpt.isDefined || lockedUsernameOpt.exists(_.userId != userId)
+      _ <- {
+        if (usernameExists) Future.unit
+        else {
+          if (lockedUsernameOpt.exists(_.userId == userId)) Future.unit
+          else usernameLockRepository.saveUsername(username, userId)
+        }
+      }
     } yield usernameExists
 
   def updateUserPatch(userId: UUID, userUpdate: User.Patch): Future[Either[DomainError, User]] =
