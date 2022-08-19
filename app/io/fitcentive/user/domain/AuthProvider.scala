@@ -11,6 +11,7 @@ object AuthProvider {
     status match {
       case NativeAuth.stringValue => NativeAuth
       case GoogleAuth.stringValue => GoogleAuth
+      case AppleAuth.stringValue  => AppleAuth
       case _                      => throw new Exception("Unexpected auth provider")
     }
 
@@ -18,6 +19,7 @@ object AuthProvider {
     {
       case NativeAuth => JsString(NativeAuth.stringValue)
       case GoogleAuth => JsString(GoogleAuth.stringValue)
+      case AppleAuth  => JsString(AppleAuth.stringValue)
     }
   }
 
@@ -27,6 +29,10 @@ object AuthProvider {
 
   case object GoogleAuth extends AuthProvider {
     val stringValue: String = "GoogleAuth"
+  }
+
+  case object AppleAuth extends AuthProvider {
+    val stringValue: String = "AppleAuth"
   }
 
 }
