@@ -173,6 +173,14 @@ class UserController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
+  def getUserByEmail(email: String): Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      userApi
+        .getUserByEmail(email)
+        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        .recover(resultErrorAsyncHandler)
+    }
+
   // -----------------------------
   // User Auth routes
   // -----------------------------
