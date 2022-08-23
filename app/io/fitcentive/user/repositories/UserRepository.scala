@@ -14,6 +14,7 @@ trait UserRepository {
   def updateUserPatch(userId: UUID, user: User.Patch): Future[User]
   def updateUserPost(userId: UUID, user: User.Post): Future[User]
   def getUserByEmail(email: String): Future[Option[User]]
+  def getUserByEmailAndRealm(email: String, realm: String): Future[Option[User]]
   def getUserByUsername(username: String): Future[Option[User]]
   def getUserById(id: UUID): Future[Option[User]]
   def getUsers: Future[Seq[User]]

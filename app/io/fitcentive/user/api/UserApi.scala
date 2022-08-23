@@ -148,9 +148,9 @@ class UserApi @Inject() (
           .getOrElse(Left(EntityNotFoundError("User not found!")))
       )
 
-  def getUserByEmail(email: String): Future[Either[DomainError, User]] =
+  def getUserByEmailAndRealm(email: String, realm: String): Future[Either[DomainError, User]] =
     userRepository
-      .getUserByEmail(email)
+      .getUserByEmailAndRealm(email, realm)
       .map(
         _.map(Right.apply)
           .getOrElse(Left(EntityNotFoundError("User not found!")))

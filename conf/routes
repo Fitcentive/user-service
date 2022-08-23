@@ -36,7 +36,7 @@ POST    /api/user/password/validate-token                                       
 POST    /api/user/password/reset                                                                io.fitcentive.user.controllers.UserController.resetPassword
 
 # Internal endpoints
-GET      /api/internal/user/email                                                               io.fitcentive.user.controllers.UserController.getUserByEmail(email: String)
+GET      /api/internal/user/email                                                               io.fitcentive.user.controllers.UserController.getUserByEmailAndRealm(email: String, realm: String)
 POST     /api/internal/user/sso                                                                 io.fitcentive.user.controllers.UserController.createSsoUser
 POST     /api/internal/user/:userId/profile                                                     io.fitcentive.user.controllers.UserController.createOrUpdateUserProfileInternal(userId: java.util.UUID)
 GET      /api/internal/user/:userId/profile                                                     io.fitcentive.user.controllers.UserController.getUserProfileInternal(userId: java.util.UUID)

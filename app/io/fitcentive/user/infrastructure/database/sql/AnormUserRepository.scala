@@ -47,6 +47,11 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
       getRecordOpt(SQL_GET_USER_BY_EMAIL, "email" -> email)(userRowParser).map(_.toDomain)
     }
 
+  override def getUserByEmailAndRealm(email: String, realm: String): Future[Option[User]] =
+    Future {
+      getRecordOpt(SQL_GET_USER_BY_EMAIL_AND_REALM, "email" -> email, "realm" -> realm)(userRowParser).map(_.toDomain)
+    }
+
   override def createUser(user: User.Create, id: UUID = UUID.randomUUID()): Future[User] =
     Future {
       Instant.now.pipe { now =>
@@ -171,6 +176,14 @@ object AnormUserRepository extends AnormOps {
       |select * 
       |from users u
       |where u.email = {email} ;
+      |""".stripMargin
+
+  private val SQL_GET_USER_BY_EMAIL_AND_REALM: String =
+    """
+      |select * 
+      |from users u
+      |where u.email = {email} 
+      |and u.auth_provider = {realm} ;
       |""".stripMargin
 
   private val SQL_GET_USER_BY_USERNAME: String =

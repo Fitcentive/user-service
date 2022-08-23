@@ -165,10 +165,10 @@ class UserController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
-  def getUserByEmail(email: String): Action[AnyContent] =
+  def getUserByEmailAndRealm(email: String, realm: String): Action[AnyContent] =
     internalAuthAction.async { implicit request =>
       userApi
-        .getUserByEmail(email)
+        .getUserByEmailAndRealm(email, realm)
         .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
         .recover(resultErrorAsyncHandler)
     }
