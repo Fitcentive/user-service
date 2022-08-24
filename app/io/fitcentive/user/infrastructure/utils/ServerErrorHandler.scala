@@ -10,6 +10,7 @@ import io.fitcentive.user.domain.errors.{
   EmailValidationError,
   ImageUploadError,
   PasswordResetError,
+  PasswordValidationError,
   RequestParametersError,
   TokenVerificationError
 }
@@ -25,18 +26,19 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
   }
 
   override def domainErrorHandler: PartialFunction[DomainError, Result] = {
-    case AuthUserCreationError(reason)  => BadRequest(reason)
-    case ImageUploadError(reason)       => InternalServerError(reason)
-    case AuthProviderError(reason)      => BadRequest(reason)
-    case AuthUserUpdateError(reason)    => BadRequest(reason)
-    case TokenVerificationError(reason) => Unauthorized(reason)
-    case PasswordResetError(reason)     => BadRequest(reason)
-    case EmailValidationError(reason)   => BadRequest(reason)
-    case RequestParametersError(reason) => BadRequest(reason)
-    case EntityNotFoundError(reason)    => NotFound(reason)
-    case EntityConflictError(reason)    => Conflict(reason)
-    case EntityNotAccessible(reason)    => Forbidden(reason)
-    case _                              => InternalServerError("Unexpected error occurred ")
+    case AuthUserCreationError(reason)   => BadRequest(reason)
+    case ImageUploadError(reason)        => InternalServerError(reason)
+    case AuthProviderError(reason)       => BadRequest(reason)
+    case AuthUserUpdateError(reason)     => BadRequest(reason)
+    case TokenVerificationError(reason)  => Unauthorized(reason)
+    case PasswordResetError(reason)      => BadRequest(reason)
+    case EmailValidationError(reason)    => BadRequest(reason)
+    case PasswordValidationError(reason) => BadRequest(reason)
+    case RequestParametersError(reason)  => BadRequest(reason)
+    case EntityNotFoundError(reason)     => NotFound(reason)
+    case EntityConflictError(reason)     => Conflict(reason)
+    case EntityNotAccessible(reason)     => Forbidden(reason)
+    case _                               => InternalServerError("Unexpected error occurred ")
   }
 
 }

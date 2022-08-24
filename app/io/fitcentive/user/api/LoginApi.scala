@@ -4,7 +4,12 @@ import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityConflictError, EntityNotFoundError}
 import io.fitcentive.user.domain.AuthProvider
 import io.fitcentive.user.domain.email.EmailVerificationToken
-import io.fitcentive.user.domain.errors.{AuthProviderError, EmailValidationError, TokenVerificationError}
+import io.fitcentive.user.domain.errors.{
+  AuthProviderError,
+  EmailValidationError,
+  PasswordValidationError,
+  TokenVerificationError
+}
 import io.fitcentive.user.domain.user.{User, UserAgreements}
 import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserAgreementsRepository, UserRepository}
 import io.fitcentive.user.services.{MessageBusService, TokenGenerationService, UserAuthService}
@@ -105,8 +110,15 @@ class LoginApi @Inject() (
       case _                                             => Future.successful(Left(EmailValidationError("Invalid email provided")))
     }
 
+  private def verifyPasswordStrength(password: String): Future[Either[DomainError, Unit]] =
+    password match {
+      case e if passwordRegex.findFirstMatchIn(e).isDefined => Future.successful(Right())
+      case _                                                => Future.successful(Left(PasswordValidationError("Password too weak!")))
+    }
+
   def resetPassword(email: String, token: String, newPassword: String): Future[Either[DomainError, Unit]] =
     (for {
+      _ <- EitherT[Future, DomainError, Unit](verifyPasswordStrength(newPassword))
       _ <- EitherT[Future, DomainError, Unit](verifyEmailToken(email, token))
       _ <- EitherT[Future, DomainError, Unit](userAuthService.resetUserPassword(email, newPassword))
     } yield ()).value
@@ -114,6 +126,8 @@ class LoginApi @Inject() (
 }
 
 object LoginApi {
+  private val passwordRegex =
+    """^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~^-_=+]).{8,}$""".r
   private val emailRegex =
     """^[a-zA-Z0-9\\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 }
