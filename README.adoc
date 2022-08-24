@@ -7,6 +7,7 @@ A reactive/rest microservice to handle and server data pertaining to users
 1. https://www.keycloak.org/guides#getting-started[keycloak server] to validate token
 2. Java 8+
 3. Sbt
+4. Postgres
 
 == Running service locally
 1. This service has a dependency on the `auth-service`. Either run that locally as well, or use `kubectl` port forwarding to make it available
