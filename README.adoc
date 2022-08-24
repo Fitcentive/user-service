@@ -56,10 +56,11 @@ Note - these pre-requisites need only be done **once ever**. If you are deployin
 
 === 1. Delete existing deployment and build fresh image
 1. `kubectl delete deployment/user-service`
-2. `docker image ls | grep user`
-3. `docker image rm user`
-4. `docker image rm <image_hash>`
-5. `sbt docker:publishLocal`
+2. `eval $(minikube --profile=hyperkit docker-env)`
+3. `docker image ls | grep user`
+4. `docker image rm user`
+5. `docker image rm <image_hash>`
+6. `sbt docker:publishLocal`
 
 
 === 2. Deploy manifests to minikube
