@@ -3,7 +3,8 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET      /api/user/health                                                                       io.fitcentive.user.controllers.HealthController.healthCheck
+GET      /api/user/health                                                                       io.fitcentive.user.controllers.HealthController.livenessProbe
+GET      /api/user/healthz                                                                      io.fitcentive.user.controllers.HealthController.readinessProbe
 
 # User endpoints
 POST     /api/user                                                                              io.fitcentive.user.controllers.UserController.createUser
