@@ -33,6 +33,7 @@ class AnormUserAgreementsRepository @Inject() (val db: Database)(implicit val db
           Seq(
             "userId" -> userId,
             "termsAndConditionsAccepted" -> userAgreements.termsAndConditionsAccepted,
+            "privacyPolicyAccepted" -> userAgreements.privacyPolicyAccepted,
             "subscribeToEmails" -> userAgreements.subscribeToEmails,
             "now" -> now
           )
@@ -48,6 +49,7 @@ class AnormUserAgreementsRepository @Inject() (val db: Database)(implicit val db
           Seq(
             "userId" -> userId,
             "termsAndConditionsAccepted" -> userAgreements.termsAndConditionsAccepted,
+            "privacyPolicyAccepted" -> userAgreements.privacyPolicyAccepted,
             "subscribeToEmails" -> userAgreements.subscribeToEmails,
             "now" -> now
           )
@@ -67,8 +69,8 @@ object AnormUserAgreementsRepository {
 
   private val SQL_CREATE_AND_RETURN_USER_AGREEMENT: String =
     """
-      |insert into user_agreements (user_id, terms_and_conditions_accepted, subscribe_to_emails, created_at, updated_at)
-      |values ({userId}::uuid, {termsAndConditionsAccepted}, {subscribeToEmails}, {now}, {now})
+      |insert into user_agreements (user_id, terms_and_conditions_accepted, privacy_policy_accepted, subscribe_to_emails, created_at, updated_at)
+      |values ({userId}::uuid, {termsAndConditionsAccepted}, {privacyPolicyAccepted}, {subscribeToEmails}, {now}, {now})
       |returning * ;
       |""".stripMargin
 
@@ -77,6 +79,7 @@ object AnormUserAgreementsRepository {
        |update user_agreements u
        |set 
        |terms_and_conditions_accepted = case when {termsAndConditionsAccepted} is null then u.terms_and_conditions_accepted else {termsAndConditionsAccepted} end, 
+       |privacy_policy_accepted = case when {privacyPolicyAccepted} is null then u.privacy_policy_accepted else {privacyPolicyAccepted} end, 
        |subscribe_to_emails = case when {subscribeToEmails} is null then u.subscribe_to_emails else {subscribeToEmails} end, 
        |updated_at = {now}
        |where u.user_id = {userId}::uuid 
@@ -87,6 +90,7 @@ object AnormUserAgreementsRepository {
     user_id: UUID,
     terms_and_conditions_accepted: Boolean,
     subscribe_to_emails: Boolean,
+    privacy_policy_accepted: Boolean,
     created_at: Instant,
     updated_at: Instant
   ) {
@@ -94,6 +98,7 @@ object AnormUserAgreementsRepository {
       UserAgreements(
         userId = user_id,
         termsAndConditionsAccepted = terms_and_conditions_accepted,
+        privacyPolicyAccepted = privacy_policy_accepted,
         subscribeToEmails = subscribe_to_emails,
         createdAt = created_at,
         updatedAt = updated_at

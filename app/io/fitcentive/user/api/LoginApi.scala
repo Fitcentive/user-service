@@ -56,7 +56,11 @@ class LoginApi @Inject() (
           .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
       )
       user <- EitherT.right[DomainError](userRepository.createSsoUser(userCreate))
-      newUserAgreements = UserAgreements.Create(termsAndConditionsAccepted = false, subscribeToEmails = false)
+      newUserAgreements = UserAgreements.Create(
+        termsAndConditionsAccepted = false,
+        privacyPolicyAccepted = false,
+        subscribeToEmails = false
+      )
       _ <- EitherT.right[DomainError](userAgreementsRepository.createUserAgreements(user.id, newUserAgreements))
     } yield user).value
 

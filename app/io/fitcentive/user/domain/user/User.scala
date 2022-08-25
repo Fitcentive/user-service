@@ -39,10 +39,11 @@ object User {
     email: String,
     verificationToken: String,
     termsAndConditionsAccepted: Boolean,
+    privacyPolicyAccepted: Boolean,
     subscribeToEmails: Boolean
   ) {
     def toUserAgreementsCreate: UserAgreements.Create =
-      UserAgreements.Create(termsAndConditionsAccepted, subscribeToEmails)
+      UserAgreements.Create(termsAndConditionsAccepted, privacyPolicyAccepted, subscribeToEmails)
   }
 
   case class CreateSsoUser(email: String, ssoProvider: String)
