@@ -1,7 +1,7 @@
 = User Service
 
 == Description
-A reactive/rest microservice to handle and server data pertaining to users
+A reactive/rest microservice to handle and serve data pertaining to users
 
 == Pre-requisites
 1. https://www.keycloak.org/guides#getting-started[keycloak server] to validate token
