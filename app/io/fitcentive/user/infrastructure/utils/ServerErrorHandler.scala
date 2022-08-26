@@ -12,6 +12,7 @@ import io.fitcentive.user.domain.errors.{
   PasswordResetError,
   PasswordValidationError,
   RequestParametersError,
+  SocialServiceError,
   TokenVerificationError
 }
 import play.api.mvc.Result
@@ -38,6 +39,7 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
     case EntityNotFoundError(reason)     => NotFound(reason)
     case EntityConflictError(reason)     => Conflict(reason)
     case EntityNotAccessible(reason)     => Forbidden(reason)
+    case SocialServiceError(reason)      => InternalServerError(reason)
     case _                               => InternalServerError("Unexpected error occurred ")
   }
 
