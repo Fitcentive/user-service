@@ -62,6 +62,18 @@ spec:
               value: "http://social-service"
             - name: SOCIAL_SERVICE_PORT
               value: "9000"
+            - name: DISCOVER_SERVICE_HOST
+              value: "http://discover-service"
+            - name: DISCOVER_SERVICE_PORT
+              value: "9000"
+            - name: NOTIFICATION_SERVICE_HOST
+              value: "http://notification-service"
+            - name: NOTIFICATION_SERVICE_PORT
+              value: "9000"
+            - name: CHAT_SERVICE_HOST
+              value: "http://chat-service"
+            - name: CHAT_SERVICE_PORT
+              value: "9000"
             - name: IMAGE_SERVICE_HOST
               value: "http://image-service"
             - name: IMAGE_SERVICE_PORT

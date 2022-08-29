@@ -18,6 +18,11 @@ class AnormUsernameLockRepository @Inject() (val db: Database)(implicit val dbec
 
   import AnormUsernameLockRepository._
 
+  override def removeAllForUser(userId: UUID): Future[Unit] =
+    Future {
+      executeSqlWithoutReturning(SQL_REMOVE_ALL_FOR_USER, Seq("userId" -> userId))
+    }
+
   override def removeAll: Future[Unit] =
     Future {
       executeSqlWithoutReturning(SQL_REMOVE_ALL, Seq.empty)
@@ -50,6 +55,12 @@ object AnormUsernameLockRepository {
   private val SQL_REMOVE_ALL: String =
     """
       |delete from username_lock ;
+      |""".stripMargin
+
+  private val SQL_REMOVE_ALL_FOR_USER: String =
+    """
+      |delete from username_lock 
+      |where user_id = {userId}::uuid ;
       |""".stripMargin
 
   private val SQL_GET_USERNAME: String =

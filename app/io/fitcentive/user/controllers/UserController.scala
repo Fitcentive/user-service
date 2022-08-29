@@ -321,4 +321,14 @@ class UserController @Inject() (
       }
     }
 
+  def deleteUserAccount(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .deleteUserAccount(userId)
+          .map(handleEitherResult(_)(_ => NoContent))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
 }

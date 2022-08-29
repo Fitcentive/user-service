@@ -10,6 +10,7 @@ import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,6 +32,32 @@ class RestSocialService @Inject() (wsClient: WSClient, settingsService: Settings
         response.status match {
           case Status.OK => Right(())
           case status    => Left(SocialServiceError(s"Unexpected status from social-service: $status"))
+        }
+      }
+
+  override def deleteUserSocialMediaContent(userId: UUID): Future[Either[DomainError, Unit]] =
+    wsClient
+      .url(s"$baseUrl/api/internal/social/user/$userId/social-media")
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .addServiceSecret(settingsService)
+      .delete()
+      .map { response =>
+        response.status match {
+          case Status.NO_CONTENT => Right(())
+          case status            => Left(SocialServiceError(s"Unexpected status from social-service: $status"))
+        }
+      }
+
+  override def deleteUserFromGraphDb(userId: UUID): Future[Either[DomainError, Unit]] =
+    wsClient
+      .url(s"$baseUrl/api/internal/social/user/$userId")
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .addServiceSecret(settingsService)
+      .delete()
+      .map { response =>
+        response.status match {
+          case Status.NO_CONTENT => Right(())
+          case status            => Left(SocialServiceError(s"Unexpected status from social-service: $status"))
         }
       }
 }

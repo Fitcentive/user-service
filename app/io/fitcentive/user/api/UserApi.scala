@@ -2,17 +2,10 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.errors.RequestParametersError
 import io.fitcentive.user.domain.user.{PublicUserProfile, User, UserAgreements, UserFollowRequest, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ImageSupport
-import io.fitcentive.user.repositories.{
-  UserAgreementsRepository,
-  UserFollowRequestRepository,
-  UserProfileRepository,
-  UserRepository,
-  UsernameLockRepository
-}
-import io.fitcentive.user.services.{ImageService, SocialService, UserAuthService}
+import io.fitcentive.user.repositories._
+import io.fitcentive.user.services._
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -23,12 +16,16 @@ import scala.util.Try
 class UserApi @Inject() (
   userRepository: UserRepository,
   userAgreementsRepository: UserAgreementsRepository,
+  emailVerificationTokenRepository: EmailVerificationTokenRepository,
   userAuthService: UserAuthService,
   imageService: ImageService,
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository,
   userFollowRequestRepository: UserFollowRequestRepository,
   socialService: SocialService,
+  discoverService: DiscoverService,
+  notificationService: NotificationService,
+  chatService: ChatService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
@@ -91,6 +88,37 @@ class UserApi @Inject() (
     userFollowRequestRepository
       .getUserFollowRequest(requestingUserId, targetUserId)
       .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User follow request not found"))))
+
+  /**
+    * Deleting user account takes several steps
+    * 1. Delete email verification tokens
+    * 2. Delete from username_lock table
+    * 3. Delete from users table (cascade delete will take care of user_profiles, user_agreements and user_follow_requests)
+    * 4. Delete from Keycloak
+    * 5. Delete from social-service graph database (posts, comments, likes)
+    * 6. Delete from notification-service schema (devices, notification_data)
+    * 7. Delete from discover-service schema (postgres prefs, graph prefs)
+    * 8. Delete from chat-service schema
+    */
+  def deleteUserAccount(userId: UUID): Future[Either[DomainError, Unit]] =
+    (for {
+      user <- EitherT[Future, DomainError, User](
+        userRepository
+          .getUserById(userId)
+          .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
+      )
+      _ <- EitherT.right[DomainError](usernameLockRepository.removeAllForUser(userId))
+      _ <- EitherT.right[DomainError](emailVerificationTokenRepository.removeTokensForEmail(user.email))
+      _ <-
+        EitherT[Future, DomainError, Unit](userAuthService.deleteUserByEmail(user.email, user.authProvider.stringValue))
+      _ <- EitherT[Future, DomainError, Unit](socialService.deleteUserSocialMediaContent(user.id))
+      _ <- EitherT[Future, DomainError, Unit](discoverService.deleteUserDiscoverPreferences(user.id))
+      _ <- EitherT[Future, DomainError, Unit](notificationService.deleteUserNotificationData(user.id))
+      _ <- EitherT[Future, DomainError, Unit](chatService.deleteUserChatData(user.id))
+      // Finally, we delete the user node and the user object itself
+      _ <- EitherT.right[DomainError](socialService.deleteUserFromGraphDb(user.id))
+      _ <- EitherT.right[DomainError](userRepository.deleteUser(userId))
+    } yield ()).value
 
   def deleteUserFollowRequest(requestingUserId: UUID, targetUserId: UUID): Future[Unit] =
     userFollowRequestRepository.deleteUserFollowRequest(requestingUserId, targetUserId)

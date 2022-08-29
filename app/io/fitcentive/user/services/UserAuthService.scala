@@ -9,6 +9,7 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[RestUserAuthService])
 trait UserAuthService {
+  def deleteUserByEmail(email: String, realm: String): Future[Either[DomainError, Unit]]
   def createUserAccount(userId: UUID, email: String): Future[Either[DomainError, Unit]]
   def resetUserPassword(email: String, password: String): Future[Either[DomainError, Unit]]
   def updateUserProfile(

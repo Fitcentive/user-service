@@ -10,6 +10,7 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[AnormUsernameLockRepository])
 trait UsernameLockRepository {
   def removeAll: Future[Unit]
+  def removeAllForUser(userId: UUID): Future[Unit]
   def removeUsername(username: String): Future[Unit]
   def saveUsername(username: String, userId: UUID): Future[Unit]
   def getUsername(username: String): Future[Option[UsernameLock]]

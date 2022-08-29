@@ -9,6 +9,7 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[AnormUserRepository])
 trait UserRepository {
+  def deleteUser(userId: UUID): Future[Unit]
   def createUser(user: User.Create, id: UUID = UUID.randomUUID()): Future[User]
   def createSsoUser(user: User.CreateSsoUser, id: UUID = UUID.randomUUID()): Future[User]
   def updateUserPatch(userId: UUID, user: User.Patch): Future[User]

@@ -18,6 +18,15 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credentials) extends SettingsService {
 
+  override def chatServiceConfig: ServerConfig =
+    ServerConfig.fromConfig(config.get[Config]("services.chat-service"))
+
+  override def notificationServiceConfig: ServerConfig =
+    ServerConfig.fromConfig(config.get[Config]("services.notification-service"))
+
+  override def discoverServiceConfig: ServerConfig =
+    ServerConfig.fromConfig(config.get[Config]("services.discover-service"))
+
   override def socialServiceConfig: ServerConfig =
     ServerConfig.fromConfig(config.get[Config]("services.social-service"))
 

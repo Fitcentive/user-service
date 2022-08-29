@@ -2,7 +2,7 @@ package io.fitcentive.user.infrastructure.rest
 
 import io.fitcentive.sdk.config.ServerConfig
 import io.fitcentive.sdk.error.DomainError
-import io.fitcentive.user.domain.errors.{AuthUserCreationError, AuthUserUpdateError, PasswordResetError}
+import io.fitcentive.user.domain.errors._
 import io.fitcentive.user.infrastructure.utils.ServiceSecretSupport
 import io.fitcentive.user.services.{SettingsService, UserAuthService}
 import play.api.http.Status
@@ -66,6 +66,20 @@ class RestUserAuthService @Inject() (wsClient: WSClient, settingsService: Settin
         response.status match {
           case Status.CREATED => Right(())
           case status         => Left(AuthUserCreationError(s"Unexpected status from auth-service: $status"))
+        }
+      }
+  }
+
+  override def deleteUserByEmail(email: String, realm: String): Future[Either[DomainError, Unit]] = {
+    wsClient
+      .url(s"$baseUrl/api/internal/user/$email?realm=$realm")
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .addServiceSecret(settingsService)
+      .delete()
+      .map { response =>
+        response.status match {
+          case Status.NO_CONTENT => Right(())
+          case status            => Left(AuthUserDeletionError(s"Unexpected status from auth-service: $status"))
         }
       }
   }

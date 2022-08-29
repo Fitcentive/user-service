@@ -52,6 +52,11 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
       getRecordOpt(SQL_GET_USER_BY_EMAIL_AND_REALM, "email" -> email, "realm" -> realm)(userRowParser).map(_.toDomain)
     }
 
+  override def deleteUser(userId: UUID): Future[Unit] =
+    Future {
+      executeSqlWithoutReturning(SQL_DELETE_USER, Seq.empty)
+    }
+
   override def createUser(user: User.Create, id: UUID = UUID.randomUUID()): Future[User] =
     Future {
       Instant.now.pipe { now =>
@@ -198,6 +203,12 @@ object AnormUserRepository extends AnormOps {
       |insert into users (id, email, username, account_status, auth_provider, enabled, created_at, updated_at)
       |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {now}, {now})
       |returning * ;
+      |""".stripMargin
+
+  private val SQL_DELETE_USER: String =
+    """
+      |delete from users 
+      |where id = {userId}::uuid
       |""".stripMargin
 
   private val SQL_UPDATE_AND_REPLACE_USER: String =

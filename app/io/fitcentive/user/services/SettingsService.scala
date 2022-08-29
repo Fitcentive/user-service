@@ -16,4 +16,7 @@ trait SettingsService {
   def secretConfig: SecretConfig
   def envConfig: EnvironmentConfig
   def socialServiceConfig: ServerConfig
+  def discoverServiceConfig: ServerConfig
+  def notificationServiceConfig: ServerConfig
+  def chatServiceConfig: ServerConfig
 }
