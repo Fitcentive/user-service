@@ -106,4 +106,6 @@ spec:
               value: "Ik6dX_r5t1UQWe6mU89gWUVUiX13cqHsztdEL8mEv5M"
             - name: NEO4J_INSTANCE_NAME
               value: "FitcentiveGraphDb"
+            - name: USER_IMAGE_UPLOAD_BUCKET
+              value: "fitcentive-upload-images"
 

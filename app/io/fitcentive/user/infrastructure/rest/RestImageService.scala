@@ -9,10 +9,13 @@ import io.fitcentive.user.services.{ImageService, SettingsService}
 import play.api.http.Status
 import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.FilePart
+import com.google.cloud.storage.{Blob, Storage, StorageOptions}
 
 import java.io.File
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.chaining.scalaUtilChainingOps
 
 @Singleton
 class RestImageService @Inject() (wsClient: WSClient, settingsService: SettingsService)(implicit ec: ExecutionContext)
@@ -34,4 +37,27 @@ class RestImageService @Inject() (wsClient: WSClient, settingsService: SettingsS
         }
       }
   }
+
+  override def deleteAllImagesForUser(userId: UUID): Future[Unit] =
+    Future {
+      StorageOptions.newBuilder
+        .setProjectId(settingsService.gcpConfig.project)
+        .build
+        .getService
+        .pipe { storage =>
+          storage
+            .list(
+              settingsService.userImageUploadBucket,
+              Storage.BlobListOption.prefix(s"users/$userId"), // directoryPrefix is the sub directory.
+              Storage.BlobListOption.currentDirectory()
+            )
+            .pipe { blobs =>
+              blobs
+                .iterateAll()
+                .pipe { blobList =>
+                  blobList.forEach(b => b.delete(Blob.BlobSourceOption.generationMatch))
+                }
+            }
+        }
+    }
 }

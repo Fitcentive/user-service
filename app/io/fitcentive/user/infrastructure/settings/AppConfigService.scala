@@ -18,6 +18,8 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credentials) extends SettingsService {
 
+  override def userImageUploadBucket: String = config.get[String]("gcp.gcs.user-image-upload-bucket")
+
   override def chatServiceConfig: ServerConfig =
     ServerConfig.fromConfig(config.get[Config]("services.chat-service"))
 

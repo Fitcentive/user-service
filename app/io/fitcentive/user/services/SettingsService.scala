@@ -19,4 +19,5 @@ trait SettingsService {
   def discoverServiceConfig: ServerConfig
   def notificationServiceConfig: ServerConfig
   def chatServiceConfig: ServerConfig
+  def userImageUploadBucket: String
 }
