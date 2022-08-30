@@ -110,16 +110,16 @@ class UserApi @Inject() (
       _ <- EitherT.right[DomainError](usernameLockRepository.removeAllForUser(userId))
       _ <- EitherT.right[DomainError](emailVerificationTokenRepository.removeTokensForEmail(user.email))
       _ <- EitherT.right[DomainError](imageService.deleteAllImagesForUser(userId))
-      _ <-
-        EitherT[Future, DomainError, Unit](userAuthService.deleteUserByEmail(user.email, user.authProvider.stringValue))
       _ <- EitherT[Future, DomainError, Unit](socialService.deleteUserSocialMediaContent(user.id))
       _ <- EitherT[Future, DomainError, Unit](discoverService.deleteUserDiscoverPreferences(user.id))
       _ <- EitherT[Future, DomainError, Unit](notificationService.deleteUserNotificationData(user.id))
       _ <- EitherT[Future, DomainError, Unit](chatService.deleteUserChatData(user.id))
 
-      // Finally, we delete the user node and the user object itself
+      // Finally, we delete the user login, user node and the user object itself
       _ <- EitherT.right[DomainError](socialService.deleteUserFromGraphDb(user.id))
       _ <- EitherT.right[DomainError](userRepository.deleteUser(userId))
+      _ <-
+        EitherT[Future, DomainError, Unit](userAuthService.deleteUserByEmail(user.email, user.authProvider.stringValue))
     } yield ()).value
 
   def deleteUserFollowRequest(requestingUserId: UUID, targetUserId: UUID): Future[Unit] =
