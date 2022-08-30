@@ -73,7 +73,7 @@ spec:
             - name: CHAT_SERVICE_HOST
               value: "http://chat-service"
             - name: CHAT_SERVICE_PORT
-              value: "9000"
+              value: "4000"
             - name: IMAGE_SERVICE_HOST
               value: "http://image-service"
             - name: IMAGE_SERVICE_PORT
