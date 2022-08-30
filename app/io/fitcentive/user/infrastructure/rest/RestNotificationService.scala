@@ -23,7 +23,7 @@ class RestNotificationService @Inject() (wsClient: WSClient, settingsService: Se
 
   override def deleteUserNotificationData(userId: UUID): Future[Either[DomainError, Unit]] =
     wsClient
-      .url(s"$baseUrl/api/internal/notification/user/$userId/preferences")
+      .url(s"$baseUrl/api/internal/notification/user/$userId")
       .addHttpHeaders("Content-Type" -> "application/json")
       .addServiceSecret(settingsService)
       .delete()
