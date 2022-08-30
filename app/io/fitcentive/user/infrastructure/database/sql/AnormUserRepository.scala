@@ -220,6 +220,7 @@ object AnormUserRepository extends AnormOps {
     """
       |insert into users (id, email, username, account_status, auth_provider, enabled, created_at, updated_at)
       |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {now}, {now})
+      |returning * ;
       |""".stripMargin
 
   private val SQL_CREATE_AND_RETURN_NEW_USER: String =
