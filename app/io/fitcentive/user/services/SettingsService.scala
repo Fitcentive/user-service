@@ -20,4 +20,6 @@ trait SettingsService {
   def notificationServiceConfig: ServerConfig
   def chatServiceConfig: ServerConfig
   def userImageUploadBucket: String
+  def staticDeletedUserId: String
+  def staticDeletedUserEmail: String
 }

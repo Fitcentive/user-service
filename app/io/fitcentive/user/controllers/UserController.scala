@@ -181,6 +181,13 @@ class UserController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
+  def createStaticDeletedUser: Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      loginApi.createStaticDeletedUser
+        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        .recover(resultErrorAsyncHandler)
+    }
+
   // -----------------------------
   // User Auth routes
   // -----------------------------

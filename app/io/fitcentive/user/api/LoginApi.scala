@@ -10,25 +10,58 @@ import io.fitcentive.user.domain.errors.{
   PasswordValidationError,
   TokenVerificationError
 }
-import io.fitcentive.user.domain.user.{User, UserAgreements}
-import io.fitcentive.user.repositories.{EmailVerificationTokenRepository, UserAgreementsRepository, UserRepository}
-import io.fitcentive.user.services.{MessageBusService, TokenGenerationService, UserAuthService}
+import io.fitcentive.user.domain.user.{User, UserAgreements, UserProfile}
+import io.fitcentive.user.repositories.{
+  EmailVerificationTokenRepository,
+  UserAgreementsRepository,
+  UserProfileRepository,
+  UserRepository
+}
+import io.fitcentive.user.services.{MessageBusService, SettingsService, TokenGenerationService, UserAuthService}
 
 import java.time.Instant
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class LoginApi @Inject() (
   userRepository: UserRepository,
+  userProfileRepository: UserProfileRepository,
   userAgreementsRepository: UserAgreementsRepository,
   userAuthService: UserAuthService,
   messageBusService: MessageBusService,
   tokenGenerationService: TokenGenerationService,
-  emailVerificationTokenRepository: EmailVerificationTokenRepository
+  emailVerificationTokenRepository: EmailVerificationTokenRepository,
+  settingsService: SettingsService,
 )(implicit ec: ExecutionContext) {
 
   import LoginApi._
+
+  def createStaticDeletedUser: Future[Either[DomainError, User]] =
+    (for {
+      _ <- EitherT[Future, DomainError, Unit](
+        userRepository
+          .getUserByEmail(settingsService.staticDeletedUserEmail)
+          .map(_.map(_ => Left(EntityConflictError("User with email already exists!"))).getOrElse(Right()))
+      )
+      user <- EitherT.right[DomainError](
+        userRepository.createStaticDeletedUser(
+          UUID.fromString(settingsService.staticDeletedUserId),
+          settingsService.staticDeletedUserEmail
+        )
+      )
+      userProfileUpdate = UserProfile.Update(
+        firstName = Some("Deleted"),
+        lastName = Some("User"),
+        photoUrl = Some(s"deleted_user_avatar.png"), // This is already present in GCS
+        dateOfBirth = None,
+        locationCenter = None,
+        locationRadius = None,
+        gender = None
+      )
+      _ <- EitherT.right[DomainError](userProfileRepository.createUserProfile(user.id, userProfileUpdate))
+    } yield user).value
 
   def createNewUser(userCreate: User.Create): Future[Either[DomainError, User]] =
     (for {

@@ -50,3 +50,5 @@ POST     /api/internal/user/public/profile/get-by-ids                           
 POST     /api/internal/user/:currentUserId/follow-request/:targetUserId                         io.fitcentive.user.controllers.UserController.requestToFollowUser(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
 GET      /api/internal/user/:currentUserId/follow-request/:targetUserId                         io.fitcentive.user.controllers.UserController.getUserFollowRequest(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
 DELETE   /api/internal/user/:currentUserId/follow-request/:targetUserId                         io.fitcentive.user.controllers.UserController.deleteUserFollowRequest(currentUserId: java.util.UUID, targetUserId: java.util.UUID)
+
+POST     /api/internal/user/create-static-deleted-user                                          io.fitcentive.user.controllers.UserController.createStaticDeletedUser

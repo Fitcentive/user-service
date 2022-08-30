@@ -22,6 +22,24 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
 
   import AnormUserRepository._
 
+  override def createStaticDeletedUser(userId: UUID, email: String): Future[User] =
+    Future {
+      Instant.now.pipe { now =>
+        executeSqlWithExpectedReturn[UserRow](
+          SQL_CREATE_AND_RETURN_STATIC_DELETED_USER,
+          Seq(
+            "id" -> userId,
+            "email" -> email,
+            "username" -> None,
+            "accountStatus" -> AccountStatus.ProfileInfoRequired.stringValue,
+            "authProvider" -> AuthProvider.NativeAuth.stringValue,
+            "enabled" -> false,
+            "now" -> now,
+          )
+        )(userRowParser).toDomain
+      }
+    }
+
   override def getUsersByIds(userIds: Seq[UUID]): Future[Seq[User]] =
     Future {
       getRecords(SQL_GET_USERS_BY_IDS(userIds))(userRowParser).map(_.toDomain)
@@ -54,7 +72,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
 
   override def deleteUser(userId: UUID): Future[Unit] =
     Future {
-      executeSqlWithoutReturning(SQL_DELETE_USER, Seq.empty)
+      executeSqlWithoutReturning(SQL_DELETE_USER, Seq("userId" -> userId))
     }
 
   override def createUser(user: User.Create, id: UUID = UUID.randomUUID()): Future[User] =
@@ -196,6 +214,12 @@ object AnormUserRepository extends AnormOps {
       |select * 
       |from users u
       |where u.username = {username} ;
+      |""".stripMargin
+
+  private val SQL_CREATE_AND_RETURN_STATIC_DELETED_USER: String =
+    """
+      |insert into users (id, email, username, account_status, auth_provider, enabled, created_at, updated_at)
+      |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {now}, {now})
       |""".stripMargin
 
   private val SQL_CREATE_AND_RETURN_NEW_USER: String =

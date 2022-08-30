@@ -18,6 +18,10 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credentials) extends SettingsService {
 
+  override def staticDeletedUserId: String = config.get[String]("user.deleted-user-static-id")
+
+  override def staticDeletedUserEmail: String = config.get[String]("user.deleted-user-static-email")
+
   override def userImageUploadBucket: String = config.get[String]("gcp.gcs.user-image-upload-bucket")
 
   override def chatServiceConfig: ServerConfig =

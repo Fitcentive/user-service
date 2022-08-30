@@ -108,4 +108,8 @@ spec:
               value: "FitcentiveGraphDb"
             - name: USER_IMAGE_UPLOAD_BUCKET
               value: "fitcentive-upload-images"
+            - name: DELETED_USER_STATIC_ID
+              value: "aaaaaaaa-aaaa-8bbb-8bbb-aaaaaaaaaaaa"
+            - name: DELETED_USER_STATIC_EMAIL
+              value: "deleted.user@fitcentive.io"
 
