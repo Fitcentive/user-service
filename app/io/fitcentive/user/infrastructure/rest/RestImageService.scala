@@ -10,7 +10,7 @@ import io.fitcentive.user.services.{ImageService, SettingsService}
 import play.api.http.Status
 import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.FilePart
-import com.google.cloud.storage.{Blob, Storage, StorageOptions}
+import com.google.cloud.storage.{Storage, StorageOptions}
 
 import java.io.File
 import java.util.UUID
@@ -52,13 +52,14 @@ class RestImageService @Inject() (wsClient: WSClient, credentials: Credentials, 
             .list(
               settingsService.userImageUploadBucket,
               Storage.BlobListOption.prefix(s"users/$userId"), // directoryPrefix is the sub directory.
-              Storage.BlobListOption.currentDirectory()
             )
             .pipe { blobs =>
               blobs
                 .iterateAll()
                 .pipe { blobList =>
-                  blobList.forEach(b => b.delete(Blob.BlobSourceOption.generationMatch))
+                  blobList.forEach { b =>
+                    b.delete()
+                  }
                 }
             }
         }
