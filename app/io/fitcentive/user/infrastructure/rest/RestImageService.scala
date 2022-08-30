@@ -1,6 +1,7 @@
 package io.fitcentive.user.infrastructure.rest
 
 import akka.stream.scaladsl.{FileIO, Source}
+import com.google.auth.Credentials
 import io.fitcentive.sdk.error.DomainError
 import io.fitcentive.user.domain.config.ImageServiceConfig
 import io.fitcentive.user.domain.errors.ImageUploadError
@@ -18,8 +19,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
 
 @Singleton
-class RestImageService @Inject() (wsClient: WSClient, settingsService: SettingsService)(implicit ec: ExecutionContext)
-  extends ImageService
+class RestImageService @Inject() (wsClient: WSClient, credentials: Credentials, settingsService: SettingsService)(
+  implicit ec: ExecutionContext
+) extends ImageService
   with ServiceSecretSupport {
 
   val imageServiceConfig: ImageServiceConfig = settingsService.imageServiceConfig
@@ -42,6 +44,7 @@ class RestImageService @Inject() (wsClient: WSClient, settingsService: SettingsS
     Future {
       StorageOptions.newBuilder
         .setProjectId(settingsService.gcpConfig.project)
+        .setCredentials(credentials)
         .build
         .getService
         .pipe { storage =>
