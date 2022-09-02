@@ -243,7 +243,8 @@ object AnormUserProfileRepository extends AnormOps {
        |left join users u
        |on up.user_id = u.id
        |where 
-       |${compareAgainstUsernameAndNames(searchQuery)} 
+       |${compareAgainstUsernameAndNames(searchQuery)}
+       |and u.enabled = true
        |limit {limit} 
        |offset {offset} ;
        |""".stripMargin
