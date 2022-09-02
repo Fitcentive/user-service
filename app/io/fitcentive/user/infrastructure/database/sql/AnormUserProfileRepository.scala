@@ -102,7 +102,7 @@ class AnormUserProfileRepository @Inject() (val db: Database)(implicit val dbec:
 
   override def searchForUsers(searchQuery: String, limit: Int, offset: Int): Future[Seq[PublicUserProfile]] =
     Future {
-      getRecords(SQL_SEARCH_BY_NAME_OR_USERNAME(searchQuery), "limit" -> limit, "offset" -> offset)(
+      getRecords(SQL_SEARCH_BY_NAME_OR_USERNAME(searchQuery), "limit" -> limit, "offset" -> offset, "enabled" -> true)(
         publicUserProfileRowParser
       ).map(_.toDomain)
     }
@@ -244,7 +244,7 @@ object AnormUserProfileRepository extends AnormOps {
        |on up.user_id = u.id
        |where 
        |${compareAgainstUsernameAndNames(searchQuery)}
-       |and u.enabled = true
+       |and u.enabled = {enabled}
        |limit {limit} 
        |offset {offset} ;
        |""".stripMargin
