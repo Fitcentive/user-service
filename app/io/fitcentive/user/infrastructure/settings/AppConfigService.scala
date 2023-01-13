@@ -1,6 +1,5 @@
 package io.fitcentive.user.infrastructure.settings
 
-import com.google.auth.Credentials
 import com.typesafe.config.Config
 import io.fitcentive.sdk.config.{GcpConfig, JwtConfig, SecretConfig, ServerConfig}
 import io.fitcentive.user.domain.config.{
@@ -16,7 +15,10 @@ import play.api.Configuration
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credentials) extends SettingsService {
+class AppConfigService @Inject() (config: Configuration) extends SettingsService {
+
+  override def serviceAccountStringCredentials: String =
+    config.get[String]("gcp.pubsub.service-account-string-credentials")
 
   override def staticDeletedUserId: String = config.get[String]("user.deleted-user-static-id")
 
@@ -51,7 +53,7 @@ class AppConfigService @Inject() (config: Configuration, gcpCredentials: Credent
     ServerConfig.fromConfig(config.get[Config]("services.auth-service"))
 
   override def gcpConfig: GcpConfig =
-    GcpConfig(credentials = gcpCredentials, project = config.get[String]("gcp.project"))
+    GcpConfig(project = config.get[String]("gcp.project"))
 
   override def pubSubConfig: AppPubSubConfig =
     AppPubSubConfig(

@@ -1,7 +1,7 @@
 package io.fitcentive.user.infrastructure.rest
 
 import akka.stream.scaladsl.{FileIO, Source}
-import com.google.auth.Credentials
+import com.google.auth.oauth2.ServiceAccountCredentials
 import io.fitcentive.sdk.error.DomainError
 import io.fitcentive.user.domain.config.ImageServiceConfig
 import io.fitcentive.user.domain.errors.ImageUploadError
@@ -12,16 +12,15 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.FilePart
 import com.google.cloud.storage.{Storage, StorageOptions}
 
-import java.io.File
+import java.io.{ByteArrayInputStream, File}
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining.scalaUtilChainingOps
 
 @Singleton
-class RestImageService @Inject() (wsClient: WSClient, credentials: Credentials, settingsService: SettingsService)(
-  implicit ec: ExecutionContext
-) extends ImageService
+class RestImageService @Inject() (wsClient: WSClient, settingsService: SettingsService)(implicit ec: ExecutionContext)
+  extends ImageService
   with ServiceSecretSupport {
 
   val imageServiceConfig: ImageServiceConfig = settingsService.imageServiceConfig
@@ -40,7 +39,11 @@ class RestImageService @Inject() (wsClient: WSClient, credentials: Credentials, 
       }
   }
 
-  override def deleteAllImagesForUser(userId: UUID): Future[Unit] =
+  override def deleteAllImagesForUser(userId: UUID): Future[Unit] = {
+    val credentials =
+      ServiceAccountCredentials
+        .fromStream(new ByteArrayInputStream(settingsService.serviceAccountStringCredentials.getBytes()))
+        .createScoped()
     Future {
       StorageOptions.newBuilder
         .setProjectId(settingsService.gcpConfig.project)
@@ -64,4 +67,5 @@ class RestImageService @Inject() (wsClient: WSClient, credentials: Credentials, 
             }
         }
     }
+  }
 }
