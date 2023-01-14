@@ -95,7 +95,7 @@ spec:
             - name: IMAGE_SERVICE_PORT
               value: "10260"
             - name: JWT_ISSUER
-              value: "https://api.fitcentive.xyz"
+              value: "https://auth.fitcentive.xyz"
             - name: KEYCLOAK_SERVER_URL
               value: "http://keycloak-service-http.keycloak/auth"
             - name: TOPIC_USER_FOLLOW_REQUESTED
