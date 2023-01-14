@@ -71,23 +71,23 @@ spec:
             - name: DB_PORT
               value: "5432"
             - name: AUTH_SERVICE_HOST
-              value: "http://auth.auth-service"
+              value: "http://auth-service.auth"
             - name: AUTH_SERVICE_PORT
               value: "9000"
             - name: SOCIAL_SERVICE_HOST
-              value: "http://social.social-service"
+              value: "http://social-service.social"
             - name: SOCIAL_SERVICE_PORT
               value: "9000"
             - name: DISCOVER_SERVICE_HOST
-              value: "http://discover.discover-service"
+              value: "http://discover-service.discover"
             - name: DISCOVER_SERVICE_PORT
               value: "9000"
             - name: NOTIFICATION_SERVICE_HOST
-              value: "http://notification.notification-service"
+              value: "http://notification-service.notification"
             - name: NOTIFICATION_SERVICE_PORT
               value: "9000"
             - name: CHAT_SERVICE_HOST
-              value: "http://chat.chat-service"
+              value: "http://chat-service.chat"
             - name: CHAT_SERVICE_PORT
               value: "4000"
             - name: IMAGE_SERVICE_HOST
@@ -97,7 +97,7 @@ spec:
             - name: JWT_ISSUER
               value: "https://api.fitcentive.xyz"
             - name: KEYCLOAK_SERVER_URL
-              value: "http://keycloak.keycloak-service-http/auth"
+              value: "http://keycloak-service-http.keycloak/auth"
             - name: TOPIC_USER_FOLLOW_REQUESTED
               value: "user-follow-requested"
             - name: TOPIC_USER_FOLLOW_REQUEST_DECISION
