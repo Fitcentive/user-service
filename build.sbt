@@ -2,7 +2,7 @@ name := "user"
 
 version := "1.0"
 
-lazy val `notification` = (project in file("."))
+lazy val `user` = (project in file("."))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLogback)
 
