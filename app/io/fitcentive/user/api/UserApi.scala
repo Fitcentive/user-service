@@ -2,7 +2,7 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.user.{PublicUserProfile, User, UserAgreements, UserFollowRequest, UserProfile}
+import io.fitcentive.user.domain.user.{PublicUserProfile, User, UserAgreements, UserFriendRequest, UserProfile}
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories._
 import io.fitcentive.user.services._
@@ -21,7 +21,7 @@ class UserApi @Inject() (
   imageService: ImageService,
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository,
-  userFollowRequestRepository: UserFollowRequestRepository,
+  userFriendRequestRepository: UserFriendRequestRepository,
   socialService: SocialService,
   discoverService: DiscoverService,
   notificationService: NotificationService,
@@ -84,9 +84,9 @@ class UserApi @Inject() (
         EitherT[Future, DomainError, PublicUserProfile](upsertPublicUserProfileIntoGraphDb(updatedUser.id))
     } yield updatedUser).value
 
-  def getUserFollowRequest(requestingUserId: UUID, targetUserId: UUID): Future[Either[DomainError, UserFollowRequest]] =
-    userFollowRequestRepository
-      .getUserFollowRequest(requestingUserId, targetUserId)
+  def getUserFriendRequest(requestingUserId: UUID, targetUserId: UUID): Future[Either[DomainError, UserFriendRequest]] =
+    userFriendRequestRepository
+      .getUserFriendRequest(requestingUserId, targetUserId)
       .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User follow request not found"))))
 
   /**
@@ -122,10 +122,10 @@ class UserApi @Inject() (
         EitherT[Future, DomainError, Unit](userAuthService.deleteUserByEmail(user.email, user.authProvider.stringValue))
     } yield ()).value
 
-  def deleteUserFollowRequest(requestingUserId: UUID, targetUserId: UUID): Future[Unit] =
-    userFollowRequestRepository.deleteUserFollowRequest(requestingUserId, targetUserId)
+  def deleteUserFriendRequest(requestingUserId: UUID, targetUserId: UUID): Future[Unit] =
+    userFriendRequestRepository.deleteUserFriendRequest(requestingUserId, targetUserId)
 
-  def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Future[Either[DomainError, Unit]] =
+  def requestToFriendUser(currentUserId: UUID, targetUserId: UUID): Future[Either[DomainError, Unit]] =
     (for {
       _ <- EitherT[Future, DomainError, User](
         userRepository
@@ -137,7 +137,7 @@ class UserApi @Inject() (
           .getUserById(targetUserId)
           .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User not found!"))))
       )
-      _ <- EitherT.right[DomainError](userFollowRequestRepository.requestToFollowUser(currentUserId, targetUserId))
+      _ <- EitherT.right[DomainError](userFriendRequestRepository.requestToFriendUser(currentUserId, targetUserId))
     } yield ()).value
 
   def searchForUser(

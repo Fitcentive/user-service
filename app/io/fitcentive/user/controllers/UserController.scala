@@ -114,26 +114,26 @@ class UserController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
-  def requestToFollowUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+  def requestToFriendUser(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
     internalAuthAction.async { implicit userRequest =>
       userApi
-        .requestToFollowUser(currentUserId, targetUserId)
+        .requestToFriendUser(currentUserId, targetUserId)
         .map(handleEitherResult(_)(_ => Accepted))
         .recover(resultErrorAsyncHandler)
     }
 
-  def getUserFollowRequest(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+  def getUserFriendRequest(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
     internalAuthAction.async { implicit userRequest =>
       userApi
-        .getUserFollowRequest(currentUserId, targetUserId)
+        .getUserFriendRequest(currentUserId, targetUserId)
         .map(handleEitherResult(_)(response => Ok(Json.toJson(response))))
         .recover(resultErrorAsyncHandler)
     }
 
-  def deleteUserFollowRequest(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
+  def deleteUserFriendRequest(currentUserId: UUID, targetUserId: UUID): Action[AnyContent] =
     internalAuthAction.async { implicit userRequest =>
       userApi
-        .deleteUserFollowRequest(currentUserId, targetUserId)
+        .deleteUserFriendRequest(currentUserId, targetUserId)
         .map(_ => Ok)
         .recover(resultErrorAsyncHandler)
     }
