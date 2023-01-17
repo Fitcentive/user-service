@@ -1,15 +1,12 @@
 package io.fitcentive.user.infrastructure.pubsub
 
 import io.fitcentive.registry.events.email.EmailVerificationTokenCreated
-import io.fitcentive.registry.events.push.UserFollowRequested
-import io.fitcentive.registry.events.user.UserFollowRequestDecision
 import io.fitcentive.sdk.gcp.pubsub.PubSubPublisher
 import io.fitcentive.user.domain.config.TopicsConfig
 import io.fitcentive.user.domain.email.EmailVerificationToken
 import io.fitcentive.user.infrastructure.contexts.PubSubExecutionContext
 import io.fitcentive.user.services.{MessageBusService, SettingsService}
 
-import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.util.chaining.scalaUtilChainingOps
