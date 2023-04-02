@@ -111,7 +111,7 @@ spec:
             - name: RUNTIME_ENVIRONMENT
               value: "gke-dev-env"
             - name: USER_IMAGE_UPLOAD_BUCKET
-              value: "image-service-upload-images"
+              value: "fitcentive-dev-02-image-service-upload-images"
             - name: DELETED_USER_STATIC_ID
               value: "aaaaaaaa-aaaa-8bbb-8bbb-aaaaaaaaaaaa"
             - name: DELETED_USER_STATIC_EMAIL
