@@ -26,6 +26,7 @@ class UserApi @Inject() (
   discoverService: DiscoverService,
   notificationService: NotificationService,
   chatService: ChatService,
+  diaryService: DiaryService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
@@ -114,6 +115,7 @@ class UserApi @Inject() (
       _ <- EitherT[Future, DomainError, Unit](discoverService.deleteUserDiscoverPreferences(user.id))
       _ <- EitherT[Future, DomainError, Unit](notificationService.deleteUserNotificationData(user.id))
       _ <- EitherT[Future, DomainError, Unit](chatService.deleteUserChatData(user.id))
+      _ <- EitherT[Future, DomainError, Unit](diaryService.deleteUserDiaryData(user.id))
 
       // Finally, we delete the user login, user node and the user object itself
       _ <- EitherT.right[DomainError](socialService.deleteUserFromGraphDb(user.id))

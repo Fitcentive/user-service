@@ -20,6 +20,7 @@ trait SettingsService {
   def discoverServiceConfig: ServerConfig
   def notificationServiceConfig: ServerConfig
   def chatServiceConfig: ServerConfig
+  def diaryServiceConfig: ServerConfig
   def userImageUploadBucket: String
   def staticDeletedUserId: String
   def staticDeletedUserEmail: String

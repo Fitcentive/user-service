@@ -17,6 +17,9 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfigService @Inject() (config: Configuration) extends SettingsService {
 
+  override def diaryServiceConfig: ServerConfig =
+    ServerConfig.fromConfig(config.get[Config]("services.diary-service"))
+
   override def serviceAccountStringCredentials: String =
     config.get[String]("gcp.pubsub.service-account-string-credentials")
 
