@@ -21,4 +21,6 @@ trait UserRepository {
   def getUserById(id: UUID): Future[Option[User]]
   def getUsers: Future[Seq[User]]
   def getUsersByIds(userIds: Seq[UUID]): Future[Seq[User]]
+  def enablePremium(userId: UUID): Future[Unit]
+  def disablePremium(userId: UUID): Future[Unit]
 }

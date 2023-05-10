@@ -13,6 +13,7 @@ case class User(
   accountStatus: AccountStatus,
   authProvider: AuthProvider,
   enabled: Boolean,
+  isPremiumEnabled: Boolean,
   createdAt: Instant,
   updatedAt: Instant
 )

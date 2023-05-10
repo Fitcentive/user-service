@@ -22,6 +22,16 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
 
   import AnormUserRepository._
 
+  override def enablePremium(userId: UUID): Future[Unit] =
+    Future {
+      executeSqlWithoutReturning(SQL_ENABLE_PREMIUM_USER, Seq("userId" -> userId))
+    }
+
+  override def disablePremium(userId: UUID): Future[Unit] =
+    Future {
+      executeSqlWithoutReturning(SQL_DISABLE_PREMIUM_USER, Seq("userId" -> userId))
+    }
+
   override def createStaticDeletedUser(userId: UUID, email: String): Future[User] =
     Future {
       Instant.now.pipe { now =>
@@ -34,6 +44,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
             "accountStatus" -> AccountStatus.ProfileInfoRequired.stringValue,
             "authProvider" -> AuthProvider.NativeAuth.stringValue,
             "enabled" -> false,
+            "isPremiumEnabled" -> false,
             "now" -> now,
           )
         )(userRowParser).toDomain
@@ -87,6 +98,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
             "accountStatus" -> AccountStatus.ProfileInfoRequired.stringValue,
             "authProvider" -> AuthProvider.NativeAuth.stringValue,
             "enabled" -> true,
+            "isPremiumEnabled" -> false,
             "now" -> now,
           )
         )(userRowParser).toDomain
@@ -105,6 +117,7 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
             "accountStatus" -> AccountStatus.TermsAndConditionsRequired.stringValue,
             "authProvider" -> AuthProvider(user.ssoProvider).stringValue,
             "enabled" -> true,
+            "isPremiumEnabled" -> false,
             "now" -> now,
           )
         )(userRowParser).toDomain
@@ -153,6 +166,7 @@ object AnormUserRepository extends AnormOps {
     account_status: String,
     auth_provider: String,
     enabled: Boolean,
+    is_premium_enabled: Boolean,
     created_at: Instant,
     updated_at: Instant
   ) {
@@ -164,6 +178,7 @@ object AnormUserRepository extends AnormOps {
         accountStatus = AccountStatus(account_status),
         authProvider = AuthProvider(auth_provider),
         enabled = enabled,
+        isPremiumEnabled = is_premium_enabled,
         createdAt = created_at,
         updatedAt = updated_at
       )
@@ -218,15 +233,15 @@ object AnormUserRepository extends AnormOps {
 
   private val SQL_CREATE_AND_RETURN_STATIC_DELETED_USER: String =
     """
-      |insert into users (id, email, username, account_status, auth_provider, enabled, created_at, updated_at)
-      |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {now}, {now})
+      |insert into users (id, email, username, account_status, auth_provider, enabled, is_premium_enabled, created_at, updated_at)
+      |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {isPremiumEnabled}, {now}, {now})
       |returning * ;
       |""".stripMargin
 
   private val SQL_CREATE_AND_RETURN_NEW_USER: String =
     """
-      |insert into users (id, email, username, account_status, auth_provider, enabled, created_at, updated_at)
-      |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {now}, {now})
+      |insert into users (id, email, username, account_status, auth_provider, enabled, is_premium_enabled, created_at, updated_at)
+      |values ({id}::uuid, {email}, {username}, {accountStatus}, {authProvider}, {enabled}, {isPremiumEnabled}, {now}, {now})
       |returning * ;
       |""".stripMargin
 
@@ -236,10 +251,30 @@ object AnormUserRepository extends AnormOps {
       |where id = {userId}::uuid
       |""".stripMargin
 
+  private val SQL_ENABLE_PREMIUM_USER: String =
+    """
+      |update users
+      |set
+      | is_premium_enabled = true
+      |where id = {userId}::uuid
+      |""".stripMargin
+
+  private val SQL_DISABLE_PREMIUM_USER: String =
+    """
+      |update users
+      |set
+      | is_premium_enabled = false
+      |where id = {userId}::uuid
+      |""".stripMargin
+
   private val SQL_UPDATE_AND_REPLACE_USER: String =
     """
       |update users u
-      |set username = {username}, account_status = {accountStatus}, enabled = {enabled}, updated_at = {now}
+      |set 
+      |  username = {username},
+      |  account_status = {accountStatus},
+      |  enabled = {enabled},
+      |  updated_at = {now}
       |where u.id = {userId}::uuid
       |returning * ;
       |""".stripMargin

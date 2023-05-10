@@ -110,8 +110,16 @@ spec:
               value: "email-verification-token-created"
             - name: TOPIC_CLEAR_USERNAME_LOCK_TABLE
               value: "clear-username-lock-table"
+            - name: TOPIC_USER_ENABLE_PREMIUM
+              value: "user-enable-premium"
+            - name: TOPIC_USER_DISABLE_PREMIUM
+              value: "user-disable-premium"
             - name: SUBSCRIPTION_CLEAR_USERNAME_LOCK_TABLE
               value: "clear-username-lock-table"
+            - name: SUBSCRIPTION_USER_ENABLE_PREMIUM
+              value: "user-enable-premium"
+            - name: SUBSCRIPTION_USER_DISABLE_PREMIUM
+              value: "user-disable-premium"
             - name: RUNTIME_ENVIRONMENT
               value: "gke-dev-env"
             - name: USER_IMAGE_UPLOAD_BUCKET

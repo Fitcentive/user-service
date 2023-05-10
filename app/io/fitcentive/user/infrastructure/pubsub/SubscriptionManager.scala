@@ -3,7 +3,12 @@ package io.fitcentive.user.infrastructure.pubsub
 import io.fitcentive.sdk.gcp.pubsub.{PubSubPublisher, PubSubSubscriber}
 import io.fitcentive.sdk.logging.AppLogger
 import io.fitcentive.user.domain.config.AppPubSubConfig
-import io.fitcentive.user.domain.events.{ClearUsernameLockTableEvent, EventHandlers}
+import io.fitcentive.user.domain.events.{
+  ClearUsernameLockTableEvent,
+  EventHandlers,
+  UserDisablePremiumEvent,
+  UserEnablePremiumEvent
+}
 import io.fitcentive.user.infrastructure.contexts.PubSubExecutionContext
 
 import scala.concurrent.Future
@@ -24,14 +29,34 @@ class SubscriptionManager(
   final def initializeSubscriptions: Future[Unit] = {
     for {
       _ <- Future.sequence(config.topicsConfig.topics.map(publisher.createTopic))
-      _ <-
-        subscriber
-          .subscribe[ClearUsernameLockTableEvent](
-            environment,
-            config.subscriptionsConfig.clearUsernameLockTableSubscription,
-            config.topicsConfig.clearUsernameLockTableTopic
-          )(_.payload.pipe(handleEvent))
+      _ <- subscribeToClearUsernameLockTableEvent
+      _ <- subscribeToUserEnablePremiumEvents
+      _ <- subscribeToUserDisablePremiumEvents
       _ = logInfo("Subscriptions set up successfully!")
     } yield ()
   }
+
+  private def subscribeToClearUsernameLockTableEvent: Future[Unit] =
+    subscriber
+      .subscribe[ClearUsernameLockTableEvent](
+        environment,
+        config.subscriptionsConfig.clearUsernameLockTableSubscription,
+        config.topicsConfig.clearUsernameLockTableTopic
+      )(_.payload.pipe(handleEvent))
+
+  private def subscribeToUserDisablePremiumEvents: Future[Unit] =
+    subscriber
+      .subscribe[UserDisablePremiumEvent](
+        environment,
+        config.subscriptionsConfig.userDisablePremiumSubscription,
+        config.topicsConfig.userDisablePremiumTopic
+      )(_.payload.pipe(handleEvent))
+
+  private def subscribeToUserEnablePremiumEvents: Future[Unit] =
+    subscriber
+      .subscribe[UserEnablePremiumEvent](
+        environment,
+        config.subscriptionsConfig.userEnablePremiumSubscription,
+        config.topicsConfig.userEnablePremiumTopic
+      )(_.payload.pipe(handleEvent))
 }

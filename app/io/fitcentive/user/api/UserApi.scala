@@ -36,6 +36,12 @@ class UserApi @Inject() (
   def clearUsernameLockTable: Future[Unit] =
     usernameLockRepository.removeAll
 
+  def enablePremiumForUser(userId: UUID): Future[Unit] =
+    userRepository.enablePremium(userId)
+
+  def disablePremiumForUser(userId: UUID): Future[Unit] =
+    userRepository.disablePremium(userId)
+
   def checkIfUserExistsForEmail(email: String): Future[Boolean] =
     userRepository.getUserByEmail(email).map(_.isDefined)
 
