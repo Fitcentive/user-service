@@ -19,8 +19,8 @@ trait MessageEventHandlers extends EventHandlers {
   override def handleEvent(event: EventMessage): Future[Unit] =
     event match {
       case event: ClearUsernameLockTableEvent => userApi.clearUsernameLockTable
-      case event: UserDisablePremiumEvent     => userApi.disablePremiumForUser(event.userId)
-      case event: UserEnablePremiumEvent      => userApi.enablePremiumForUser(event.userId)
+      case event: UserDisablePremiumEvent     => userApi.disablePremiumForUser(event.targetUser)
+      case event: UserEnablePremiumEvent      => userApi.enablePremiumForUser(event.targetUser)
       case _                                  => Future.failed(new Exception("Unrecognized event"))
     }
 }

@@ -8,7 +8,7 @@ import io.fitcentive.sdk.utils.PubSubOps
 
 import java.util.UUID
 
-case class UserDisablePremiumEvent(userId: UUID) extends EventMessage
+case class UserDisablePremiumEvent(targetUser: UUID) extends EventMessage
 
 object UserDisablePremiumEvent extends PubSubOps {
 
