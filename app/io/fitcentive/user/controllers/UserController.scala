@@ -188,6 +188,14 @@ class UserController @Inject() (
         .recover(resultErrorAsyncHandler)
     }
 
+  def getUserInternal(implicit userId: UUID): Action[AnyContent] =
+    internalAuthAction.async { implicit request =>
+      userApi
+        .getUser(userId)
+        .map(handleEitherResult(_)(user => Ok(Json.toJson(user))))
+        .recover(resultErrorAsyncHandler)
+    }
+
   // -----------------------------
   // User Auth routes
   // -----------------------------
