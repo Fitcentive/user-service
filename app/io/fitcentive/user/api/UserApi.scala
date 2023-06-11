@@ -2,7 +2,14 @@ package io.fitcentive.user.api
 
 import cats.data.EitherT
 import io.fitcentive.sdk.error.{DomainError, EntityNotFoundError}
-import io.fitcentive.user.domain.user.{PublicUserProfile, User, UserAgreements, UserFriendRequest, UserProfile}
+import io.fitcentive.user.domain.user.{
+  PublicUserProfile,
+  User,
+  UserAgreements,
+  UserFriendRequest,
+  UserProfile,
+  UserTutorialStatus
+}
 import io.fitcentive.user.infrastructure.utils.ImageSupport
 import io.fitcentive.user.repositories._
 import io.fitcentive.user.services._
@@ -22,6 +29,7 @@ class UserApi @Inject() (
   userProfileRepository: UserProfileRepository,
   usernameLockRepository: UsernameLockRepository,
   userFriendRequestRepository: UserFriendRequestRepository,
+  userTutorialStatusRepository: UserTutorialStatusRepository,
   socialService: SocialService,
   discoverService: DiscoverService,
   notificationService: NotificationService,
@@ -100,7 +108,8 @@ class UserApi @Inject() (
     * Deleting user account takes several steps
     * 1. Delete email verification tokens
     * 2. Delete from username_lock table
-    * 3. Delete from users table (cascade delete will take care of user_profiles, user_agreements and user_follow_requests)
+    * 3. Delete from users table
+    *    - cascade delete will take care of user_profiles, user_agreements, user_follow_requests and user_tutorial_status
     * 4. Delete from Keycloak
     * 5. Delete from social-service graph database (posts, comments, likes)
     * 6. Delete from notification-service schema (devices, notification_data)
@@ -297,6 +306,23 @@ class UserApi @Inject() (
           )
       )
     } yield updatedUserProfileWithProfilePhoto).value
+
+  def getUserTutorialStatus(userId: UUID): Future[Either[DomainError, UserTutorialStatus]] =
+    userTutorialStatusRepository
+      .getUserTutorialStatus(userId)
+      .map(_.map(Right.apply).getOrElse(Left(EntityNotFoundError("User tutorial status not found!"))))
+
+  def markUserTutorialStatusAsComplete(userId: UUID): Future[UserTutorialStatus] =
+    userTutorialStatusRepository
+      .markUserTutorialStatusAsComplete(userId)
+
+  def markUserTutorialStatusAsIncomplete(userId: UUID): Future[UserTutorialStatus] =
+    userTutorialStatusRepository
+      .markUserTutorialStatusAsIncomplete(userId)
+
+  def deleteUserTutorialStatus(userId: UUID): Future[Unit] =
+    userTutorialStatusRepository
+      .deleteUserTutorialStatus(userId)
 
   private def upsertPublicUserProfileIntoGraphDb(userId: UUID): Future[Either[DomainError, PublicUserProfile]] =
     (for {

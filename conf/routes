@@ -27,6 +27,12 @@ PATCH    /api/user/:userId/profile                                              
 POST     /api/user/:userId/profile                                                              io.fitcentive.user.controllers.UserController.updateUserProfilePost(userId: java.util.UUID)
 POST     /api/user/profile/get-by-ids                                                           io.fitcentive.user.controllers.UserController.getUserProfilesByIds
 
+# User tutorial status endpoints
+GET      /api/user/:userId/tutorial-status                                                      io.fitcentive.user.controllers.UserController.getUserTutorialStatus(userId: java.util.UUID)
+DELETE   /api/user/:userId/tutorial-status                                                      io.fitcentive.user.controllers.UserController.deleteUserTutorialStatus(userId: java.util.UUID)
+POST     /api/user/:userId/tutorial-status/complete                                             io.fitcentive.user.controllers.UserController.markUserTutorialStatusAsComplete(userId: java.util.UUID)
+POST     /api/user/:userId/tutorial-status/incomplete                                           io.fitcentive.user.controllers.UserController.markUserTutorialStatusAsIncomplete(userId: java.util.UUID)
+
 # User agreement endpoints
 GET      /api/user/:userId/agreements                                                           io.fitcentive.user.controllers.UserController.getUserAgreements(userId: java.util.UUID)
 PATCH    /api/user/:userId/agreements                                                           io.fitcentive.user.controllers.UserController.updateUserAgreements(userId: java.util.UUID)

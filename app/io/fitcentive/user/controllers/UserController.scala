@@ -346,4 +346,44 @@ class UserController @Inject() (
       }
     }
 
+  def getUserTutorialStatus(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .getUserTutorialStatus(userId)
+          .map(handleEitherResult(_)(status => Ok(Json.toJson(status))))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
+  def markUserTutorialStatusAsComplete(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .markUserTutorialStatusAsComplete(userId)
+          .map(status => Ok(Json.toJson(status)))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
+  def markUserTutorialStatusAsIncomplete(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .markUserTutorialStatusAsIncomplete(userId)
+          .map(status => Ok(Json.toJson(status)))
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
+  def deleteUserTutorialStatus(implicit userId: UUID): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      rejectIfNotEntitled {
+        userApi
+          .deleteUserTutorialStatus(userId)
+          .map(_ => NoContent)
+          .recover(resultErrorAsyncHandler)
+      }
+    }
+
 }
