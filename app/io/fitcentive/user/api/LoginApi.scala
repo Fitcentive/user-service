@@ -10,6 +10,7 @@ import io.fitcentive.user.domain.errors.{
   PasswordValidationError,
   TokenVerificationError
 }
+import io.fitcentive.user.domain.location.Coordinates
 import io.fitcentive.user.domain.user.{User, UserAgreements, UserProfile}
 import io.fitcentive.user.repositories.{
   EmailVerificationTokenRepository,
@@ -38,6 +39,7 @@ class LoginApi @Inject() (
 
   import LoginApi._
 
+  // Note - This API needs to be called at most once to create the static deleted user entity
   def createStaticDeletedUser: Future[Either[DomainError, User]] =
     (for {
       _ <- EitherT[Future, DomainError, Unit](
@@ -56,8 +58,8 @@ class LoginApi @Inject() (
         lastName = Some("User"),
         photoUrl = Some(s"deleted_user_avatar.png"), // This is already present in GCS
         dateOfBirth = None,
-        locationCenter = None,
-        locationRadius = None,
+        locationCenter = Some(Coordinates(latitude = 43.6777, -79.6248)), // Same as flutter_app
+        locationRadius = Some(10000), // Arbitrary 10KM radius by default
         gender = None
       )
       _ <- EitherT.right[DomainError](userProfileRepository.createUserProfile(user.id, userProfileUpdate))
