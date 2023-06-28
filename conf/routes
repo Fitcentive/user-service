@@ -42,6 +42,9 @@ POST    /api/user/password/reset-request                                        
 POST    /api/user/password/validate-token                                                       io.fitcentive.user.controllers.UserController.verifyEmailToken
 POST    /api/user/password/reset                                                                io.fitcentive.user.controllers.UserController.resetPassword
 
+# User event tracking APIs
+POST    /api/user/event/action                                                                  io.fitcentive.user.controllers.EventTrackingController.addNewTrackingEvent
+
 # User account deletion
 DELETE  /api/user/:userId                                                                       io.fitcentive.user.controllers.UserController.deleteUserAccount(userId: java.util.UUID)
 
