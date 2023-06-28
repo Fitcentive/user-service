@@ -46,6 +46,8 @@ insert into user_event_types (name, description) values ('AttemptToDiscoverUsers
 insert into user_event_types (name, description) values ('AcceptNewDiscoveredUser',         'When a user accepts a newly discovered user');
 insert into user_event_types (name, description) values ('RejectNewDiscoveredUser',         'When a user rejects a newly discovered user');
 insert into user_event_types (name, description) values ('RemoveFromNewlyDiscoveredUsers',  'When a user removes a newly discovered user from their list of discovered users');
+insert into user_event_types (name, description) values ('UserLoggedIn',                    'When a user initiates a login event');
+insert into user_event_types (name, description) values ('UserLoggedOut',                   'When a user initiates a logout event');
 
 create table event_platform_types (
     name varchar not null constraint pk_event_platform_types primary key,

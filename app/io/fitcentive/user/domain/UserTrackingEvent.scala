@@ -50,6 +50,8 @@ object UserTrackingEvent {
       case AcceptNewDiscoveredUser.stringValue        => AcceptNewDiscoveredUser
       case RejectNewDiscoveredUser.stringValue        => RejectNewDiscoveredUser
       case RemoveFromNewlyDiscoveredUsers.stringValue => RemoveFromNewlyDiscoveredUsers
+      case UserLoggedIn.stringValue                   => UserLoggedIn
+      case UserLoggedOut.stringValue                  => UserLoggedOut
       case _                                          => throw new Exception("Unexpected user tracking event")
     }
 
@@ -95,6 +97,8 @@ object UserTrackingEvent {
       case AcceptNewDiscoveredUser        => JsString(AcceptNewDiscoveredUser.stringValue)
       case RejectNewDiscoveredUser        => JsString(RejectNewDiscoveredUser.stringValue)
       case RemoveFromNewlyDiscoveredUsers => JsString(RemoveFromNewlyDiscoveredUsers.stringValue)
+      case UserLoggedIn                   => JsString(UserLoggedIn.stringValue)
+      case UserLoggedOut                  => JsString(UserLoggedOut.stringValue)
     }
   }
 
@@ -217,6 +221,12 @@ object UserTrackingEvent {
   }
   case object RemoveFromNewlyDiscoveredUsers extends UserTrackingEvent {
     val stringValue: String = "RemoveFromNewlyDiscoveredUsers"
+  }
+  case object UserLoggedIn extends UserTrackingEvent {
+    val stringValue: String = "UserLoggedIn"
+  }
+  case object UserLoggedOut extends UserTrackingEvent {
+    val stringValue: String = "UserLoggedOut"
   }
 
 }
