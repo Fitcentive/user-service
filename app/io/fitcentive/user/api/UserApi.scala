@@ -35,6 +35,7 @@ class UserApi @Inject() (
   notificationService: NotificationService,
   chatService: ChatService,
   diaryService: DiaryService,
+  meetupService: MeetupService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
@@ -106,15 +107,17 @@ class UserApi @Inject() (
 
   /**
     * Deleting user account takes several steps
-    * 1. Delete email verification tokens
-    * 2. Delete from username_lock table
-    * 3. Delete from users table
-    *    - cascade delete will take care of user_profiles, user_agreements, user_follow_requests and user_tutorial_status
-    * 4. Delete from Keycloak
-    * 5. Delete from social-service graph database (posts, comments, likes)
-    * 6. Delete from notification-service schema (devices, notification_data)
-    * 7. Delete from discover-service schema (postgres prefs, graph prefs)
-    * 8. Delete from chat-service schema
+    * 1.  Delete email verification tokens
+    * 2.  Delete from username_lock table
+    * 3.  Delete from users table
+    *     - cascade delete will take care of user_profiles, user_agreements, user_follow_requests and user_tutorial_status
+    * 4.  Delete from Keycloak
+    * 5.  Delete from social-service graph database (posts, comments, likes)
+    * 6.  Delete from notification-service schema (devices, notification_data)
+    * 7.  Delete from discover-service schema (postgres prefs, graph prefs)
+    * 8.  Delete from diary-service schema
+    * 9.  Delete from meetup-service schema
+    * 10. Delete from chat-service schema
     */
   def deleteUserAccount(userId: UUID): Future[Either[DomainError, Unit]] =
     (for {
@@ -131,6 +134,7 @@ class UserApi @Inject() (
       _ <- EitherT[Future, DomainError, Unit](notificationService.deleteUserNotificationData(user.id))
       _ <- EitherT[Future, DomainError, Unit](chatService.deleteUserChatData(user.id))
       _ <- EitherT[Future, DomainError, Unit](diaryService.deleteUserDiaryData(user.id))
+      _ <- EitherT[Future, DomainError, Unit](meetupService.deleteUserMeetupData(user.id))
 
       // Finally, we delete the user login, user node and the user object itself
       _ <- EitherT.right[DomainError](socialService.deleteUserFromGraphDb(user.id))
