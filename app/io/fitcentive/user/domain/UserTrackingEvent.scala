@@ -52,6 +52,11 @@ object UserTrackingEvent {
       case RemoveFromNewlyDiscoveredUsers.stringValue => RemoveFromNewlyDiscoveredUsers
       case UserLoggedIn.stringValue                   => UserLoggedIn
       case UserLoggedOut.stringValue                  => UserLoggedOut
+      case LeaveChatRoom.stringValue                  => LeaveChatRoom
+      case SearchForUsers.stringValue                 => SearchForUsers
+      case ViewCalendar.stringValue                   => ViewCalendar
+      case ViewFriends.stringValue                    => ViewFriends
+      case CancelPremium.stringValue                  => CancelPremium
       case _                                          => throw new Exception("Unexpected user tracking event")
     }
 
@@ -99,6 +104,11 @@ object UserTrackingEvent {
       case RemoveFromNewlyDiscoveredUsers => JsString(RemoveFromNewlyDiscoveredUsers.stringValue)
       case UserLoggedIn                   => JsString(UserLoggedIn.stringValue)
       case UserLoggedOut                  => JsString(UserLoggedOut.stringValue)
+      case LeaveChatRoom                  => JsString(LeaveChatRoom.stringValue)
+      case SearchForUsers                 => JsString(SearchForUsers.stringValue)
+      case ViewCalendar                   => JsString(ViewCalendar.stringValue)
+      case ViewFriends                    => JsString(ViewFriends.stringValue)
+      case CancelPremium                  => JsString(CancelPremium.stringValue)
     }
   }
 
@@ -227,6 +237,21 @@ object UserTrackingEvent {
   }
   case object UserLoggedOut extends UserTrackingEvent {
     val stringValue: String = "UserLoggedOut"
+  }
+  case object LeaveChatRoom extends UserTrackingEvent {
+    val stringValue: String = "LeaveChatRoom"
+  }
+  case object SearchForUsers extends UserTrackingEvent {
+    val stringValue: String = "SearchForUsers"
+  }
+  case object ViewCalendar extends UserTrackingEvent {
+    val stringValue: String = "ViewCalendar"
+  }
+  case object ViewFriends extends UserTrackingEvent {
+    val stringValue: String = "ViewFriends"
+  }
+  case object CancelPremium extends UserTrackingEvent {
+    val stringValue: String = "CancelPremium"
   }
 
 }
