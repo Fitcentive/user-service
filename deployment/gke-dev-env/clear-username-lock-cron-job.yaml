@@ -13,7 +13,7 @@ spec:
         spec:
           containers:
             - name: clear-username-lock-cronjob
-              image: gcr.io/fitcentive-dev-02/gcloud-user-cron-pubsub-image:1.0
+              image: gcr.io/fitcentive-dev-03/gcloud-user-cron-pubsub-image:1.0
               imagePullPolicy: Always
               volumeMounts:
                 - mountPath: /opt/service-account
