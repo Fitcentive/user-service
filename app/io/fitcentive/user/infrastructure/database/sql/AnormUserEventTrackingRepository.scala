@@ -22,6 +22,21 @@ class AnormUserEventTrackingRepository @Inject() (val db: Database)(implicit val
 
   import AnormUserEventTrackingRepository._
 
+  override def getEventsBetweenWindow(
+    userId: UUID,
+    events: Seq[UserTrackingEvent],
+    windowStart: Instant,
+    windowEnd: Instant
+  ): Future[Seq[UserEventTracking]] =
+    Future {
+      getRecords(
+        SQL_GET_EVENTS_BETWEEN_WINDOW(events),
+        "userId" -> userId,
+        "windowStart" -> windowStart,
+        "windowEnd" -> windowEnd
+      )(userEventTrackingRowParser).map(_.toDomain)
+    }
+
   override def createNewEvent(userId: UUID, event: UserTrackingEvent, platform: EventPlatform): Future[Unit] =
     Future {
       Instant.now.pipe { now =>
@@ -40,6 +55,19 @@ class AnormUserEventTrackingRepository @Inject() (val db: Database)(implicit val
 }
 
 object AnormUserEventTrackingRepository {
+
+  private def SQL_GET_EVENTS_BETWEEN_WINDOW(events: Seq[UserTrackingEvent]): String = {
+    val base =
+      s"""
+         |select *
+         |from user_event_tracking
+         |where user_id = {userId}::uuid
+         |and created_at >= {windowStart}
+         |and created_at <= {windowEnd} 
+         |""".stripMargin
+    if (events.isEmpty) base
+    else base + s" and event_name in ( ${events.map(e => s"'${e.stringValue}'").mkString(", ")} )"
+  }
 
   private val SQL_CREATE_NEW_EVENT: String =
     s"""

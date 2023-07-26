@@ -44,6 +44,7 @@ POST    /api/user/password/reset                                                
 
 # User event tracking APIs
 POST    /api/user/event/action                                                                  io.fitcentive.user.controllers.EventTrackingController.addNewTrackingEvent
+GET     /api/user/event/discover-interactions                                                   io.fitcentive.user.controllers.EventTrackingController.getUserDiscoverInteractionCount(dateString: String, offsetInMinutes: Int)
 
 # User account deletion
 DELETE  /api/user/:userId                                                                       io.fitcentive.user.controllers.UserController.deleteUserAccount(userId: java.util.UUID)

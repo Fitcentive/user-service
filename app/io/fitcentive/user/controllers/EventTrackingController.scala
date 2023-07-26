@@ -21,6 +21,14 @@ class EventTrackingController @Inject() (
   with PlayControllerOps
   with ServerErrorHandler {
 
+  def getUserDiscoverInteractionCount(dateString: String, offsetInMinutes: Int): Action[AnyContent] =
+    userAuthAction.async { implicit userRequest =>
+      eventTrackingApi
+        .getUserDiscoverInteractionCount(userRequest.authorizedUser.userId, dateString, offsetInMinutes)
+        .map(count => Ok(count.toString))
+        .recover(resultErrorAsyncHandler)
+    }
+
   def addNewTrackingEvent: Action[AnyContent] =
     userAuthAction.async { implicit userRequest =>
       validateJson[EventTrackingPayload](userRequest.request.body.asJson) { payload =>

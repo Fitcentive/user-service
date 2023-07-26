@@ -48,6 +48,7 @@ object UserTrackingEvent {
       case UpdateDiscoveryPreferences.stringValue     => UpdateDiscoveryPreferences
       case AttemptToDiscoverUsers.stringValue         => AttemptToDiscoverUsers
       case AcceptNewDiscoveredUser.stringValue        => AcceptNewDiscoveredUser
+      case ViewNewDiscoveredUser.stringValue          => ViewNewDiscoveredUser
       case RejectNewDiscoveredUser.stringValue        => RejectNewDiscoveredUser
       case RemoveFromNewlyDiscoveredUsers.stringValue => RemoveFromNewlyDiscoveredUsers
       case UserLoggedIn.stringValue                   => UserLoggedIn
@@ -99,6 +100,7 @@ object UserTrackingEvent {
       case DeclineUserFriendRequest       => JsString(DeclineUserFriendRequest.stringValue)
       case UpdateDiscoveryPreferences     => JsString(UpdateDiscoveryPreferences.stringValue)
       case AttemptToDiscoverUsers         => JsString(AttemptToDiscoverUsers.stringValue)
+      case ViewNewDiscoveredUser          => JsString(ViewNewDiscoveredUser.stringValue)
       case AcceptNewDiscoveredUser        => JsString(AcceptNewDiscoveredUser.stringValue)
       case RejectNewDiscoveredUser        => JsString(RejectNewDiscoveredUser.stringValue)
       case RemoveFromNewlyDiscoveredUsers => JsString(RemoveFromNewlyDiscoveredUsers.stringValue)
@@ -222,6 +224,9 @@ object UserTrackingEvent {
   }
   case object AttemptToDiscoverUsers extends UserTrackingEvent {
     val stringValue: String = "AttemptToDiscoverUsers"
+  }
+  case object ViewNewDiscoveredUser extends UserTrackingEvent {
+    val stringValue: String = "ViewNewDiscoveredUser"
   }
   case object AcceptNewDiscoveredUser extends UserTrackingEvent {
     val stringValue: String = "AcceptNewDiscoveredUser"
