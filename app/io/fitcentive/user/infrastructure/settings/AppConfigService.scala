@@ -17,6 +17,9 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class AppConfigService @Inject() (config: Configuration) extends SettingsService {
 
+  override def publicGatewayServiceConfig: ServerConfig =
+    ServerConfig.fromConfig(config.get[Config]("services.public-gateway-service"))
+
   override def diaryServiceConfig: ServerConfig =
     ServerConfig.fromConfig(config.get[Config]("services.diary-service"))
 

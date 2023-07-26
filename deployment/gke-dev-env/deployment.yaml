@@ -94,6 +94,10 @@ spec:
               value: "http://diary-service.diary"
             - name: DIARY_SERVICE_PORT
               value: "9000"
+            - name: PUBLIC_GATEWAY_SERVICE_HOST
+              value: "http://public-gateway-service.public-gateway"
+            - name: PUBLIC_GATEWAY_SERVICE_PORT
+              value: "9000"
             - name: MEETUP_SERVICE_HOST
               value: "http://meetup-service.meetup"
             - name: MEETUP_SERVICE_PORT
