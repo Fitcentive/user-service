@@ -23,6 +23,7 @@ trait SettingsService {
   def diaryServiceConfig: ServerConfig
   def publicGatewayServiceConfig: ServerConfig
   def meetupServiceConfig: ServerConfig
+  def awardsServiceConfig: ServerConfig
   def userImageUploadBucket: String
   def staticDeletedUserId: String
   def staticDeletedUserEmail: String

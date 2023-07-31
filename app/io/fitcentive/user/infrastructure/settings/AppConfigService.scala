@@ -23,6 +23,9 @@ class AppConfigService @Inject() (config: Configuration) extends SettingsService
   override def diaryServiceConfig: ServerConfig =
     ServerConfig.fromConfig(config.get[Config]("services.diary-service"))
 
+  override def awardsServiceConfig: ServerConfig =
+    ServerConfig.fromConfig(config.get[Config]("services.awards-service"))
+
   override def meetupServiceConfig: ServerConfig =
     ServerConfig.fromConfig(config.get[Config]("services.meetup-service"))
 

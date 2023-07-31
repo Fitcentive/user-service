@@ -35,6 +35,8 @@ trait ServerErrorHandler extends DomainErrorHandler with AppLogger {
     case ChatServiceError(reason)          => InternalServerError(reason)
     case DiaryServiceError(reason)         => InternalServerError(reason)
     case PublicGatewayServiceError(reason) => InternalServerError(reason)
+    case AwardsServiceError(reason)        => InternalServerError(reason)
+    case MeetupServiceError(reason)        => InternalServerError(reason)
     case _                                 => InternalServerError("Unexpected error occurred ")
   }
 

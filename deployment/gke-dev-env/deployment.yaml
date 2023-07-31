@@ -35,16 +35,16 @@ spec:
               memory: 300Mi
               cpu: "0.1"
             limits:
-              memory: 500Mi
+              memory: 1000Mi
               cpu: "0.5"
           ports:
             - name: http-port
               containerPort: 9000
           readinessProbe:
             httpGet:
-              path: /api/user/healthz
+              path: /api/user/health
               port: 9000
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 30
           livenessProbe:
             httpGet:
@@ -101,6 +101,10 @@ spec:
             - name: MEETUP_SERVICE_HOST
               value: "http://meetup-service.meetup"
             - name: MEETUP_SERVICE_PORT
+              value: "9000"
+            - name: AWARDS_SERVICE_HOST
+              value: "http://awards-service.awards"
+            - name: AWARDS_SERVICE_PORT
               value: "9000"
             - name: IMAGE_SERVICE_HOST
               value: "http://image-service.image-service"

@@ -36,6 +36,7 @@ class UserApi @Inject() (
   chatService: ChatService,
   diaryService: DiaryService,
   meetupService: MeetupService,
+  awardsService: AwardsService,
   publicGatewayService: PublicGatewayService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
@@ -118,8 +119,9 @@ class UserApi @Inject() (
     * 7.  Delete from discover-service schema (postgres prefs, graph prefs)
     * 8.  Delete from diary-service schema
     * 9.  Delete from meetup-service schema
-    * 10. Delete from public-gateway-service schema
-    * 11  Delete from chat-service schema
+    * 10. Delete from awards-service schema
+    * 11. Delete from public-gateway-service schema
+    * 12. Delete from chat-service schema
     */
   def deleteUserAccount(userId: UUID): Future[Either[DomainError, Unit]] =
     (for {
@@ -137,6 +139,7 @@ class UserApi @Inject() (
       _ <- EitherT[Future, DomainError, Unit](chatService.deleteUserChatData(user.id))
       _ <- EitherT[Future, DomainError, Unit](diaryService.deleteUserDiaryData(user.id))
       _ <- EitherT[Future, DomainError, Unit](meetupService.deleteUserMeetupData(user.id))
+      _ <- EitherT[Future, DomainError, Unit](awardsService.deleteUserData(user.id))
       _ <- EitherT[Future, DomainError, Unit](publicGatewayService.deleteUserData(user.id))
 
       // Finally, we delete the user login, user node and the user object itself
