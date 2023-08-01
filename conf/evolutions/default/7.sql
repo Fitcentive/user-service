@@ -5,4 +5,6 @@ insert into user_event_types (name, description) values ('ViewDetailedStepAchiev
 insert into user_event_types (name, description) values ('ViewDetailedDiaryAchievements',        'When a user views their detailed diary achievements');
 insert into user_event_types (name, description) values ('ViewDetailedActivityAchievements',     'When a user views their detailed activity achievements');
 
+insert into user_event_types (name, description) values ('ViewDiaryDailySummary',                'When a user views their diary summary view');
+
 # -- !Downs

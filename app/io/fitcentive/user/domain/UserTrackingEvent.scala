@@ -1,6 +1,6 @@
 package io.fitcentive.user.domain
 
-import play.api.libs.json.{JsString, Json, Reads, Writes}
+import play.api.libs.json.{JsString, Writes}
 
 trait UserTrackingEvent {
   def stringValue: String
@@ -22,6 +22,7 @@ object UserTrackingEvent {
       case CreateExerciseDiaryEntry.stringValue         => CreateExerciseDiaryEntry
       case ViewDiaryEntry.stringValue                   => ViewDiaryEntry
       case EditDiaryEntry.stringValue                   => EditDiaryEntry
+      case ViewDiaryDailySummary.stringValue            => ViewDiaryDailySummary
       case UpdateFitnessUserProfile.stringValue         => UpdateFitnessUserProfile
       case ViewMeetupHome.stringValue                   => ViewMeetupHome
       case AttemptToCreateMeetup.stringValue            => AttemptToCreateMeetup
@@ -79,6 +80,7 @@ object UserTrackingEvent {
       case CreateExerciseDiaryEntry         => JsString(CreateExerciseDiaryEntry.stringValue)
       case ViewDiaryEntry                   => JsString(ViewDiaryEntry.stringValue)
       case EditDiaryEntry                   => JsString(EditDiaryEntry.stringValue)
+      case ViewDiaryDailySummary            => JsString(ViewDiaryDailySummary.stringValue)
       case UpdateFitnessUserProfile         => JsString(UpdateFitnessUserProfile.stringValue)
       case ViewMeetupHome                   => JsString(ViewMeetupHome.stringValue)
       case AttemptToCreateMeetup            => JsString(AttemptToCreateMeetup.stringValue)
@@ -157,6 +159,9 @@ object UserTrackingEvent {
   }
   case object EditDiaryEntry extends UserTrackingEvent {
     val stringValue: String = "EditDiaryEntry"
+  }
+  case object ViewDiaryDailySummary extends UserTrackingEvent {
+    val stringValue: String = "ViewDiaryDailySummary"
   }
   case object UpdateFitnessUserProfile extends UserTrackingEvent {
     val stringValue: String = "UpdateFitnessUserProfile"
