@@ -10,107 +10,115 @@ object UserTrackingEvent {
 
   def apply(status: String): UserTrackingEvent =
     status match {
-      case ViewNotifications.stringValue              => ViewNotifications
-      case ViewChatHome.stringValue                   => ViewChatHome
-      case EnterChatRoom.stringValue                  => EnterChatRoom
-      case AttemptToCreateChatRoom.stringValue        => AttemptToCreateChatRoom
-      case CreateChatRoom.stringValue                 => CreateChatRoom
-      case ViewDiaryHome.stringValue                  => ViewDiaryHome
-      case SearchForExercise.stringValue              => SearchForExercise
-      case SearchForFood.stringValue                  => SearchForFood
-      case CreateFoodDiaryEntry.stringValue           => CreateFoodDiaryEntry
-      case CreateExerciseDiaryEntry.stringValue       => CreateExerciseDiaryEntry
-      case ViewDiaryEntry.stringValue                 => ViewDiaryEntry
-      case EditDiaryEntry.stringValue                 => EditDiaryEntry
-      case UpdateFitnessUserProfile.stringValue       => UpdateFitnessUserProfile
-      case ViewMeetupHome.stringValue                 => ViewMeetupHome
-      case AttemptToCreateMeetup.stringValue          => AttemptToCreateMeetup
-      case CreateMeetup.stringValue                   => CreateMeetup
-      case ViewDetailedMeetup.stringValue             => ViewDetailedMeetup
-      case EditMeetup.stringValue                     => EditMeetup
-      case RespondToMeetup.stringValue                => RespondToMeetup
-      case CommentOnMeetup.stringValue                => CommentOnMeetup
-      case AddAvailabilityToMeetup.stringValue        => AddAvailabilityToMeetup
-      case AssociateDiaryEntryToMeetup.stringValue    => AssociateDiaryEntryToMeetup
-      case ViewNewsfeedHome.stringValue               => ViewNewsfeedHome
-      case LikeSocialPost.stringValue                 => LikeSocialPost
-      case AddSocialPostComment.stringValue           => AddSocialPostComment
-      case AttemptToCreatePost.stringValue            => AttemptToCreatePost
-      case CreatePost.stringValue                     => CreatePost
-      case ViewCurrentUserAccountDetails.stringValue  => ViewCurrentUserAccountDetails
-      case AttemptToActivatePremium.stringValue       => AttemptToActivatePremium
-      case ActivatePremium.stringValue                => ActivatePremium
-      case EditCurrentUserAccountDetails.stringValue  => EditCurrentUserAccountDetails
-      case ViewOtherUserProfile.stringValue           => ViewOtherUserProfile
-      case SendFriendRequestToUser.stringValue        => SendFriendRequestToUser
-      case AcceptUserFriendRequest.stringValue        => AcceptUserFriendRequest
-      case DeclineUserFriendRequest.stringValue       => DeclineUserFriendRequest
-      case UpdateDiscoveryPreferences.stringValue     => UpdateDiscoveryPreferences
-      case AttemptToDiscoverUsers.stringValue         => AttemptToDiscoverUsers
-      case AcceptNewDiscoveredUser.stringValue        => AcceptNewDiscoveredUser
-      case ViewNewDiscoveredUser.stringValue          => ViewNewDiscoveredUser
-      case RejectNewDiscoveredUser.stringValue        => RejectNewDiscoveredUser
-      case RemoveFromNewlyDiscoveredUsers.stringValue => RemoveFromNewlyDiscoveredUsers
-      case UserLoggedIn.stringValue                   => UserLoggedIn
-      case UserLoggedOut.stringValue                  => UserLoggedOut
-      case LeaveChatRoom.stringValue                  => LeaveChatRoom
-      case SearchForUsers.stringValue                 => SearchForUsers
-      case ViewCalendar.stringValue                   => ViewCalendar
-      case ViewFriends.stringValue                    => ViewFriends
-      case CancelPremium.stringValue                  => CancelPremium
-      case _                                          => throw new Exception("Unexpected user tracking event")
+      case ViewNotifications.stringValue                => ViewNotifications
+      case ViewChatHome.stringValue                     => ViewChatHome
+      case EnterChatRoom.stringValue                    => EnterChatRoom
+      case AttemptToCreateChatRoom.stringValue          => AttemptToCreateChatRoom
+      case CreateChatRoom.stringValue                   => CreateChatRoom
+      case ViewDiaryHome.stringValue                    => ViewDiaryHome
+      case SearchForExercise.stringValue                => SearchForExercise
+      case SearchForFood.stringValue                    => SearchForFood
+      case CreateFoodDiaryEntry.stringValue             => CreateFoodDiaryEntry
+      case CreateExerciseDiaryEntry.stringValue         => CreateExerciseDiaryEntry
+      case ViewDiaryEntry.stringValue                   => ViewDiaryEntry
+      case EditDiaryEntry.stringValue                   => EditDiaryEntry
+      case UpdateFitnessUserProfile.stringValue         => UpdateFitnessUserProfile
+      case ViewMeetupHome.stringValue                   => ViewMeetupHome
+      case AttemptToCreateMeetup.stringValue            => AttemptToCreateMeetup
+      case CreateMeetup.stringValue                     => CreateMeetup
+      case ViewDetailedMeetup.stringValue               => ViewDetailedMeetup
+      case EditMeetup.stringValue                       => EditMeetup
+      case RespondToMeetup.stringValue                  => RespondToMeetup
+      case CommentOnMeetup.stringValue                  => CommentOnMeetup
+      case AddAvailabilityToMeetup.stringValue          => AddAvailabilityToMeetup
+      case AssociateDiaryEntryToMeetup.stringValue      => AssociateDiaryEntryToMeetup
+      case ViewNewsfeedHome.stringValue                 => ViewNewsfeedHome
+      case LikeSocialPost.stringValue                   => LikeSocialPost
+      case AddSocialPostComment.stringValue             => AddSocialPostComment
+      case AttemptToCreatePost.stringValue              => AttemptToCreatePost
+      case CreatePost.stringValue                       => CreatePost
+      case ViewCurrentUserAccountDetails.stringValue    => ViewCurrentUserAccountDetails
+      case AttemptToActivatePremium.stringValue         => AttemptToActivatePremium
+      case ActivatePremium.stringValue                  => ActivatePremium
+      case EditCurrentUserAccountDetails.stringValue    => EditCurrentUserAccountDetails
+      case ViewOtherUserProfile.stringValue             => ViewOtherUserProfile
+      case SendFriendRequestToUser.stringValue          => SendFriendRequestToUser
+      case AcceptUserFriendRequest.stringValue          => AcceptUserFriendRequest
+      case DeclineUserFriendRequest.stringValue         => DeclineUserFriendRequest
+      case UpdateDiscoveryPreferences.stringValue       => UpdateDiscoveryPreferences
+      case AttemptToDiscoverUsers.stringValue           => AttemptToDiscoverUsers
+      case AcceptNewDiscoveredUser.stringValue          => AcceptNewDiscoveredUser
+      case ViewNewDiscoveredUser.stringValue            => ViewNewDiscoveredUser
+      case RejectNewDiscoveredUser.stringValue          => RejectNewDiscoveredUser
+      case RemoveFromNewlyDiscoveredUsers.stringValue   => RemoveFromNewlyDiscoveredUsers
+      case UserLoggedIn.stringValue                     => UserLoggedIn
+      case UserLoggedOut.stringValue                    => UserLoggedOut
+      case LeaveChatRoom.stringValue                    => LeaveChatRoom
+      case SearchForUsers.stringValue                   => SearchForUsers
+      case ViewCalendar.stringValue                     => ViewCalendar
+      case ViewFriends.stringValue                      => ViewFriends
+      case CancelPremium.stringValue                    => CancelPremium
+      case ViewAchievements.stringValue                 => ViewAchievements
+      case ViewDetailedStepAchievements.stringValue     => ViewDetailedStepAchievements
+      case ViewDetailedDiaryAchievements.stringValue    => ViewDetailedDiaryAchievements
+      case ViewDetailedActivityAchievements.stringValue => ViewDetailedActivityAchievements
+      case _                                            => throw new Exception("Unexpected user tracking event")
     }
 
   implicit lazy val writes: Writes[UserTrackingEvent] = {
     {
-      case ViewNotifications              => JsString(ViewNotifications.stringValue)
-      case ViewChatHome                   => JsString(ViewChatHome.stringValue)
-      case EnterChatRoom                  => JsString(EnterChatRoom.stringValue)
-      case AttemptToCreateChatRoom        => JsString(AttemptToCreateChatRoom.stringValue)
-      case CreateChatRoom                 => JsString(CreateChatRoom.stringValue)
-      case ViewDiaryHome                  => JsString(ViewDiaryHome.stringValue)
-      case SearchForExercise              => JsString(SearchForExercise.stringValue)
-      case SearchForFood                  => JsString(SearchForFood.stringValue)
-      case CreateFoodDiaryEntry           => JsString(CreateFoodDiaryEntry.stringValue)
-      case CreateExerciseDiaryEntry       => JsString(CreateExerciseDiaryEntry.stringValue)
-      case ViewDiaryEntry                 => JsString(ViewDiaryEntry.stringValue)
-      case EditDiaryEntry                 => JsString(EditDiaryEntry.stringValue)
-      case UpdateFitnessUserProfile       => JsString(UpdateFitnessUserProfile.stringValue)
-      case ViewMeetupHome                 => JsString(ViewMeetupHome.stringValue)
-      case AttemptToCreateMeetup          => JsString(AttemptToCreateMeetup.stringValue)
-      case CreateMeetup                   => JsString(CreateMeetup.stringValue)
-      case ViewDetailedMeetup             => JsString(ViewDetailedMeetup.stringValue)
-      case EditMeetup                     => JsString(EditMeetup.stringValue)
-      case RespondToMeetup                => JsString(RespondToMeetup.stringValue)
-      case CommentOnMeetup                => JsString(CommentOnMeetup.stringValue)
-      case AddAvailabilityToMeetup        => JsString(AddAvailabilityToMeetup.stringValue)
-      case AssociateDiaryEntryToMeetup    => JsString(AssociateDiaryEntryToMeetup.stringValue)
-      case ViewNewsfeedHome               => JsString(ViewNewsfeedHome.stringValue)
-      case LikeSocialPost                 => JsString(LikeSocialPost.stringValue)
-      case AddSocialPostComment           => JsString(AddSocialPostComment.stringValue)
-      case AttemptToCreatePost            => JsString(AttemptToCreatePost.stringValue)
-      case CreatePost                     => JsString(CreatePost.stringValue)
-      case ViewCurrentUserAccountDetails  => JsString(ViewCurrentUserAccountDetails.stringValue)
-      case AttemptToActivatePremium       => JsString(AttemptToActivatePremium.stringValue)
-      case ActivatePremium                => JsString(ActivatePremium.stringValue)
-      case EditCurrentUserAccountDetails  => JsString(EditCurrentUserAccountDetails.stringValue)
-      case ViewOtherUserProfile           => JsString(ViewOtherUserProfile.stringValue)
-      case SendFriendRequestToUser        => JsString(SendFriendRequestToUser.stringValue)
-      case AcceptUserFriendRequest        => JsString(AcceptUserFriendRequest.stringValue)
-      case DeclineUserFriendRequest       => JsString(DeclineUserFriendRequest.stringValue)
-      case UpdateDiscoveryPreferences     => JsString(UpdateDiscoveryPreferences.stringValue)
-      case AttemptToDiscoverUsers         => JsString(AttemptToDiscoverUsers.stringValue)
-      case ViewNewDiscoveredUser          => JsString(ViewNewDiscoveredUser.stringValue)
-      case AcceptNewDiscoveredUser        => JsString(AcceptNewDiscoveredUser.stringValue)
-      case RejectNewDiscoveredUser        => JsString(RejectNewDiscoveredUser.stringValue)
-      case RemoveFromNewlyDiscoveredUsers => JsString(RemoveFromNewlyDiscoveredUsers.stringValue)
-      case UserLoggedIn                   => JsString(UserLoggedIn.stringValue)
-      case UserLoggedOut                  => JsString(UserLoggedOut.stringValue)
-      case LeaveChatRoom                  => JsString(LeaveChatRoom.stringValue)
-      case SearchForUsers                 => JsString(SearchForUsers.stringValue)
-      case ViewCalendar                   => JsString(ViewCalendar.stringValue)
-      case ViewFriends                    => JsString(ViewFriends.stringValue)
-      case CancelPremium                  => JsString(CancelPremium.stringValue)
+      case ViewNotifications                => JsString(ViewNotifications.stringValue)
+      case ViewChatHome                     => JsString(ViewChatHome.stringValue)
+      case EnterChatRoom                    => JsString(EnterChatRoom.stringValue)
+      case AttemptToCreateChatRoom          => JsString(AttemptToCreateChatRoom.stringValue)
+      case CreateChatRoom                   => JsString(CreateChatRoom.stringValue)
+      case ViewDiaryHome                    => JsString(ViewDiaryHome.stringValue)
+      case SearchForExercise                => JsString(SearchForExercise.stringValue)
+      case SearchForFood                    => JsString(SearchForFood.stringValue)
+      case CreateFoodDiaryEntry             => JsString(CreateFoodDiaryEntry.stringValue)
+      case CreateExerciseDiaryEntry         => JsString(CreateExerciseDiaryEntry.stringValue)
+      case ViewDiaryEntry                   => JsString(ViewDiaryEntry.stringValue)
+      case EditDiaryEntry                   => JsString(EditDiaryEntry.stringValue)
+      case UpdateFitnessUserProfile         => JsString(UpdateFitnessUserProfile.stringValue)
+      case ViewMeetupHome                   => JsString(ViewMeetupHome.stringValue)
+      case AttemptToCreateMeetup            => JsString(AttemptToCreateMeetup.stringValue)
+      case CreateMeetup                     => JsString(CreateMeetup.stringValue)
+      case ViewDetailedMeetup               => JsString(ViewDetailedMeetup.stringValue)
+      case EditMeetup                       => JsString(EditMeetup.stringValue)
+      case RespondToMeetup                  => JsString(RespondToMeetup.stringValue)
+      case CommentOnMeetup                  => JsString(CommentOnMeetup.stringValue)
+      case AddAvailabilityToMeetup          => JsString(AddAvailabilityToMeetup.stringValue)
+      case AssociateDiaryEntryToMeetup      => JsString(AssociateDiaryEntryToMeetup.stringValue)
+      case ViewNewsfeedHome                 => JsString(ViewNewsfeedHome.stringValue)
+      case LikeSocialPost                   => JsString(LikeSocialPost.stringValue)
+      case AddSocialPostComment             => JsString(AddSocialPostComment.stringValue)
+      case AttemptToCreatePost              => JsString(AttemptToCreatePost.stringValue)
+      case CreatePost                       => JsString(CreatePost.stringValue)
+      case ViewCurrentUserAccountDetails    => JsString(ViewCurrentUserAccountDetails.stringValue)
+      case AttemptToActivatePremium         => JsString(AttemptToActivatePremium.stringValue)
+      case ActivatePremium                  => JsString(ActivatePremium.stringValue)
+      case EditCurrentUserAccountDetails    => JsString(EditCurrentUserAccountDetails.stringValue)
+      case ViewOtherUserProfile             => JsString(ViewOtherUserProfile.stringValue)
+      case SendFriendRequestToUser          => JsString(SendFriendRequestToUser.stringValue)
+      case AcceptUserFriendRequest          => JsString(AcceptUserFriendRequest.stringValue)
+      case DeclineUserFriendRequest         => JsString(DeclineUserFriendRequest.stringValue)
+      case UpdateDiscoveryPreferences       => JsString(UpdateDiscoveryPreferences.stringValue)
+      case AttemptToDiscoverUsers           => JsString(AttemptToDiscoverUsers.stringValue)
+      case ViewNewDiscoveredUser            => JsString(ViewNewDiscoveredUser.stringValue)
+      case AcceptNewDiscoveredUser          => JsString(AcceptNewDiscoveredUser.stringValue)
+      case RejectNewDiscoveredUser          => JsString(RejectNewDiscoveredUser.stringValue)
+      case RemoveFromNewlyDiscoveredUsers   => JsString(RemoveFromNewlyDiscoveredUsers.stringValue)
+      case UserLoggedIn                     => JsString(UserLoggedIn.stringValue)
+      case UserLoggedOut                    => JsString(UserLoggedOut.stringValue)
+      case LeaveChatRoom                    => JsString(LeaveChatRoom.stringValue)
+      case SearchForUsers                   => JsString(SearchForUsers.stringValue)
+      case ViewCalendar                     => JsString(ViewCalendar.stringValue)
+      case ViewFriends                      => JsString(ViewFriends.stringValue)
+      case CancelPremium                    => JsString(CancelPremium.stringValue)
+      case ViewAchievements                 => JsString(ViewAchievements.stringValue)
+      case ViewDetailedStepAchievements     => JsString(ViewDetailedStepAchievements.stringValue)
+      case ViewDetailedDiaryAchievements    => JsString(ViewDetailedDiaryAchievements.stringValue)
+      case ViewDetailedActivityAchievements => JsString(ViewDetailedActivityAchievements.stringValue)
     }
   }
 
@@ -257,6 +265,18 @@ object UserTrackingEvent {
   }
   case object CancelPremium extends UserTrackingEvent {
     val stringValue: String = "CancelPremium"
+  }
+  case object ViewAchievements extends UserTrackingEvent {
+    val stringValue: String = "ViewAchievements"
+  }
+  case object ViewDetailedStepAchievements extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedStepAchievements"
+  }
+  case object ViewDetailedDiaryAchievements extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedDiaryAchievements"
+  }
+  case object ViewDetailedActivityAchievements extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedActivityAchievements"
   }
 
 }
