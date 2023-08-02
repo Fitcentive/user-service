@@ -38,11 +38,18 @@ class UserApi @Inject() (
   meetupService: MeetupService,
   awardsService: AwardsService,
   publicGatewayService: PublicGatewayService,
+  messageBusService: MessageBusService,
 )(implicit ec: ExecutionContext)
   extends ImageSupport {
 
   val defaultLimit = 50
   val defaultOffset = 0
+
+  def notifyAllPremiumUsersToPromptForWeightEntry: Future[Unit] =
+    for {
+      premiumUsers <- userRepository.getPremiumUsers
+      _ <- Future.sequence(premiumUsers.map(_.id).map(messageBusService.publishNotifyUserToPromptForWeightEntry))
+    } yield ()
 
   def clearUsernameLockTable: Future[Unit] =
     usernameLockRepository.removeAll

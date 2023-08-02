@@ -7,7 +7,9 @@ case class TopicsConfig(
   emailVerificationTokenCreatedTopic: String,
   clearUsernameLockTableTopic: String,
   userEnablePremiumTopic: String,
-  userDisablePremiumTopic: String
+  userDisablePremiumTopic: String,
+  promptAllUsersWeightEntryTopic: String,
+  promptUserToLogWeightTopic: String,
 ) extends PubSubTopicConfig {
 
   val topics: Seq[String] =
@@ -15,7 +17,9 @@ case class TopicsConfig(
       emailVerificationTokenCreatedTopic,
       clearUsernameLockTableTopic,
       userEnablePremiumTopic,
-      userDisablePremiumTopic
+      userDisablePremiumTopic,
+      promptAllUsersWeightEntryTopic,
+      promptUserToLogWeightTopic,
     )
 
 }
@@ -26,6 +30,8 @@ object TopicsConfig {
       config.getString("email-verification-token-created"),
       config.getString("clear-username-lock-table"),
       config.getString("user-enable-premium"),
-      config.getString("user-disable-premium")
+      config.getString("user-disable-premium"),
+      config.getString("prompt-all-users-weight-entry"),
+      config.getString("prompt-user-to-log-weight"),
     )
 }

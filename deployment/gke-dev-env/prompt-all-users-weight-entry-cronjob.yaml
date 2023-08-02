@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: prompt-all-users-weight-entry-cronjob
+  namespace: user
+spec:
+  # This runs once per day, at 6pm EDT
+  schedule: "0 18 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: prompt-all-users-weight-entry-cronjob
+              image: gcr.io/fitcentive-dev-03/gcloud-user-cron-02-pubsub-image:1.0
+              imagePullPolicy: Always
+              volumeMounts:
+                - mountPath: /opt/service-account
+                  name: service-account
+          restartPolicy: OnFailure
+          volumes:
+            - name: service-account
+              configMap:
+                name: user-service-service-account
