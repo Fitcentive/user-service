@@ -63,6 +63,12 @@ object UserTrackingEvent {
       case ViewDetailedStepAchievements.stringValue     => ViewDetailedStepAchievements
       case ViewDetailedDiaryAchievements.stringValue    => ViewDetailedDiaryAchievements
       case ViewDetailedActivityAchievements.stringValue => ViewDetailedActivityAchievements
+      case ViewDetailedWeightAchievements.stringValue   => ViewDetailedWeightAchievements
+      case ViewProgress.stringValue                     => ViewProgress
+      case ViewDetailedStepProgress.stringValue         => ViewDetailedStepProgress
+      case ViewDetailedDiaryProgress.stringValue        => ViewDetailedDiaryProgress
+      case ViewDetailedActivityProgress.stringValue     => ViewDetailedActivityProgress
+      case ViewDetailedWeightProgress.stringValue       => ViewDetailedWeightProgress
       case _                                            => throw new Exception("Unexpected user tracking event")
     }
 
@@ -121,6 +127,12 @@ object UserTrackingEvent {
       case ViewDetailedStepAchievements     => JsString(ViewDetailedStepAchievements.stringValue)
       case ViewDetailedDiaryAchievements    => JsString(ViewDetailedDiaryAchievements.stringValue)
       case ViewDetailedActivityAchievements => JsString(ViewDetailedActivityAchievements.stringValue)
+      case ViewDetailedWeightAchievements   => JsString(ViewDetailedWeightAchievements.stringValue)
+      case ViewProgress                     => JsString(ViewProgress.stringValue)
+      case ViewDetailedStepProgress         => JsString(ViewDetailedStepProgress.stringValue)
+      case ViewDetailedDiaryProgress        => JsString(ViewDetailedDiaryProgress.stringValue)
+      case ViewDetailedActivityProgress     => JsString(ViewDetailedActivityProgress.stringValue)
+      case ViewDetailedWeightProgress       => JsString(ViewDetailedWeightProgress.stringValue)
     }
   }
 
@@ -283,5 +295,22 @@ object UserTrackingEvent {
   case object ViewDetailedActivityAchievements extends UserTrackingEvent {
     val stringValue: String = "ViewDetailedActivityAchievements"
   }
-
+  case object ViewDetailedWeightAchievements extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedWeightAchievements"
+  }
+  case object ViewProgress extends UserTrackingEvent {
+    val stringValue: String = "ViewProgress"
+  }
+  case object ViewDetailedStepProgress extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedStepProgress"
+  }
+  case object ViewDetailedDiaryProgress extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedDiaryProgress"
+  }
+  case object ViewDetailedActivityProgress extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedActivityProgress"
+  }
+  case object ViewDetailedWeightProgress extends UserTrackingEvent {
+    val stringValue: String = "ViewDetailedWeightProgress"
+  }
 }
