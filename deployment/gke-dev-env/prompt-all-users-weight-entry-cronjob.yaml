@@ -4,8 +4,8 @@ metadata:
   name: prompt-all-users-weight-entry-cronjob
   namespace: user
 spec:
-  # This runs once per day, at 6pm EDT
-  schedule: "0 18 * * *"
+  # This runs once per day, at 6pm EDT/10pm UTC
+  schedule: "0 22 * * *"
   jobTemplate:
     spec:
       template:
