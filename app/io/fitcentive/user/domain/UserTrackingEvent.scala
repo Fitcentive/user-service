@@ -69,6 +69,9 @@ object UserTrackingEvent {
       case ViewDetailedDiaryProgress.stringValue        => ViewDetailedDiaryProgress
       case ViewDetailedActivityProgress.stringValue     => ViewDetailedActivityProgress
       case ViewDetailedWeightProgress.stringValue       => ViewDetailedWeightProgress
+      case UserAttemptedSharingMilestone.stringValue    => UserAttemptedSharingMilestone
+      case UserSharedMilestone.stringValue              => UserSharedMilestone
+      case UserDeletedSocialPost.stringValue            => UserDeletedSocialPost
       case _                                            => throw new Exception("Unexpected user tracking event")
     }
 
@@ -133,6 +136,9 @@ object UserTrackingEvent {
       case ViewDetailedDiaryProgress        => JsString(ViewDetailedDiaryProgress.stringValue)
       case ViewDetailedActivityProgress     => JsString(ViewDetailedActivityProgress.stringValue)
       case ViewDetailedWeightProgress       => JsString(ViewDetailedWeightProgress.stringValue)
+      case UserAttemptedSharingMilestone    => JsString(UserAttemptedSharingMilestone.stringValue)
+      case UserSharedMilestone              => JsString(UserSharedMilestone.stringValue)
+      case UserDeletedSocialPost            => JsString(UserDeletedSocialPost.stringValue)
     }
   }
 
@@ -312,5 +318,14 @@ object UserTrackingEvent {
   }
   case object ViewDetailedWeightProgress extends UserTrackingEvent {
     val stringValue: String = "ViewDetailedWeightProgress"
+  }
+  case object UserAttemptedSharingMilestone extends UserTrackingEvent {
+    val stringValue: String = "UserAttemptedSharingMilestone"
+  }
+  case object UserSharedMilestone extends UserTrackingEvent {
+    val stringValue: String = "UserSharedMilestone"
+  }
+  case object UserDeletedSocialPost extends UserTrackingEvent {
+    val stringValue: String = "UserDeletedSocialPost"
   }
 }
