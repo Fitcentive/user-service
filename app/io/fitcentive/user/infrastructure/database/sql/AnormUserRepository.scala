@@ -56,9 +56,9 @@ class AnormUserRepository @Inject() (val db: Database)(implicit val dbec: Databa
       getRecords(SQL_GET_USERS_BY_IDS(userIds))(userRowParser).map(_.toDomain)
     }
 
-  override def getPremiumUsers: Future[Seq[User]] =
+  override def getPremiumUsers(limit: Int, offset: Int): Future[Seq[User]] =
     Future {
-      getRecords(SQL_GET_PREMIUM_USERS)(userRowParser).map(_.toDomain)
+      getRecords(SQL_GET_PREMIUM_USERS, "limit" -> limit, "offset" -> offset)(userRowParser).map(_.toDomain)
     }
 
   override def getUsers: Future[Seq[User]] =
@@ -202,7 +202,10 @@ object AnormUserRepository extends AnormOps {
     """
       |select *
       |from users
-      |where is_premium_enabled = true ;
+      |where is_premium_enabled = true 
+      |order by users.id 
+      |limit {limit}
+      |offset {offset} ;
       |""".stripMargin
 
   private val SQL_GET_ALL_USERS: String =

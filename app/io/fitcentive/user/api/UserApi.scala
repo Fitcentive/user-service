@@ -43,13 +43,33 @@ class UserApi @Inject() (
   extends ImageSupport {
 
   val defaultLimit = 50
+  val defaultUserBatchLimit = 100
   val defaultOffset = 0
 
+  // Notify in batches of 100
+  // Send to diary service to make decision
+  // Wrap in a future to ack pubsub message immediately
   def notifyAllPremiumUsersToPromptForWeightEntry: Future[Unit] =
-    for {
-      premiumUsers <- userRepository.getPremiumUsers
-      _ <- Future.sequence(premiumUsers.map(_.id).map(messageBusService.publishNotifyUserToPromptForWeightEntry))
-    } yield ()
+    Future {
+      // Returns true is batch was notified,
+      // False if no more to notify
+      def notifyBatch(limit: Int, offset: Int): Future[Boolean] = {
+        for {
+          premiumUsers <- userRepository.getPremiumUsers(limit, offset)
+          _ <-
+            messageBusService.publishRequestDiaryToNotifyUsersRequiringNotificationToLogWeight(premiumUsers.map(_.id))
+        } yield premiumUsers.nonEmpty
+      }
+
+      def recursive(offset: Int): Future[Boolean] = {
+        notifyBatch(defaultUserBatchLimit, offset).flatMap {
+          case true  => recursive(offset + defaultUserBatchLimit)
+          case false => Future.successful(false)
+        }
+      }
+
+      recursive(0)
+    }
 
   def clearUsernameLockTable: Future[Unit] =
     usernameLockRepository.removeAll

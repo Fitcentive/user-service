@@ -9,7 +9,7 @@ case class TopicsConfig(
   userEnablePremiumTopic: String,
   userDisablePremiumTopic: String,
   promptAllUsersWeightEntryTopic: String,
-  promptUserToLogWeightTopic: String,
+  checkIfUsersNeedPromptToLogWeightTopic: String,
 ) extends PubSubTopicConfig {
 
   val topics: Seq[String] =
@@ -19,7 +19,7 @@ case class TopicsConfig(
       userEnablePremiumTopic,
       userDisablePremiumTopic,
       promptAllUsersWeightEntryTopic,
-      promptUserToLogWeightTopic,
+      checkIfUsersNeedPromptToLogWeightTopic,
     )
 
 }
@@ -32,6 +32,6 @@ object TopicsConfig {
       config.getString("user-enable-premium"),
       config.getString("user-disable-premium"),
       config.getString("prompt-all-users-weight-entry"),
-      config.getString("prompt-user-to-log-weight"),
+      config.getString("check-if-users-need-prompt-to-log-weight"),
     )
 }

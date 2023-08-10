@@ -128,8 +128,8 @@ spec:
               value: "user-disable-premium"
             - name: TOPIC_PROMPT_ALL_USERS_WEIGHT_ENTRY
               value: "prompt-all-users-weight-entry"
-            - name: TOPIC_PROMPT_USER_TO_LOG_WEIGHT
-              value: "prompt-user-to-log-weight"
+            - name: TOPIC_CHECK_IF_USERS_NEED_PROMPT_TO_LOG_WEIGHT
+              value: "check-if-users-need-prompt-to-log-weight"
             - name: SUBSCRIPTION_CLEAR_USERNAME_LOCK_TABLE
               value: "clear-username-lock-table"
             - name: SUBSCRIPTION_USER_ENABLE_PREMIUM

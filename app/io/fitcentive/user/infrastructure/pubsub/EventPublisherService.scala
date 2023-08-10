@@ -1,5 +1,6 @@
 package io.fitcentive.user.infrastructure.pubsub
 
+import io.fitcentive.registry.events.diary.CheckIfUsersNeedPromptToLogWeight
 import io.fitcentive.registry.events.email.EmailVerificationTokenCreated
 import io.fitcentive.registry.events.push.PromptUserToLogWeight
 import io.fitcentive.sdk.gcp.pubsub.PubSubPublisher
@@ -20,9 +21,9 @@ class EventPublisherService @Inject() (publisher: PubSubPublisher, settingsServi
 
   private val publisherConfig: TopicsConfig = settingsService.pubSubConfig.topicsConfig
 
-  override def publishNotifyUserToPromptForWeightEntry(userId: UUID): Future[Unit] =
-    PromptUserToLogWeight(userId)
-      .pipe(publisher.publish(publisherConfig.promptUserToLogWeightTopic, _))
+  override def publishRequestDiaryToNotifyUsersRequiringNotificationToLogWeight(userIds: Seq[UUID]): Future[Unit] =
+    CheckIfUsersNeedPromptToLogWeight(userIds)
+      .pipe(publisher.publish(publisherConfig.checkIfUsersNeedPromptToLogWeightTopic, _))
 
   override def publishEmailVerificationTokenCreated(event: EmailVerificationToken): Future[Unit] =
     event.toOut
