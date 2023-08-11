@@ -1,6 +1,6 @@
 package io.fitcentive.user.infrastructure.pubsub
 
-import io.fitcentive.registry.events.diary.CheckIfUsersNeedPromptToLogWeight
+import io.fitcentive.registry.events.diary.{CheckIfUsersNeedPromptToLogDiaryEntries, CheckIfUsersNeedPromptToLogWeight}
 import io.fitcentive.registry.events.email.EmailVerificationTokenCreated
 import io.fitcentive.registry.events.push.PromptUserToLogWeight
 import io.fitcentive.sdk.gcp.pubsub.PubSubPublisher
@@ -20,6 +20,10 @@ class EventPublisherService @Inject() (publisher: PubSubPublisher, settingsServi
 ) extends MessageBusService {
 
   private val publisherConfig: TopicsConfig = settingsService.pubSubConfig.topicsConfig
+
+  override def publishRequestDiaryToNotifyUsersRequiringNotificationToLogDiaryEntry(userIds: Seq[UUID]): Future[Unit] =
+    CheckIfUsersNeedPromptToLogDiaryEntries(userIds)
+      .pipe(publisher.publish(publisherConfig.checkIfUsersNeedPromptToLogDiaryEntriesTopic, _))
 
   override def publishRequestDiaryToNotifyUsersRequiringNotificationToLogWeight(userIds: Seq[UUID]): Future[Unit] =
     CheckIfUsersNeedPromptToLogWeight(userIds)

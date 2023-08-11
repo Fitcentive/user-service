@@ -6,6 +6,7 @@ import io.fitcentive.user.domain.config.AppPubSubConfig
 import io.fitcentive.user.domain.events.{
   ClearUsernameLockTableEvent,
   EventHandlers,
+  PromptAllUsersDiaryEntryEvent,
   PromptAllUsersWeightEntryEvent,
   UserDisablePremiumEvent,
   UserEnablePremiumEvent
@@ -34,6 +35,7 @@ class SubscriptionManager(
       _ <- subscribeToUserEnablePremiumEvents
       _ <- subscribeToUserDisablePremiumEvents
       _ <- subscribeToPromptUserWeightEntryEvent
+      _ <- subscribeToPromptUserDiaryEntryEvent
       _ = logInfo("Subscriptions set up successfully!")
     } yield ()
   }
@@ -68,5 +70,13 @@ class SubscriptionManager(
         environment,
         config.subscriptionsConfig.promptAllUsersWeightEntrySubscription,
         config.topicsConfig.promptAllUsersWeightEntryTopic
+      )(_.payload.pipe(handleEvent))
+
+  private def subscribeToPromptUserDiaryEntryEvent: Future[Unit] =
+    subscriber
+      .subscribe[PromptAllUsersDiaryEntryEvent](
+        environment,
+        config.subscriptionsConfig.promptAllUsersDiaryEntrySubscription,
+        config.topicsConfig.promptAllUsersDiaryEntryTopic
       )(_.payload.pipe(handleEvent))
 }

@@ -11,4 +11,5 @@ import scala.concurrent.Future
 trait MessageBusService {
   def publishEmailVerificationTokenCreated(event: EmailVerificationToken): Future[Unit]
   def publishRequestDiaryToNotifyUsersRequiringNotificationToLogWeight(userIds: Seq[UUID]): Future[Unit]
+  def publishRequestDiaryToNotifyUsersRequiringNotificationToLogDiaryEntry(userIds: Seq[UUID]): Future[Unit]
 }

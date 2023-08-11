@@ -8,6 +8,7 @@ case class SubscriptionsConfig(
   userEnablePremiumSubscription: String,
   userDisablePremiumSubscription: String,
   promptAllUsersWeightEntrySubscription: String,
+  promptAllUsersDiaryEntrySubscription: String,
 ) extends PubSubSubscriptionConfig {
   val subscriptions: Seq[String] =
     Seq(
@@ -15,6 +16,7 @@ case class SubscriptionsConfig(
       userEnablePremiumSubscription,
       userDisablePremiumSubscription,
       promptAllUsersWeightEntrySubscription,
+      promptAllUsersDiaryEntrySubscription,
     )
 }
 
@@ -25,5 +27,6 @@ object SubscriptionsConfig {
       config.getString("user-enable-premium"),
       config.getString("user-disable-premium"),
       config.getString("prompt-all-users-weight-entry"),
+      config.getString("prompt-all-users-diary-entry"),
     )
 }

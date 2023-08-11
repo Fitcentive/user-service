@@ -128,8 +128,12 @@ spec:
               value: "user-disable-premium"
             - name: TOPIC_PROMPT_ALL_USERS_WEIGHT_ENTRY
               value: "prompt-all-users-weight-entry"
+            - name: TOPIC_PROMPT_ALL_USERS_DIARY_ENTRY
+              value: "prompt-all-users-diary-entry"
             - name: TOPIC_CHECK_IF_USERS_NEED_PROMPT_TO_LOG_WEIGHT
               value: "check-if-users-need-prompt-to-log-weight"
+            - name: TOPIC_CHECK_IF_USERS_NEED_PROMPT_TO_LOG_DIARY_ENTRIES
+              value: "check-if-users-need-prompt-to-log-diary-entries"
             - name: SUBSCRIPTION_CLEAR_USERNAME_LOCK_TABLE
               value: "clear-username-lock-table"
             - name: SUBSCRIPTION_USER_ENABLE_PREMIUM
@@ -138,6 +142,8 @@ spec:
               value: "user-disable-premium"
             - name: SUBSCRIPTION_PROMPT_ALL_USERS_WEIGHT_ENTRY
               value: "prompt-all-users-weight-entry"
+            - name: SUBSCRIPTION_PROMPT_ALL_USERS_DIARY_ENTRY
+              value: "prompt-all-users-diary-entry"
             - name: RUNTIME_ENVIRONMENT
               value: "gke-dev-env"
             - name: USER_IMAGE_UPLOAD_BUCKET

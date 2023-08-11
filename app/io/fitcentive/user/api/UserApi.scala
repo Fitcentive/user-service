@@ -49,6 +49,32 @@ class UserApi @Inject() (
   // Notify in batches of 100
   // Send to diary service to make decision
   // Wrap in a future to ack pubsub message immediately
+  def notifyAllPremiumUsersToPromptForDiaryEntry: Future[Unit] =
+    Future {
+      // Returns true is batch was notified,
+      // False if no more to notify
+      def notifyBatch(limit: Int, offset: Int): Future[Boolean] = {
+        for {
+          premiumUsers <- userRepository.getPremiumUsers(limit, offset)
+          _ <- messageBusService.publishRequestDiaryToNotifyUsersRequiringNotificationToLogDiaryEntry(
+            premiumUsers.map(_.id)
+          )
+        } yield premiumUsers.nonEmpty
+      }
+
+      def recursive(offset: Int): Future[Boolean] = {
+        notifyBatch(defaultUserBatchLimit, offset).flatMap {
+          case true  => recursive(offset + defaultUserBatchLimit)
+          case false => Future.successful(false)
+        }
+      }
+
+      recursive(0)
+    }
+
+  // Notify in batches of 100
+  // Send to diary service to make decision
+  // Wrap in a future to ack pubsub message immediately
   def notifyAllPremiumUsersToPromptForWeightEntry: Future[Unit] =
     Future {
       // Returns true is batch was notified,

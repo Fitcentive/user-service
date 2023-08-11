@@ -5,6 +5,7 @@ import io.fitcentive.user.domain.events.{
   ClearUsernameLockTableEvent,
   EventHandlers,
   EventMessage,
+  PromptAllUsersDiaryEntryEvent,
   PromptAllUsersWeightEntryEvent,
   UserDisablePremiumEvent,
   UserEnablePremiumEvent
@@ -23,6 +24,7 @@ trait MessageEventHandlers extends EventHandlers {
       case event: UserDisablePremiumEvent        => userApi.disablePremiumForUser(event.targetUser)
       case event: UserEnablePremiumEvent         => userApi.enablePremiumForUser(event.targetUser)
       case event: PromptAllUsersWeightEntryEvent => userApi.notifyAllPremiumUsersToPromptForWeightEntry
+      case event: PromptAllUsersDiaryEntryEvent  => userApi.notifyAllPremiumUsersToPromptForDiaryEntry
       case _                                     => Future.failed(new Exception("Unrecognized event"))
     }
 }
